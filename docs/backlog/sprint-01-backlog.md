@@ -33,7 +33,7 @@
 | B01-7 | Nợ kỹ thuật | Cao | Event log vẫn giữ toàn bộ trong RAM rồi mới ghi file; chưa ghi dần ra Parquet qua listener | Cơ chế listener đã có (`EventLog.subscribe`); ghi dần cần cho quy mô thành phố | 04 | Mở |
 | B01-8 | Nợ kỹ thuật | Thấp | Các case lưới ngắn (~0,6 s) nhạy nhiễu: dao động min–max ~8%, sát ngưỡng thoái lui 10% | Giữ đúng các case trong plan | 04 (thêm case dài hơn hoặc tăng `--repeat`) | Mở |
 | B01-9 | Ý tưởng | Cao | Spec kịch bản chưa có trường cho tắc đường theo khu vực × giờ, lịch travel time động của mạng Hà Nội và nguồn demand Hà Nội | Thuộc MAP-3/MAP-4; spec đã có `schema_version` để mở rộng | 02 | Mở |
-| B01-10 | Nợ kỹ thuật | Thấp | Benchmark mốc đo trên working tree chưa commit (`git_dirty: true`, commit gốc `be389e0`) | Sprint chưa được commit tại thời điểm đo | 02 (đo lại sau commit nếu cần mốc gắn commit) | Mở |
+| B01-10 | Nợ kỹ thuật | Thấp | Benchmark mốc đo trên working tree chưa commit (`git_dirty: true`, commit gốc `be389e0`) | Sprint chưa được commit tại thời điểm đo | 02 (đo lại sau commit nếu cần mốc gắn commit) | Đã xử lý 2026-10-07: đo lại trên commit `c013913`, số liệu mốc bên dưới đã cập nhật |
 
 ## Mock đang dùng
 
@@ -42,16 +42,16 @@ Không có mock.
 ## Số liệu mốc
 
 Môi trường mốc (Q-D): env conda `fleetpy` — CPython 3.10.21, router C++ đã build, có `scipy`; AMD Ryzen 9 6900HS
-(16 luồng), Linux 7.0. Lệnh: `python -m kami bench --repeat 5`. File:
+(16 luồng), Linux 7.0, commit `c013913` (working tree sạch). Lệnh: `python -m kami bench --repeat 5`. File:
 [`benchmarks/results/2026-10-07-sprint01.json`](../../benchmarks/results/2026-10-07-sprint01.json).
 
 | Case | wall_s median (min–max) | build_s | Sự kiện | Sự kiện/s | RAM đỉnh (MB) | Backend |
 |---|---|---|---|---|---|---|
-| `grid_am_peak_baseline` | 0,633 (0,614–0,665) | 0,01 | 8.375 | 13.221 | 77 | grid |
-| `grid_am_peak_baseline_nots` | 0,645 (0,626–0,695) | 0,01 | 8.375 | 12.991 | 77 | grid |
-| `grid_am_peak_surge` | 0,628 (0,623–0,679) | 0,01 | 8.456 | 13.476 | 77 | grid |
-| `grid_pm_peak_x5` | 2,592 (2,408–2,832) | 0,05 | 26.170 | 10.098 | 97 | grid |
-| `road_example_400` | 0,708 (0,683–0,776) | 0,23 | 3.901 | 5.508 | 85 | cpp |
+| `grid_am_peak_baseline` | 0,656 (0,637–0,706) | 0,01 | 8.375 | 12.765 | 77 | grid |
+| `grid_am_peak_baseline_nots` | 0,614 (0,607–0,654) | 0,01 | 8.375 | 13.649 | 77 | grid |
+| `grid_am_peak_surge` | 0,651 (0,639–0,709) | 0,01 | 8.456 | 12.996 | 77 | grid |
+| `grid_pm_peak_x5` | 2,641 (2,597–2,770) | 0,06 | 26.170 | 9.911 | 97 | grid |
+| `road_example_400` | 0,737 (0,723–0,774) | 0,24 | 3.901 | 5.293 | 85 | cpp |
 
 Metric vận hành chính (giống nhau ở mọi lần lặp — cờ `deterministic`):
 
@@ -62,6 +62,7 @@ Metric vận hành chính (giống nhau ở mọi lần lặp — cờ `determin
 | `grid_pm_peak_x5` | 3.042 | 0,932 | 5,81 | 0,736 | 360.655.000 |
 | `road_example_400` | 380 | 0,995 | 0,81 | 0,287 | 11.468.600 |
 
-Chi phí bộ thu chuỗi thời gian (300 s): `grid_am_peak_baseline` so với `grid_am_peak_baseline_nots` chênh −1,9%,
-nằm trong nhiễu đo. Sprint sau so sánh bằng
+Chi phí bộ thu chuỗi thời gian (300 s): `grid_am_peak_baseline` so với `grid_am_peak_baseline_nots` chênh −1,9% ở
+lần đo đầu và +6,8% ở lần đo lại — nằm trong nhiễu đo của case ngắn (giữa hai lần đo cùng code, các case dao động
+±5%; xem B01-8). Sprint sau so sánh bằng
 `python -m kami bench --compare benchmarks/results/2026-10-07-sprint01.json` trong cùng môi trường.
