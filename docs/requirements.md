@@ -11,6 +11,9 @@ model và đánh giá nhân quả bằng CRN** (xem [engine/README.md](engine/RE
 **nền tảng mô phỏng vận hành** cho một hãng gọi xe điện quy mô GreenSM tại Hà Nội: có bản đồ thật, nhiều fleet xe
 điện cần sạc, dynamic pricing, policy lưu trong DB và cấu hình qua giao diện web.
 
+**Phạm vi sản phẩm hiện tại: matching 1 tài xế – 1 khách** (mỗi chuyến chở một khách/một booking). Chưa có ghép
+chuyến (shared ride / pooling); xem §5.
+
 Các nguyên tắc của kami 0.1 vẫn giữ nguyên: policy chỉ tác động qua API của engine, hành vi là model tại điểm quyết
 định, ngẫu nhiên đi qua CRN, phần ngoại sinh của kịch bản được replay y hệt cho mọi cấu hình.
 
@@ -21,7 +24,7 @@ Các nguyên tắc của kami 0.1 vẫn giữ nguyên: policy chỉ tác động
 | **Vehicle type** (loại xe) | Mẫu xe: tên, nhóm (bike/car), số chỗ, quãng đường tối đa khi đầy pin, thông số sạc |
 | **Fleet** | Một đội xe: tên, danh sách (vehicle type × số lượng), sản phẩm phục vụ (bike, car 4 chỗ, car 7 chỗ…) |
 | **Charging station** | Trạm sạc: vị trí, số cổng, công suất |
-| **Policy plugin** | Một đơn vị logic vận hành (matching, pricing, pooling, reposition, sạc, khuyến khích…) viết bằng code, có tham số khai báo được |
+| **Policy plugin** | Một đơn vị logic vận hành (matching, pricing, reposition, sạc, khuyến khích…) viết bằng code, có tham số khai báo được |
 | **Policy group** | Tập policy plugin đã cấu hình tham số, áp cùng nhau cho một lần chạy |
 | **Simulation scenario** (kịch bản) | Cấu hình một lần chạy: bản đồ, khung thời gian, demand, thời tiết/sự cố, fleet, policy group, seed |
 | **Simulation run** | Một lần thực thi một kịch bản, có trạng thái, tiến độ, metric và event log |
@@ -79,7 +82,7 @@ Các nguyên tắc của kami 0.1 vẫn giữ nguyên: policy chỉ tác động
 
 | Mã | Yêu cầu |
 |---|---|
-| POL-1 | Policy plugin được thiết kế để **mô phỏng được policy ngoài đời thật bằng code** (đủ hook và API cho matching, pricing, pooling, reposition, sạc, khuyến khích tài xế…) |
+| POL-1 | Policy plugin được thiết kế để **mô phỏng được policy ngoài đời thật bằng code** (đủ hook và API cho matching, pricing, reposition, sạc, khuyến khích tài xế…) |
 | POL-2 | Có thể **tạo và nhóm** policy plugin thành **policy group** |
 | POL-3 | Policy plugin và policy group **lưu được vào DB** (định nghĩa, tham số, phiên bản) |
 | POL-4 | UI cho người dùng tự định nghĩa policy (chọn plugin, nhập tham số) và apply policy |
@@ -117,6 +120,15 @@ Các nguyên tắc của kami 0.1 vẫn giữ nguyên: policy chỉ tác động
 
 ## 5. Ngoài phạm vi (hiện tại)
 
+- **Ghép chuyến (shared ride / pooling).** Sản phẩm hiện chỉ matching 1 tài xế – 1 khách. Các thành phần pooling của
+  kami 0.1 được **giữ nguyên trong code** để API/CLI/ví dụ 0.1 vẫn chạy (NFR-2), nhưng **tạm thời không dùng**: không
+  đưa vào preset/kịch bản 0.2, danh mục policy plugin, policy group mặc định, UI, benchmark, và không phát triển thêm.
+  Gồm: `kami/pooling.py` (`Pooling`, `PoolingParams`), policy `PoolAfterWait`, API `sim.merge_jobs` /
+  `sim.pooling.*` / `sim.behavior.pool_accept`, slot behavior `pool_accept` (`PoolAcceptModel`, `LogitPoolAccept`,
+  `PoolOffer`, thuộc tính khách `pool_willingness`), sự kiện `POOL_OFFER` / `POOL_MERGE`, metric `rider.pool_*`,
+  `rider.pooled_*`, `rider.detour_ratio`, `platform.pooled_jobs`, `platform.surcharge_total`, quy tắc
+  `pooling_rule_example`, ví dụ `examples/02_pool_after_wait.py`. Khi đưa shared ride vào phạm vi, cập nhật mục này
+  và thêm yêu cầu riêng.
 - Chạy song song nhiều kịch bản trên giao diện (RUN-1 giới hạn 1 run/lần). Experiment nhiều seed vẫn chạy được
   qua thư viện/CLI.
 - Đồng mô phỏng vi mô với SUMO (traffic mức 3).

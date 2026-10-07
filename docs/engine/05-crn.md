@@ -31,7 +31,7 @@ sẽ có bao nhiêu lần rút.
 | Đặt xe | `("book", rider)` | |
 | Hủy lúc chờ | `("cancel_waiting", rider)` → `exp` | Ngân sách hazard |
 | Hủy khi đã có xe | `("cancel_matched", rider)` → `exp` | |
-| Nhận ghép | `("pool_accept", rider, lần_đề_nghị_thứ_k)` | |
+| Nhận ghép | `("pool_accept", rider, lần_đề_nghị_thứ_k)` | Pooling, ngoài phạm vi 0.2 |
 | Tài xế nhận cuốc | `("driver_accept", driver, job, số_lần_job_bị_từ_chối)` | Cùng cặp tài xế–job thì cùng số |
 | Nghỉ ca sớm | `("shift_stop", driver, số_chuyến_đã_chạy)` | |
 | Đi đâu khi rảnh | `("idle_move", driver, k)`, `("idle_node", driver, k)` | |

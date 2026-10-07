@@ -26,6 +26,10 @@
 | `idle_move` | `IdleMoveModel.distribution(driver, ctx, zones)` → `[(zone hoặc None, trọng số)]` | Xe rảnh `idle_decision_s` giây | `HomeBiasIdleMove` |
 | `driver_shift` | `DriverShiftModel.p_stop(driver, ctx)` | Mỗi lần xe trở lại rảnh | `ScheduledShift` (luôn 0) |
 
+> **Phạm vi hiện tại (kami 0.2):** sản phẩm chỉ matching **1 tài xế – 1 khách**, chưa có ghép chuyến
+> (shared ride). Slot `pool_accept` (`LogitPoolAccept`) và thuộc tính `pool_willingness` là của kami 0.1, được giữ để tương thích (NFR-2) nhưng **tạm thời không
+> dùng** trong kịch bản, policy group, UI và benchmark của 0.2 — xem [requirements §5](../requirements.md#5-ngoài-phạm-vi-hiện-tại).
+
 ```python
 suite = BehaviorSuite()                                  # mặc định
 suite = BehaviorSuite.employed_drivers()                 # tài xế là nhân viên: AlwaysAccept

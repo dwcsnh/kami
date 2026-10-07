@@ -5,6 +5,10 @@
 giá, dispatch, điều xe…) vào môi trường mô phỏng, chạy **cặp baseline / treatment trên cùng kịch bản và cùng số
 ngẫu nhiên (CRN)**, rồi báo cáo **hiệu ứng nhân quả ± khoảng tin cậy 95%** kèm quy tắc quyết định viết trước.
 
+> **Phạm vi hiện tại (kami 0.2):** matching **1 tài xế – 1 khách**, chưa có ghép chuyến. Các ví dụ pooling bên dưới
+> (`PoolAfterWait`, `02_pool_after_wait.py`) là của kami 0.1, vẫn chạy được nhưng tạm thời không dùng trong 0.2 — xem
+> [docs/requirements.md §5](docs/requirements.md#5-ngoài-phạm-vi-hiện-tại).
+
 ```
 Scenario (ngoại sinh, replay) ──▶ Simulation engine ◀──▶ Policy plugin (hooks)
                                      │      ▲

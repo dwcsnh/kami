@@ -23,6 +23,9 @@ python -m kami compare [...]  # thí nghiệm cặp baseline vs treatment với 
 
 ## `run`
 
+> Ví dụ `pool_after_wait` dưới đây là của kami 0.1; pooling hiện ngoài phạm vi 0.2 (matching 1 tài xế – 1 khách) nhưng
+> lệnh vẫn chạy.
+
 ```bash
 python -m kami run --preset rain --seed 3 --policy pool_after_wait \
     --arg wait_threshold=300 --arg surcharge=20000 --arg include_matched=true --out out/run1

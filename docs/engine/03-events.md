@@ -38,8 +38,8 @@ Một số hành động của engine được ghi vào `EventLog` nhưng không
 | `OFFER_ACCEPTED` / `OFFER_REJECTED` | Khách đặt / không đặt | `job` |
 | `TRIP_OFFERED` / `TRIP_ACCEPTED` / `TRIP_REJECTED` | Gửi cuốc, tài xế nhận, tài xế từ chối | `job`, `eta`, `p`, `pooled` |
 | `PICKUP` / `DROPOFF` | Đón / trả khách | `eta_error`, `wait` / `fare`, `surcharge`, `ivt`, `pooled` |
-| `POOL_OFFER` | `sim.behavior.pool_accept` | `surcharge`, `detour`, `p`, `accepted`, `partner` |
-| `POOL_MERGE` | `sim.merge_jobs` thành công | `partner`, `job`, `surcharge` |
+| `POOL_OFFER` *(pooling — ngoài phạm vi 0.2, giữ cho tương thích, xem [requirements §5](../requirements.md#5-ngoài-phạm-vi-hiện-tại))* | `sim.behavior.pool_accept` | `surcharge`, `detour`, `p`, `accepted`, `partner` |
+| `POOL_MERGE` *(pooling, như trên)* | `sim.merge_jobs` thành công | `partner`, `job`, `surcharge` |
 | `IDLE_MOVE` | Xe rảnh bắt đầu chạy | `origin`, `dest`, `purpose` (`idle` hoặc `reposition`), `tt` |
 
 ## Thêm sự kiện mới

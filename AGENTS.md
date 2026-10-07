@@ -9,6 +9,10 @@ File này dành cho mọi coding agent (và người) phát triển kami. Đọc
 - Hướng phát triển hiện tại là **kami 0.2 — mô phỏng vận hành GreenSM tại Hà Nội**. Yêu cầu nằm ở
   [docs/requirements.md](docs/requirements.md), chuẩn hoá từ bản nháp [draft/draft.md](draft/draft.md).
 - Công việc được chia thành sprint ở [docs/sprint/](docs/sprint/README.md).
+- **Phạm vi sản phẩm hiện tại: matching 1 tài xế – 1 khách, chưa có ghép chuyến (shared ride).** Code pooling của 0.1
+  (`kami/pooling.py`, `PoolAfterWait`, slot `pool_accept`/`LogitPoolAccept`, metric `pool_*`…) chỉ được giữ cho tương
+  thích; không dùng nó trong tính năng mới, không phát triển thêm (danh sách đầy đủ ở
+  [requirements §5](docs/requirements.md#5-ngoài-phạm-vi-hiện-tại)).
 
 ## 2. Bản đồ tài liệu
 

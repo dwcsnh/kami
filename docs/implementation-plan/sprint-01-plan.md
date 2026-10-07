@@ -105,7 +105,8 @@ Thứ tự thực hiện: S01-1 → S01-2 → S01-3 → S01-6 → S01-4/S01-5 �
      `members: [{policy: PolicySpec | Ref, enabled}]`.
    - `BehaviorSpec`: `preset` (`default`/`employed_drivers`), `registry` + `slots` (như cờ `--registry`), `models`
      (`{slot: {class, params}}`, chỉ class trong `kami.behavior.models`).
-   - `SimConfigSpec`: các trường của `SimConfig` + `fare` (`FareModel`) + `pooling` (`PoolingParams`); thêm
+   - `SimConfigSpec`: các trường của `SimConfig` + `fare` (`FareModel`) + `pooling` (`PoolingParams`, chỉ để biểu
+     diễn cấu hình 0.1 — pooling ngoài phạm vi 0.2); thêm
      `timeseries_interval_s` (mặc định 300).
    - `RunSpec`: `name`, `scenario` (spec hoặc `Ref`), `vehicle_types`, `fleets`, `charging_stations`, `policy_group`,
      `behavior`, `sim_config`, `seed`, `crn_seed`, `outputs` (`event_log`: `csv.gz`/`parquet`/`none`).
@@ -164,7 +165,7 @@ Thứ tự thực hiện: S01-1 → S01-2 → S01-3 → S01-6 → S01-4/S01-5 �
 
 1. Suite mặc định `benchmarks/specs/`:
    - `grid_am_peak_baseline` — lưới 8 km, preset `weekday_am_peak`, 200 req/h, 150 xe, `baseline`;
-   - `grid_am_peak_pool` — như trên với `pool_after_wait`;
+   - `grid_am_peak_surge` — như trên với `surge` (pooling ngoài phạm vi 0.2, không đưa vào benchmark);
    - `grid_pm_peak_x5` — lưới 12 km, 1.000 req/h, 600 xe, policy group `surge` + `heatmap_reposition` (đo matching/
      tick ở quy mô lớn hơn);
    - `road_example_400` — `example_network`, replay `example_400.csv`, 25 xe; ghi rõ backend router (C++/Python)
@@ -225,3 +226,4 @@ Không dùng mock. Những phần **có schema/lưu được nhưng engine chưa
 |---|---|
 | 2026-10-07 | Tạo plan, trạng thái Chờ duyệt |
 | 2026-10-07 | Cập nhật sau khi port mạng đường FleetPy vào `kami/network/road/` (việc ngoài sprint): Q-D, spec mạng `road`/zone `file`, case benchmark `road_example_400` |
+| 2026-10-07 | Phạm vi sản phẩm chỉ matching 1 tài xế – 1 khách: case benchmark `grid_am_peak_pool` → `grid_am_peak_surge`; `pooling`/slot `pool_accept` trong spec chỉ để tương thích 0.1 (AC01-2 vẫn phủ `pool_after_wait` vì NFR-2) |

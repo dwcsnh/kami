@@ -23,7 +23,7 @@
    - hệ số giờ và thời tiết áp chung cho cả thành phố, chưa theo zone × giờ;
    - chặng đã xuất phát chỉ được tính lại khi thời tiết hoặc sự cố đổi;
    - chưa có hiệu ứng ngược (xe rỗng làm tắc thêm), cần mức 3 (SUMO).
-3. **Pooling:**
+3. **Pooling** *(ngoài phạm vi 0.2 — sản phẩm hiện chỉ matching 1 tài xế – 1 khách; requirements §5)*:
    - chỉ ghép do policy kích hoạt và chỉ tính cặp (khách + khách hoặc khách + plan có sẵn), chưa có ghép batch tối
      ưu toàn cục;
    - `plan_pair` coi điểm xuất phát là điểm đón của khách thứ nhất;
@@ -57,7 +57,7 @@
 | 6. Chưa có sổ chi phí khuyến khích, phí hủy | [Sprint 07](../sprint/sprint-07-policy-v2-groups.md) |
 | 8. Hiệu năng quy mô hàng trăm nghìn chuyến/ngày | [Sprint 04](../sprint/sprint-04-scale-performance.md) |
 | Chưa có dashboard / animation quỹ đạo | [Sprint 03](../sprint/sprint-03-map-visualizer.md) (bản đồ vận hành, phát lại), [Sprint 09](../sprint/sprint-09-ui-simulation-manager.md) (simulation manager, visualizer live) |
-| 1. Behavior model chưa fit bằng dữ liệu thật; 3. ghép batch tối ưu; 4. day-to-day; 7. interference A/B | Chưa xếp sprint (ngoài phạm vi 0.2, xem requirements §5) |
+| 1. Behavior model chưa fit bằng dữ liệu thật; 3. pooling / ghép batch tối ưu; 4. day-to-day; 7. interference A/B | Chưa xếp sprint (ngoài phạm vi 0.2, xem requirements §5) |
 
 ## Việc nên làm tiếp (danh sách gốc của kami 0.1)
 
@@ -65,7 +65,8 @@
    chỉnh baseline theo `by_hour`/`by_zone` (§11).
 2. **Chốt mô hình lao động của tài xế** (§6.2): nhân viên dùng `BehaviorSuite.employed_drivers()`; đối tác tự do
    cần fit `LogitDriverAccept` và một shift model thật.
-3. **Khảo sát SP hoặc A/B nhỏ cho phụ phí ghép**, rồi thay `LogitPoolAccept` mặc định.
+3. **Khảo sát SP hoặc A/B nhỏ cho phụ phí ghép**, rồi thay `LogitPoolAccept` mặc định *(chỉ khi shared ride vào
+   phạm vi)*.
 4. **Ma trận ETA theo zone × giờ × thời tiết** từ GPS: viết `Network` hoặc `TrafficLayer` con đọc ma trận.
 5. **Dashboard** so sánh baseline và treatment (đọc `ExperimentResult.to_csv` và event log); animation quỹ đạo bằng
    deck.gl `TripsLayer`.

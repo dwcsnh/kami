@@ -1,5 +1,9 @@
 # 12 · Evaluation (`kami/evaluation/`)
 
+> Các ví dụ trong file này dùng `PoolAfterWait` / `pooling_rule_example` theo design doc của kami 0.1. Cơ chế
+> thí nghiệm áp dụng cho mọi policy; riêng pooling hiện **ngoài phạm vi 0.2** (matching 1 tài xế – 1 khách), xem
+> [requirements §5](../requirements.md#5-ngoài-phạm-vi-hiện-tại).
+
 ## Thí nghiệm cặp với CRN (`experiment.py`)
 
 ```python

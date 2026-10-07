@@ -16,7 +16,7 @@ Policy do người dùng (và sau này là policy agent) viết được nạp v
 
 ## Phạm vi
 
-- Manifest cho policy plugin: tên, mô tả, nhóm (dispatch, pricing, pooling, reposition, charging, incentive,
+- Manifest cho policy plugin: tên, mô tả, nhóm (dispatch, pricing, reposition, charging, incentive,
   cancellation…), hook sử dụng, schema tham số, phiên bản.
 - Hai nguồn plugin: dựng sẵn trong code (built-in) và **plugin tuỳ biến** lưu mã nguồn trong DB.
 - Policy group với quy tắc kết hợp rõ ràng giữa các thành viên.
@@ -34,7 +34,7 @@ Policy do người dùng (và sau này là policy agent) viết được nạp v
 | Mã | Hạng mục |
 |---|---|
 | S07-1 | Manifest policy plugin: `name`, `display_name`, `description`, `category`, `hooks`, `params_schema` (JSON Schema: kiểu, mặc định, min/max, mô tả, đơn vị), `version`. Từ `params_schema` sinh được form ở UI (Sprint 09) |
-| S07-2 | Chuyển mọi policy dựng sẵn (`Baseline`, `PoolAfterWait`, `SurgePricing`, `HeatmapReposition`, các pricing strategy ở Sprint 06, policy sạc ở Sprint 05) sang có manifest |
+| S07-2 | Chuyển mọi policy dựng sẵn (`Baseline`, `SurgePricing`, `HeatmapReposition`, các pricing strategy ở Sprint 06, policy sạc ở Sprint 05) sang có manifest. `PoolAfterWait` (pooling, ngoài phạm vi 0.2 — requirements §5) vẫn chạy như 0.1 nhưng không đưa vào danh mục plugin |
 | S07-3 | Rà soát hook/API so với danh mục policy của design doc §7.3 và bổ sung chỗ thiếu: ví dụ sổ chi phí khuyến khích (Quest/Boost, trợ giá), phí hủy, hold control, gửi cuốc cho nhiều tài xế, switchback theo khung thời gian. Ghi bảng "policy thật → plugin/hook" trong tài liệu |
 | S07-4 | Thêm tối thiểu các plugin mới: `QuestBonus` (thưởng theo số chuyến), `CancellationFee`, `HoldControl`, `OffPeakCharging` (nếu chưa có ở Sprint 05) |
 | S07-5 | Policy group: danh sách thành viên có thứ tự, mỗi thành viên = (plugin, phiên bản, tham số, `enabled`). Quy tắc kết hợp theo nhóm: pricing nối chuỗi; dispatch chỉ một thành viên; reposition/charging lấy quyết định đầu tiên khác `None`; incentive/cancellation cộng dồn. Phát hiện và báo lỗi xung đột (ví dụ hai dispatch cùng bật) |
@@ -48,7 +48,7 @@ Policy do người dùng (và sau này là policy agent) viết được nạp v
 
 - [ ] AC07-1 Mọi policy dựng sẵn có manifest hợp lệ; `params_schema` từ chối tham số sai kiểu/ngoài khoảng.
 - [ ] AC07-2 Policy group lưu vào DB và đọc lại đúng (thành viên, thứ tự, phiên bản, tham số, `enabled`).
-- [ ] AC07-3 Group gồm surge + reposition + pool_after_wait cho kết quả giống `Composite` tương đương của 0.1 (cùng seed).
+- [ ] AC07-3 Group gồm surge + heatmap_reposition cho kết quả giống `Composite` tương đương của 0.1 (cùng seed).
 - [ ] AC07-4 Tắt một thành viên cho kết quả giống group không có thành viên đó.
 - [ ] AC07-5 Group có hai plugin dispatch cùng bật bị từ chối với thông báo rõ ràng.
 - [ ] AC07-6 Một plugin tuỳ biến hợp lệ (mã nguồn trong DB) chạy được trong group; plugin dùng `import os`, mở file

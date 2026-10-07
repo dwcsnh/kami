@@ -10,8 +10,8 @@
 
 ## Mục tiêu
 
-Người dùng mô tả một policy bằng **ngôn ngữ tự nhiên** (ví dụ: "khách chờ quá 5 phút thì đề nghị ghép chuyến, giảm
-15.000đ, chỉ áp dụng giờ cao điểm chiều ở quận Cầu Giấy"), **policy agent** hỏi lại chỗ mơ hồ, sinh ra plugin
+Người dùng mô tả một policy bằng **ngôn ngữ tự nhiên** (ví dụ: "khách chờ quá 5 phút thì giảm 15.000đ và mở rộng
+bán kính tìm xe, chỉ áp dụng giờ cao điểm chiều ở quận Cầu Giấy"), **policy agent** hỏi lại chỗ mơ hồ, sinh ra plugin
 tuỳ biến (mã + manifest + tham số), tự kiểm tra và chạy thử, rồi đưa cho người dùng **duyệt trước khi lưu**.
 
 ## Phạm vi
@@ -38,7 +38,7 @@ tuỳ biến (mã + manifest + tham số), tự kiểm tra và chạy thử, r�
 | S10-6 | Duyệt: UI hiển thị tóm tắt, mã, tham số, kết quả kiểm tra và chạy thử; người dùng chấp nhận (lưu phiên bản mới), yêu cầu sửa (tiếp tục hội thoại) hoặc bỏ |
 | S10-7 | Lưu vết: lưu hội thoại, các phiên bản nháp, mô hình LLM đã dùng kèm plugin được tạo |
 | S10-8 | Giới hạn & an toàn: mã sinh ra luôn đi qua sandbox Sprint 07; giới hạn số lượt gọi LLM/chi phí mỗi phiên; không gửi dữ liệu nhạy cảm ngoài ngữ cảnh cần thiết |
-| S10-9 | Bộ đánh giá agent: ≥ 10 mô tả policy mẫu (từ dễ đến khó, gồm cả yêu cầu mơ hồ và yêu cầu không làm được) với kết quả mong đợi |
+| S10-9 | Bộ đánh giá agent: ≥ 10 mô tả policy mẫu (từ dễ đến khó, gồm cả yêu cầu mơ hồ và yêu cầu không làm được — ví dụ yêu cầu ghép chuyến, đang ngoài phạm vi sản phẩm 1 tài xế – 1 khách) với kết quả mong đợi |
 | S10-10 | Tài liệu: thêm `docs/engine/23-policy-agent.md` (kiến trúc, ngữ cảnh, vòng kiểm tra, giới hạn) |
 
 ## Acceptance criteria

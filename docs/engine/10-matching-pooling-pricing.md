@@ -28,6 +28,11 @@ Engine gửi từng cặp qua `offer_trip`. Tài xế từ chối thì job quay 
 
 ## Pooling (`kami/pooling.py`)
 
+> **Phạm vi hiện tại (kami 0.2):** sản phẩm chỉ matching **1 tài xế – 1 khách**, chưa có ghép chuyến
+> (shared ride). Phần pooling ở đây là của kami 0.1, được giữ để tương thích (NFR-2) nhưng **tạm thời không
+> dùng** trong kịch bản, policy group, UI và benchmark của 0.2 — xem [requirements §5](../requirements.md#5-ngoài-phạm-vi-hiện-tại).
+
+
 Thuật toán là **insertion heuristic** giống FleetPy (`src/fleetctrl/pooling/immediate/insertion.py`), viết lại
 trên kiểu `Stop` gọn của kami (lý do ở docs/engine/16).
 

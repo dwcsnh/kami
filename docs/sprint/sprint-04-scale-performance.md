@@ -31,7 +31,7 @@ Mô phỏng **trọn một ngày** tại Hà Nội với **~100.000 request** v�
 | Mã | Hạng mục |
 |---|---|
 | S04-1 | Kịch bản benchmark `hanoi_greensm_day`: 24h, ~100k request phân bố theo giờ/zone, ~8k xe với ca làm việc; thêm vào benchmark harness của Sprint 01 |
-| S04-2 | Báo cáo profile ban đầu: thời gian theo nhóm (routing, sinh ứng viên matching, giải gán, behavior/hazard, event log, pooling), RAM theo thành phần |
+| S04-2 | Báo cáo profile ban đầu: thời gian theo nhóm (routing, sinh ứng viên matching, giải gán, behavior/hazard, event log), RAM theo thành phần |
 | S04-3 | Tối ưu sinh ứng viên matching: chỉ mục không gian cho xe rảnh, giới hạn ứng viên theo zone/bán kính |
 | S04-4 | Tối ưu routing: cache/bảng travel time theo zone hoặc theo cặp node hay dùng, tận dụng truy vấn nhiều điểm của router C++, tránh tính lại không cần thiết |
 | S04-5 | Tối ưu giải gán ở batch lớn: chia bài toán theo vùng hoặc giới hạn kích thước; đảm bảo chất lượng gán không giảm quá ngưỡng cấu hình |

@@ -23,7 +23,7 @@ REQUESTED ──(không đặt)──▶ DECLINED
 | Thuộc tính cá nhân | `attrs["patience_min"]`, `["vot"]`, `["price_sens"]`, `["pool_willingness"]` | Rút từ phân phối khi dựng kịch bản (docs/engine/09) |
 | Chuyến thẳng | `direct_tt`, `direct_dist` | Thời gian / quãng đường đi thẳng tại lúc đặt, dùng làm mốc tính độ vòng |
 | Giá | `quote` (`Quote`), `fare`, `surcharge` | Cước gốc và phụ phí (hoặc giảm giá) ghép chuyến |
-| Ghép | `pooled`, `pool_offers`, `pool_accepts`, `job_id`, `driver_id` | |
+| Ghép | `pooled`, `pool_offers`, `pool_accepts`, `job_id`, `driver_id` | Trường `pool*`: *(pooling — ngoài phạm vi 0.2, giữ cho tương thích, xem [requirements §5](../requirements.md#5-ngoài-phạm-vi-hiện-tại))* |
 | Mốc thời gian | `t_booked`, `t_matched`, `eta_promised`, `t_pickup`, `t_dropoff`, `t_cancel`, `cancel_phase` | `eta_promised` là thời điểm tuyệt đối nền tảng hứa đón |
 | Survival | `hazard_phase`, `hazard_budget`, `hazard_acc`, `hazard_t`, `cancel_token` | Docs/02 |
 | Lazy invalidation | `version` | Tăng mỗi lần đổi trạng thái |
@@ -51,11 +51,11 @@ OFFLINE ──online──▶ IDLE ──nhận cuốc──▶ EN_ROUTE ──�
 
 | Lớp | Trường | Dùng ở đâu |
 |---|---|---|
-| `Job` | `id`, `rider_ids`, `created_t`, `tabu`, `driver_id`, `pooled`, `stops` | Đơn vị dispatch: 1 khách, hoặc nhiều khách sau khi policy ghép. `tabu` là các tài xế đã từ chối |
+| `Job` | `id`, `rider_ids`, `created_t`, `tabu`, `driver_id`, `pooled`, `stops` | Đơn vị dispatch: 1 khách (phạm vi 0.2), hoặc nhiều khách sau khi policy ghép (pooling của 0.1). `tabu` là các tài xế đã từ chối |
 | `Stop` | `kind` (`pickup`/`dropoff`), `rider_id`, `loc` | Phần tử của `driver.plan` và `job.stops` |
 | `Leg` | `origin`, `dest`, `t_depart`, `t_arrive`, `dist`, `occupied`, `purpose`, `promised_arrive`, `path` | Một chặng chạy liên tục. `purpose` ∈ {`stop`, `idle`, `reposition`} |
 | `Quote` | `fare`, `eta`, `surge`, `surcharge` | Báo giá; `policy.price()` có thể sửa |
-| `PoolOffer` | `surcharge`, `waited`, `detour`, `partner_id` | Đầu vào của `PoolAcceptModel` |
+| `PoolOffer` | `surcharge`, `waited`, `detour`, `partner_id` | Đầu vào của `PoolAcceptModel` *(pooling — ngoài phạm vi 0.2, giữ cho tương thích, xem [requirements §5](../requirements.md#5-ngoài-phạm-vi-hiện-tại))* |
 
 ## Mức cá nhân hoá (design doc §5)
 

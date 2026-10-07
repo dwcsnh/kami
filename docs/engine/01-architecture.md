@@ -13,13 +13,16 @@
  │ Policy       │◀─▶│ Simulation (kami.core.engine) │◀─▶│ BehaviorSuite     │
  │ (hooks)      │   │  heap (t, priority, seq)      │   │  (model registry) │
  └──────────────┘   │  Rider / Driver / Job         │   └─────────┬─────────┘
-                    │  matching · pooling · pricing │             │ xác suất
+                    │  matching · pricing (·pooling)│             │ xác suất
                     └──────┬─────────────────┬──────┘             ▼
                            │                 │              CRN(seed).u(key)  → quyết định = u < p
                     ┌──────▼──────┐   ┌──────▼──────┐
                     │TrafficLayer │   │  EventLog   │──▶ metrics.compute ──▶ evaluation (CRN, CI, rule)
                     └─────────────┘   └─────────────┘
 ```
+
+`(·pooling)`: code ghép chuyến của 0.1, giữ cho tương thích; phạm vi 0.2 chỉ matching 1 tài xế – 1 khách
+(requirements §5).
 
 | Thành phần (design doc §3) | Module kami | Docs |
 |---|---|---|

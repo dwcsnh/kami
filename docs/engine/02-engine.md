@@ -113,11 +113,11 @@ Policy **chỉ** tác động vào thế giới qua các hàm sau (design doc §
 | `sim.default_dispatch(jobs, drivers, matching_params)` | Matching mặc định (docs/engine/10) |
 | `sim.offer_trip(driver, job) -> bool` | Gửi cuốc. `DriverAcceptModel` quyết định; nếu nhận thì gọi `assign` |
 | `sim.assign(driver, job)` | Gán cứng, bỏ qua bước nhận cuốc (tài xế là nhân viên, hoặc ép dispatch) |
-| `sim.merge_jobs(r, partner, surcharge, partner_surcharge=None) -> bool` | Ghép hai khách: cả hai đang WAITING, hoặc một WAITING và một MATCHED (chèn vào plan của tài xế) |
+| `sim.merge_jobs(r, partner, surcharge, partner_surcharge=None) -> bool` | *(pooling — ngoài phạm vi 0.2, giữ cho tương thích, xem [requirements §5](../requirements.md#5-ngoài-phạm-vi-hiện-tại))* Ghép hai khách: cả hai đang WAITING, hoặc một WAITING và một MATCHED (chèn vào plan của tài xế) |
 | `sim.reposition(driver, node) -> bool` | Điều một xe đang rảnh tới `node` |
 | `sim.set_surge(zone, multiplier)` | Hệ số surge cho các báo giá sau đó trong zone |
-| `sim.behavior.pool_accept(rider, offer_or_surcharge) -> bool` | Hỏi khách có nhận ghép không (dùng CRN) |
-| `sim.pooling.find_partner(r, max_o_km, max_d_km, include_matched)` | Tìm người ghép khả thi (docs/engine/10) |
+| `sim.behavior.pool_accept(rider, offer_or_surcharge) -> bool` | *(pooling — ngoài phạm vi 0.2, giữ cho tương thích, xem [requirements §5](../requirements.md#5-ngoài-phạm-vi-hiện-tại))* Hỏi khách có nhận ghép không (dùng CRN) |
+| `sim.pooling.find_partner(r, max_o_km, max_d_km, include_matched)` | *(pooling — ngoài phạm vi 0.2, giữ cho tương thích, xem [requirements §5](../requirements.md#5-ngoài-phạm-vi-hiện-tại))* Tìm người ghép khả thi (docs/engine/10) |
 
 Hàm đọc (không đổi trạng thái): `sim.t`, `sim.riders`, `sim.drivers`, `sim.jobs`, `sim.open_jobs`,
 `sim.idle_drivers()`, `sim.current_loc(d)`, `sim.zone_stats(window_s)`, `sim.context(node)`, `sim.traffic`,

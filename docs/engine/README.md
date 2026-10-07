@@ -2,6 +2,10 @@
 
 > Tài liệu từng module của engine. Mục lục chung, yêu cầu 0.2 và lộ trình sprint ở [../README.md](../README.md).
 > Design doc gốc: [../design/policy_simulator_design_v0.md](../design/policy_simulator_design_v0.md).
+>
+> **Phạm vi hiện tại (kami 0.2):** matching 1 tài xế – 1 khách, chưa có ghép chuyến. Các phần về pooling trong tài
+> liệu engine (docs 02–07, 10–15) mô tả code 0.1 được giữ để tương thích, tạm thời không dùng — xem
+> [requirements §5](../requirements.md#5-ngoài-phạm-vi-hiện-tại).
 
 | # | Tài liệu | Nội dung |
 |---|---|---|

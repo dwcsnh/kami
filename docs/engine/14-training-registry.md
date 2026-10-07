@@ -30,7 +30,7 @@ suite = reg.suite({"pool_accept": "v2", "cancel_wait": "latest"})   # slot khôn
 ```
 
 - Các slot hợp lệ: `booking`, `cancel_wait`, `cancel_matched`, `pool_accept`, `driver_accept`, `idle_move`,
-  `driver_shift`.
+  `driver_shift`. Slot `pool_accept` (ví dụ ở trên) thuộc pooling — ngoài phạm vi 0.2, giữ cho tương thích.
 - `class` có thể là bất kỳ lớp nào import được, kể cả model của hãng, miễn là khởi tạo được bằng
   `cls(**params)` và theo đúng protocol.
 - CLI: `--registry <thư_mục>` nạp bản mới nhất của mọi slot có trong thư mục.
