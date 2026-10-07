@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kami"
+version = "0.1.0"
+description = "Agent-based discrete-event simulator for evaluating ride-hailing policies with Common Random Numbers"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = []   # the core runs on the standard library only
+
+[project.optional-dependencies]
+fast = ["numpy", "scipy"]                  # Hungarian matching, exact t-quantiles
+fleetpy = ["numpy", "pandas", "pyproj"]    # FleetPy road networks (plus a FleetPy checkout)
+h3 = ["h3"]
+data = ["pandas", "pyarrow"]               # DataFrame / Parquet export of the event log
+
+[project.scripts]
+kami = "kami.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["kami*"]
