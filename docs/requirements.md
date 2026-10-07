@@ -99,7 +99,7 @@ Các nguyên tắc của kami 0.1 vẫn giữ nguyên: policy chỉ tác động
 
 | Mã | Yêu cầu |
 |---|---|
-| UI-1 | **Simulation visualizer**: xem bản đồ mô phỏng (xe, khách, trạm sạc) cùng **live metric** |
+| UI-1 | **Simulation visualizer**: xem bản đồ mô phỏng (xe, khách, trạm sạc) cùng **live metric**. Chạy trên web, bản đồ **Mapbox** phóng to/thu nhỏ/nghiêng được, xe để lại **vệt đường chạy màu theo trạng thái**; tham khảo chức năng từ ảnh `draft/operation_visualizer_*.png` và video mẫu trong `draft/` (không sao chép phong cách). Giao diện hiện đại, **ưu tiên light mode**, **màu chủ đạo xanh Tiffany**. Có fixture demo (một số xe trong một khu vực Hà Nội) để xem trước khi có backend |
 | UI-2 | Trang quản lý kịch bản mô phỏng |
 | UI-3 | Trang quản lý fleet xe (và vehicle type) |
 | UI-4 | Trang quản lý policy, tích hợp policy agent |
@@ -131,5 +131,5 @@ Các nguyên tắc của kami 0.1 vẫn giữ nguyên: policy chỉ tác động
 | Q2 | Thông số thật của các loại xe (tên, pin, quãng đường, sạc)? | Dùng thông số công khai của các mẫu xe điện phổ biến làm seed data, chỉnh qua UI |
 | Q3 | Vị trí và quy mô trạm sạc tại Hà Nội? | Seed data giả lập từ OSM (`amenity=charging_station`) + nhập tay |
 | Q4 | Phân bố demand theo giờ/khu của Hà Nội? | Sinh synthetic theo profile giờ cao điểm; thay bằng dữ liệu thật khi có |
-| Q5 | Công nghệ DB / backend / frontend? | Quyết định trong implementation plan Sprint 01 (đề xuất SQLite/PostgreSQL, FastAPI, React + deck.gl) |
+| Q5 | Công nghệ DB / backend / frontend? | DB quyết định trong plan Sprint 01 (đề xuất SQLite/PostgreSQL); bản đồ: **Mapbox** (người dùng chốt); framework frontend quyết định trong plan Sprint 03; backend trong plan Sprint 08 (đề xuất FastAPI) |
 | Q6 | Model LLM cho policy agent và nơi chạy? | Quyết định trong implementation plan Sprint 10 |

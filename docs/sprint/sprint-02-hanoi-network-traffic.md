@@ -24,9 +24,9 @@ C++, travel time động theo mốc thời gian (`network_dynamics_file`).
 
 ## Ngoài phạm vi
 
-- Tối ưu hiệu năng ở quy mô 100k request (Sprint 03); sprint này chỉ cần chạy được ở quy mô vừa.
+- Tối ưu hiệu năng ở quy mô 100k request (Sprint 04); sprint này chỉ cần chạy được ở quy mô vừa.
 - Đồng mô phỏng SUMO, hiệu ứng xe của hãng làm tắc thêm (traffic mức 3).
-- Hiển thị bản đồ (Sprint 09).
+- Hiển thị bản đồ trên web (Sprint 03 — làm ngay sau sprint này, dùng quỹ đạo của S02-6).
 
 ## Hạng mục công việc
 

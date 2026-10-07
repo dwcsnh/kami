@@ -17,7 +17,7 @@ Mọi thứ người dùng sẽ cấu hình qua UI (kịch bản, fleet, loại 
 ## Phạm vi
 
 - Schema cấu hình khai báo cho: kịch bản, lần chạy, fleet, loại xe, trạm sạc, policy, policy group. Ở sprint này
-  các schema của fleet/loại xe/trạm sạc/policy chỉ cần đủ trường tối thiểu; Sprint 04 và 06 sẽ mở rộng.
+  các schema của fleet/loại xe/trạm sạc/policy chỉ cần đủ trường tối thiểu; Sprint 05 và 07 sẽ mở rộng.
 - Dựng engine từ cấu hình: từ một file/bản ghi cấu hình chạy được một lần mô phỏng mà không cần viết Python.
 - Lớp lưu trữ (DB) cho các thực thể trên, kèm migration.
 - Lưu kết quả một lần chạy: snapshot cấu hình, metric tổng hợp, metric theo thời gian, tham chiếu tới event log.
@@ -25,8 +25,8 @@ Mọi thứ người dùng sẽ cấu hình qua UI (kịch bản, fleet, loại 
 
 ## Ngoài phạm vi
 
-- API HTTP, giao diện (Sprint 07, 08).
-- Nội dung chi tiết của loại xe, sạc, pricing, policy group (Sprint 04–06).
+- API HTTP, giao diện (Sprint 08, 09).
+- Nội dung chi tiết của loại xe, sạc, pricing, policy group (Sprint 05–07).
 
 ## Hạng mục công việc
 
@@ -37,7 +37,7 @@ Mọi thứ người dùng sẽ cấu hình qua UI (kịch bản, fleet, loại 
 | S01-3 | CLI chạy từ file cấu hình (ví dụ `python -m kami run --spec run.json`), giữ nguyên các lệnh CLI cũ |
 | S01-4 | Lớp lưu trữ: mô hình dữ liệu cho `vehicle_type`, `fleet` (+ thành phần xe), `charging_station`, `policy` (+ phiên bản), `policy_group` (+ thành viên), `scenario`, `run`, `run_metric_summary`, `run_metric_timeseries`, `run_artifact`. Có migration tạo DB từ rỗng |
 | S01-5 | Lớp repository tách biệt: lõi engine **không** import thư viện DB (NFR-5); có thể chạy engine thuần thư viện như 0.1 |
-| S01-6 | Bộ thu metric theo thời gian: chụp nhanh metric chính theo chu kỳ thời gian mô phỏng (cấu hình được, ví dụ 5 phút) để phục vụ live metric (Sprint 09) và trang metric (Sprint 08) |
+| S01-6 | Bộ thu metric theo thời gian: chụp nhanh metric chính theo chu kỳ thời gian mô phỏng (cấu hình được, ví dụ 5 phút) để phục vụ live metric (bảng metric của visualizer ở Sprint 03, live ở Sprint 09) và trang metric (Sprint 09) |
 | S01-7 | Lưu một lần chạy: snapshot đầy đủ cấu hình đã dùng (NFR-4), metric tổng hợp, chuỗi thời gian metric, đường dẫn event log, phiên bản kami |
 | S01-8 | Benchmark harness: một lệnh chạy bộ kịch bản benchmark cố định (tối thiểu: lưới synthetic; mạng FleetPy `example_network`), ghi wall-clock, số sự kiện/giây, RAM đỉnh ra file JSON |
 | S01-9 | Tài liệu: thêm `docs/engine/18-config-persistence.md` mô tả schema, bộ dựng, lưu trữ, benchmark |
