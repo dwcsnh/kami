@@ -7,8 +7,7 @@ Level 1 (default): time-dependent multipliers (hour profile × weather).
 Level 2: incidents as exogenous events — ``INCIDENT_START`` adds a slowdown
          factor on every node of the affected zones; routing avoids them and
          drivers already on the road are re-timed by the engine.
-Level 3 (SUMO co-simulation) is available through FleetPy's SUMO coupling and
-         is out of scope for the engine itself.
+Level 3 (SUMO co-simulation) is out of scope for the engine itself.
 
 "Plan vs. reality" (FleetPy idea, design doc §4.2): the platform's ETA can
 be computed with ``aware=False`` (it does not yet know about incidents) while
@@ -51,7 +50,7 @@ class TrafficLayer:
         self._zone_factor: Dict[Hashable, float] = {}
         self._version = 0
         self._cache: Dict[Tuple[int, int, int], Tuple[float, float]] = {}
-        # stateful fast path (FleetPy C++ backend): incidents live inside a second router
+        # stateful fast path (RoadNetwork C++ backend): incidents live inside a second router
         self._live = bool(getattr(network, "supports_live_factors", False))
 
     # --- state changes (called by the engine) -----------------------------

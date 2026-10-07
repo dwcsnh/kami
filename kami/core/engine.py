@@ -48,7 +48,7 @@ class SimConfig:
     cancel_step_s: float = 20.0       # integration step of the cancellation hazard
     cancel_lookahead_s: float = 1800.0
     default_quote_eta: float = 900.0  # ETA shown when no driver is visible
-    traffic_update_s: float = 3600.0  # TRAFFIC_UPDATE period (FleetPy dynamic networks)
+    traffic_update_s: float = 3600.0  # TRAFFIC_UPDATE period (time-dependent road networks)
     record_events: bool = True
     fare: FareModel = field(default_factory=FareModel)
     pooling: PoolingParams = field(default_factory=PoolingParams)

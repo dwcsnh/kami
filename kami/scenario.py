@@ -306,7 +306,7 @@ def _weighted(rng: random.Random, weights: Sequence[float]) -> int:
 def _lonlat_transformer(network: Network):
     crs_file = getattr(network, "network_dir", None)
     if crs_file is None:
-        raise ValueError("lon/lat input needs a FleetPy network (crs.info)")
+        raise ValueError("lon/lat input needs a RoadNetwork (base/crs.info)")
     from pyproj import Transformer
 
     crs = (Path(crs_file) / "base" / "crs.info").read_text().strip()

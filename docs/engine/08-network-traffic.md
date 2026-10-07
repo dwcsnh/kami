@@ -20,24 +20,27 @@ Thành phố lưới synthetic: `width_m × height_m`, bước `spacing_m`, vậ
 Manhattan. Khi có sự cố, engine thử hai lộ trình chữ L và chọn cái nhanh hơn. Không cần dữ liệu, routing gần như
 tức thời, dùng cho prototype và test.
 
-### `FleetPyNetwork` (`network/fleetpy_network.py`)
-Dùng lại `NetworkBasic` / `NetworkBasicCpp` của FleetPy (chi tiết ở docs/engine/16).
+### `RoadNetwork` (`network/road/`)
+Mạng đường thật từ OSM, port từ FleetPy (nguồn gốc và kiểm chứng ở docs/engine/16). Tên cũ `FleetPyNetwork` vẫn dùng
+được.
 
 ```python
-net = FleetPyNetwork("example_network", backend="auto")   # "auto" | "cpp" | "python"
+net = RoadNetwork("example_network", backend="auto")   # "auto" | "cpp" | "python"
+net = RoadNetwork("/path/to/networks/hanoi")            # hoặc đường dẫn thư mục mạng
 ```
 
-- Đọc `FleetPy/data/networks/<name>/base/{nodes,edges}.csv` và `crs.info`.
+- Đọc `<data_root>/networks/<name>/base/{nodes,edges}.csv` và `crs.info` (`data_root` mặc định là `data/` của repo
+  hoặc `$KAMI_DATA_ROOT`). Chỉ cần thư viện chuẩn; `lonlat()` cần `pyproj`.
 - `location_nodes()` là thành phần liên thông mạnh lớn nhất, bỏ các node stop-only. Mạng ví dụ không liên thông
   mạnh hoàn toàn: có 7.140/7.617 node dùng được.
 - Cặp điểm không có đường đi: dùng fallback `khoảng cách chim bay × 1,4` ở 8 m/s.
 - Cache kết quả free-flow `(o, d)` (mặc định 200k cặp).
-- `update_network(t)`: nạp file travel time động của FleetPy (`network_dynamics_file`) khi tới mốc. Engine gọi qua
-  `TRAFFIC_UPDATE`.
-- **Backend C++** (khi FleetPy đã build `cpp_router`): nhanh hơn khoảng 20 lần. Sự cố được áp vào một **router C++
-  thứ hai** (trạng thái "live") qua `updateEdgeTravelTimes`, chính là cơ chế mạng động của FleetPy. Nhờ vậy góc
-  nhìn free-flow của nền tảng và trạng thái thật có sự cố cùng tồn tại mà vẫn nhanh.
-- **Backend Python:** sự cố đi qua `customized_section_cost_function` của router FleetPy. Đúng nhưng chậm.
+- `update_network(t)`: nạp travel time động (thư mục `<network>/<t>/edges_td_att.csv` hoặc `network_dynamics_file`)
+  khi tới mốc. Engine gọi qua `TRAFFIC_UPDATE`.
+- **Backend C++** (sau khi build `python -m kami.network.road.cpp.build`): nhanh hơn khoảng 12–15 lần. Sự cố được áp
+  vào một **router C++ thứ hai** (trạng thái "live") qua `updateEdgeTravelTimes`. Nhờ vậy góc nhìn free-flow của nền
+  tảng và trạng thái thật có sự cố cùng tồn tại mà vẫn nhanh.
+- **Backend Python:** sự cố đi qua hàm chi phí của router (`travel_time × hệ số node`). Cùng kết quả, chậm hơn.
 
 ## Zone (`network/zones.py`)
 
@@ -47,8 +50,8 @@ design doc, vì `h3` là phụ thuộc tuỳ chọn.
 | Lớp | Zone id | Khi nào dùng |
 |---|---|---|
 | `SquareZoneSystem(net, cell_m=1000)` | `"i_j"` | Mặc định, chạy được ở mọi nơi |
-| `H3ZoneSystem(net, resolution=8)` | H3 cell | Cần `pip install h3` và mạng có lon/lat (FleetPy) |
-| `FleetPyZoneSystem(net, "example_zones")` | int | Dùng lại `FleetPy/data/zones/<name>/<network>/node_zone_info.csv` |
+| `H3ZoneSystem(net, resolution=8)` | H3 cell | Cần `pip install h3 pyproj` và mạng có lon/lat (`RoadNetwork`) |
+| `FileZoneSystem(net, "example_zones")` | int | Đọc `<data_root>/zones/<name>/<network>/node_zone_info.csv` (tên cũ `FleetPyZoneSystem`) |
 
 API: `zone_of(node)`, `zones()`, `nodes_in(z)`, `location_nodes_in(z)`, `centroid_node(z)`, `neighbors(z)`
 (theo khoảng cách tâm), `zones_within(node, radius_m)`.
@@ -63,7 +66,7 @@ thời_gian = base_network_time(tránh sự cố) × hour_profile[giờ] × weat
 |---|---|
 | 1. ETA theo thời gian | `hour_profile` (24 hệ số, mặc định có đỉnh 7–9h và 17–19h) × `weather_factor` (`clear` 1,0; `rain` 1,25; `heavy_rain` 1,5) |
 | 2. Sự cố là sự kiện ngoại sinh | `Incident(id, zones, factor, cancel_multiplier)`: chậm `factor` lần trên mọi node của zone bị ảnh hưởng; xe đang chạy được tính lại đường; khách chờ trong vùng có hazard hủy × `cancel_multiplier` |
-| 3. Đồng mô phỏng vi mô | Không có trong engine. FleetPy có coupling SUMO (`FleetPy/studies/fleetpy_sumo_coupling`) — xem docs/engine/17 |
+| 3. Đồng mô phỏng vi mô | Không có trong engine (FleetPy có coupling SUMO riêng) — xem docs/engine/17 |
 
 Cấu hình qua `Scenario.traffic` (truyền thẳng vào `TrafficLayer`):
 

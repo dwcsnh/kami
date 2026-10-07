@@ -33,4 +33,4 @@ nhanh hơn khoảng 5% và tiết kiệm RAM khi chạy hàng nghìn replication
 - **Trực quan hoá:** `REQUEST_CREATED` (`origin`/`dest`), `IDLE_MOVE` (`origin`/`dest`) và các mốc
   `TRIP_ACCEPTED`/`PICKUP`/`DROPOFF` đủ để dựng animation quỹ đạo (deck.gl `TripsLayer`, kepler.gl).
   Đổi node sang lon/lat bằng `network.lonlat(node)`; lộ trình chi tiết lấy từ `sim.traffic.path(o, d)`
-  (mạng FleetPy).
+  (`RoadNetwork`).

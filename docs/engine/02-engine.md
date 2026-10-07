@@ -27,7 +27,7 @@ sim.riders, sim.drivers, sim.jobs
 | `cancel_step_s` | 20 s | Bước tích phân hazard hủy chuyến |
 | `cancel_lookahead_s` | 1800 s | Tầm nhìn khi gài sự kiện hủy; quá tầm thì gài sự kiện kiểm tra lại |
 | `default_quote_eta` | 900 s | ETA hiển thị khi không thấy xe rảnh nào |
-| `traffic_update_s` | 3600 s | Chu kỳ `TRAFFIC_UPDATE` (nạp file travel time động của FleetPy nếu có) |
+| `traffic_update_s` | 3600 s | Chu kỳ `TRAFFIC_UPDATE` (nạp travel time động của `RoadNetwork` nếu có) |
 | `record_events` | True | Tắt để chạy nhanh hơn khi chỉ cần metric |
 | `fare` | `FareModel()` | Docs/10 |
 | `pooling` | `PoolingParams()` | Docs/10 |

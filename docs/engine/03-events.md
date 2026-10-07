@@ -10,7 +10,7 @@
 | Môi trường | `WEATHER_CHANGE` | `weather` | Đổi hệ số thời tiết, tính lại các chặng đang chạy, gài lại thời điểm hủy | 0 |
 | | `INCIDENT_START` | `incident_id` | Bật sự cố trên các zone trong bán kính, tính lại chặng, gài lại hủy | 0 |
 | | `INCIDENT_END` | `incident_id` | Tắt sự cố | 0 |
-| | `TRAFFIC_UPDATE` | — | Ghi hệ số giờ vào log; nạp file travel time động của FleetPy nếu tới mốc | 0 |
+| | `TRAFFIC_UPDATE` | — | Ghi hệ số giờ vào log; nạp travel time động của `RoadNetwork` nếu tới mốc | 0 |
 | Tài xế | `DRIVER_ONLINE` | `driver_id` | Bắt đầu ca, chuyển IDLE | 1 |
 | | `DRIVER_OFFLINE` | `driver_id` | Hết ca: nghỉ ngay nếu đang rảnh, xong cuốc rồi nghỉ nếu đang bận | 1 |
 | | `ARRIVE_STOP` | `driver_id`, `version` | Tới stop kế tiếp trong plan, xử lý đón hoặc trả khách | 2 |

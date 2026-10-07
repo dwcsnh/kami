@@ -1,9 +1,9 @@
-"""Reuse FleetPy: real OSM road network, FleetPy zones and FleetPy demand files.
+"""Real road network: OSM-derived network, zone file and demand file shipped in ``data/``.
 
-Requires the FleetPy checkout next to kami (or KAMI_FLEETPY_ROOT) and its
-dependencies (numpy, pandas, pyproj) — e.g. ``conda activate fleetpy``.
+Runs with the standard library only (pure-Python router). For the ~20× faster C++ router build it once:
+``pip install cython && python -m kami.network.road.cpp.build``. ``pyproj`` is needed for lon/lat output.
 
-    python examples/03_fleetpy_network.py
+    python examples/03_road_network.py
 """
 import sys
 import time
@@ -11,18 +11,18 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from kami import (Baseline, FleetPyNetwork, FleetPyZoneSystem, PoolAfterWait, ScenarioBuilder,  # noqa: E402
+from kami import (Baseline, FileZoneSystem, PoolAfterWait, RoadNetwork, ScenarioBuilder,  # noqa: E402
                   Simulation)
 
 t = time.time()
-net = FleetPyNetwork("example_network")            # FleetPy/data/networks/example_network
-zones = FleetPyZoneSystem(net, "example_zones")     # FleetPy/data/zones/example_zones
+net = RoadNetwork("example_network")            # data/networks/example_network
+zones = FileZoneSystem(net, "example_zones")    # data/zones/example_zones
 print(f"network: {net.num_nodes()} nodes, backend={net.backend}, zones={len(zones.zones())}, "
       f"loaded in {time.time() - t:.1f}s")
 builder = ScenarioBuilder(net, zones)
 
-# (a) replay a FleetPy demand file
-demand = net.fleetpy_root / "data/demand/example_demand/matched/example_network/example_400.csv"
+# (a) replay a demand file (columns rq_time,start,end,request_id)
+demand = net.data_root / "demand/example_demand/matched/example_network/example_400.csv"
 sc = builder.from_fleetpy_demand(demand, n_drivers=25)
 print(sc.summary())
 for pol in [Baseline(), PoolAfterWait(wait_threshold=180, surcharge=0, include_matched=True)]:
@@ -31,10 +31,13 @@ for pol in [Baseline(), PoolAfterWait(wait_threshold=180, surcharge=0, include_m
     print(f"  {pol.name:16s} trips={m['platform.trips']:.0f} completion={m['rider.completion_rate']:.3f} "
           f"wait={m['rider.wait_mean']:.2f}min pool_rate={m['rider.pool_rate']:.3f} ({sim.wall_time:.1f}s)")
 
-# (b) synthetic accident on the real network: incident routing goes through FleetPy's router
+# (b) synthetic accident on the real network: routing avoids the incident area
 sc = builder.preset("accident", seed=1, demand_per_hour=150, n_drivers=60)
 sim = Simulation(sc, Baseline()).run()
 m = sim.metrics()
 print(f"accident: trips={m['platform.trips']:.0f} eta_error={m['rider.eta_error_abs']:.2f}min "
       f"({sim.wall_time:.1f}s)")
-print("first request at lon/lat", net.lonlat(sc.requests[0].origin))
+try:
+    print("first request at lon/lat", net.lonlat(sc.requests[0].origin))
+except ImportError:
+    print("install pyproj for lon/lat output")

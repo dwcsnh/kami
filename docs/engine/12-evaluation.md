@@ -18,7 +18,7 @@ res = exp.run(n_jobs=-1, progress=True)      # -1 = mọi CPU
 - Với mỗi `(kịch bản s, seed k)`, `Scenario` được dựng **một lần** và dùng cho mọi arm. Các arm chạy với cùng
   `crn_seed = k`. `crn=False` cho arm thứ hai seed khác, để đo xem CRN loại được bao nhiêu nhiễu.
 - **Song song:** `multiprocessing` với context `fork`. Tiến trình con thừa hưởng network (kể cả router C++ của
-  FleetPy) thay vì pickle. Mỗi task là một cặp (s, k) và chạy hết các arm. Chỉ hỗ trợ Linux/macOS; Windows dùng
+  `RoadNetwork`) thay vì pickle. Mỗi task là một cặp (s, k) và chạy hết các arm. Chỉ hỗ trợ Linux/macOS; Windows dùng
   `n_jobs=1`.
 - Kết quả là `ExperimentResult.records`, danh sách `RunRecord(scenario, seed, arm, metrics, zones, wall_s, events)`.
   `to_csv()` ghi một dòng cho mỗi lần chạy. `keep_sims=True` giữ lại object `Simulation` (tốn RAM).

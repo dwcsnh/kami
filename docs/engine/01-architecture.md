@@ -5,7 +5,7 @@
 ```
  ┌───────────────┐   ┌──────────────────────────┐
  │ Network/Zones │──▶│ ScenarioBuilder          │  demand + supply + thời tiết + sự cố + thuộc tính agent
- │ (grid|FleetPy)│   │  synthetic / preset /    │  (phần NGOẠI SINH, replay y hệt cho mọi arm)
+ │ (grid|road)   │   │  synthetic / preset /    │  (phần NGOẠI SINH, replay y hệt cho mọi arm)
  └───────────────┘   │  replay FleetPy / CSV    │
                      └────────────┬─────────────┘
                                   ▼ Scenario
@@ -23,7 +23,7 @@
 
 | Thành phần (design doc §3) | Module kami | Docs |
 |---|---|---|
-| Data layer | `kami.network` (FleetPy `data/networks`, `data/zones`, `data/demand`) | 08, 09, 16 |
+| Data layer | `kami.network` (`data/networks`, `data/zones`, `data/demand`, định dạng FleetPy) | 08, 09, 16 |
 | Scenario builder | `kami.scenario` | 09 |
 | Simulation engine | `kami.core.engine`, `kami.core.events`, `kami.core.agents` | 02–04 |
 | Policy plugins | `kami.policy` | 07 |
@@ -73,5 +73,6 @@ gài lại thời điểm hủy của khách đang chờ.
 - Lõi chỉ dùng thư viện chuẩn: chạy được trên Python 3.9 trở lên mà không cần cài thêm.
 - `scipy` (tuỳ chọn): Hungarian matching và t-quantile chính xác. Nếu thiếu, engine tự chuyển sang greedy và
   khai triển Cornish–Fisher.
-- FleetPy (tuỳ chọn): mạng OSM thật, router C++, zone, demand. Cần `numpy`, `pandas`, `pyproj`.
+- Mạng đường thật (`kami/network/road/`, port từ FleetPy): chỉ cần thư viện chuẩn. Router C++ tuỳ chọn (build bằng
+  Cython), `pyproj` tuỳ chọn cho lon/lat.
 - `h3`, `pandas`, `pyarrow` (tuỳ chọn): zone H3, DataFrame, Parquet.

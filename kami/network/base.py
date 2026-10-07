@@ -14,7 +14,7 @@ NodeFactor = Optional[Callable[[int], float]]   # multiplier on edges entering a
 
 
 class Network(ABC):
-    """Minimal routing API. Implementations: ``GridNetwork``, ``FleetPyNetwork``."""
+    """Minimal routing API. Implementations: ``GridNetwork``, ``RoadNetwork``."""
 
     name: str = "network"
 

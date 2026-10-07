@@ -2,3 +2,7 @@ __pycache__/
 *.pyc
 examples/output/
 *.egg-info/
+build/
+kami/network/road/cpp/_router*.so
+kami/network/road/cpp/_router*.pyd
+kami/network/road/cpp/_router.cpp

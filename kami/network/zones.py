@@ -4,7 +4,8 @@ The design doc uses an H3 grid. ``h3`` is optional, so kami ships:
 
 * ``SquareZoneSystem`` – square cells over planar coordinates (works everywhere)
 * ``H3ZoneSystem``     – real H3 cells, needs ``pip install h3`` and a geo-referenced network
-* ``FleetPyZoneSystem`` – reuses FleetPy ``data/zones/<name>/<network>/node_zone_info.csv``
+* ``FileZoneSystem``   – zone file ``<data_root>/zones/<name>/<network>/node_zone_info.csv`` (FleetPy layout;
+  ``FleetPyZoneSystem`` is the kami 0.1 name)
 
 All expose the same small API so the rest of the engine does not care.
 """
@@ -103,18 +104,27 @@ class H3ZoneSystem(ZoneSystem):
         self._finalise(neighbor_radius_m=edge_m * 2.2)
 
 
-class FleetPyZoneSystem(ZoneSystem):
-    """Reuse a FleetPy zone definition (``node_zone_info.csv``)."""
+class FileZoneSystem(ZoneSystem):
+    """Zones read from ``node_zone_info.csv`` (columns ``node_index,zone_id``; negative ids are ignored).
 
-    def __init__(self, network: Network, zone_system_name: str = "example_zones", fleetpy_root=None,
-                 neighbor_radius_m: float = 1500.0):
+    :param zone_system_name: folder under ``<data_root>/zones`` or path of a ``node_zone_info.csv`` file
+    :param data_root: data folder (default: the road network's data root, else ``$KAMI_DATA_ROOT`` / ``<repo>/data``)
+    :param fleetpy_root: kami 0.1 compatibility — folder containing ``data/``
+    """
+
+    def __init__(self, network: Network, zone_system_name: str = "example_zones", data_root=None,
+                 neighbor_radius_m: float = 1500.0, fleetpy_root=None):
         super().__init__(network)
-        from kami.network.fleetpy_network import import_fleetpy
+        from kami.network.road.network import resolve_data_root
 
-        root = import_fleetpy(fleetpy_root)
-        net_name = getattr(network, "name", "example_network")
-        path = Path(root) / "data" / "zones" / zone_system_name / net_name / "node_zone_info.csv"
-        allowed = set(network.nodes())  # all nodes, including FleetPy stop-only nodes
+        path = Path(zone_system_name)
+        if not path.is_file():
+            if data_root is None and fleetpy_root is None:
+                data_root = getattr(network, "data_root", None)
+            root = resolve_data_root(data_root, fleetpy_root)
+            net_name = getattr(network, "name", "example_network")
+            path = root / "zones" / str(zone_system_name) / net_name / "node_zone_info.csv"
+        allowed = set(network.nodes())  # all nodes, including stop-only nodes
         with open(path) as f:
             for row in csv.DictReader(f):
                 n = int(row["node_index"])
@@ -129,3 +139,6 @@ class FleetPyZoneSystem(ZoneSystem):
             for n in missing:
                 self.node_zone[n] = self.node_zone[idx.nearest(*network.coords(n))]
         self._finalise(neighbor_radius_m=neighbor_radius_m)
+
+
+FleetPyZoneSystem = FileZoneSystem   # kami 0.1 name

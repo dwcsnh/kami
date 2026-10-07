@@ -33,7 +33,7 @@ C++, travel time động theo mốc thời gian (`network_dynamics_file`).
 | Mã | Hạng mục |
 |---|---|
 | S02-1 | Pipeline OSM → mạng FleetPy cho Hà Nội: phạm vi (ít nhất các quận nội thành + vùng ven có nhu cầu), lọc loại đường, liên thông mạnh, toạ độ, `crs.info`. Lưu phiên bản dữ liệu OSM đã dùng |
-| S02-2 | Kiểm tra router C++ của FleetPy chạy được trên mạng Hà Nội; ghi kích thước mạng (node, cạnh) và thời gian truy vấn trung bình |
+| S02-2 | Kiểm tra router C++ (port từ FleetPy, `kami/network/road`) chạy được trên mạng Hà Nội; ghi kích thước mạng (node, cạnh) và thời gian truy vấn trung bình |
 | S02-3 | Hệ thống zone Hà Nội: theo ranh giới hành chính (quận/phường) và/hoặc H3; ánh xạ node → zone; dùng được cho metric theo khu, surge, vùng sự cố |
 | S02-4 | Mô hình tắc đường zone × giờ: hệ số tốc độ theo (zone hoặc loại đường) × khung giờ, có profile mặc định cho giờ cao điểm sáng/chiều của Hà Nội; cấu hình được qua `ScenarioSpec` |
 | S02-5 | Cập nhật travel time theo mốc thời gian (cơ chế giống `network_dynamics_file` của FleetPy) và tính lại các chặng đang chạy khi tắc đường thay đổi đáng kể |
@@ -44,7 +44,7 @@ C++, travel time động theo mốc thời gian (`network_dynamics_file`).
 
 ## Acceptance criteria
 
-- [ ] AC02-1 Một lệnh tạo lại mạng Hà Nội từ dữ liệu OSM đã ghi phiên bản; kết quả đọc được bằng `FleetPyNetwork`.
+- [ ] AC02-1 Một lệnh tạo lại mạng Hà Nội từ dữ liệu OSM đã ghi phiên bản; kết quả đọc được bằng `RoadNetwork` (tên cũ `FleetPyNetwork`).
 - [ ] AC02-2 ≥ 95% node của mạng nằm trong thành phần liên thông mạnh dùng được (`location_nodes`).
 - [ ] AC02-3 Mỗi node thuộc đúng một zone; số zone và phạm vi được ghi trong tài liệu.
 - [ ] AC02-4 Với cùng một cặp OD nội thành, thời gian di chuyển lúc 8h và 18h lớn hơn rõ rệt lúc 23h (theo profile

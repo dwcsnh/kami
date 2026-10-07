@@ -15,7 +15,8 @@ Scenario (ngoại sinh, replay) ──▶ Simulation engine ◀──▶ Policy 
 
 ## Cài đặt & chạy nhanh
 
-Lõi engine chỉ dùng **thư viện chuẩn Python ≥ 3.9**. `numpy`/`scipy` (Hungarian matching) và FleetPy là tuỳ chọn.
+Lõi engine chỉ dùng **thư viện chuẩn Python ≥ 3.9**, kể cả mạng đường thật. `numpy`/`scipy` (Hungarian matching),
+`pyproj` (lon/lat) và router C++ (cần Cython để build) là tuỳ chọn.
 
 ```bash
 cd kami
@@ -23,14 +24,15 @@ python examples/01_quickstart.py                     # 1 lần chạy baseline t
 python examples/02_pool_after_wait.py 30             # ví dụ đầy đủ của design doc: ghép sau 5' +20k
 python -m kami compare --presets weekday_am_peak,undersupply --seeds 10 \
        --treatment pool_after_wait --arg surcharge=20000 --pooling-rule --report out/report.md
-python -m unittest discover -s tests -t .            # 36 test
+python -m unittest discover -s tests -t .            # toàn bộ test
 ```
 
-Với mạng đường thật của FleetPy (cần môi trường có `numpy`, `pandas`, `pyproj`, ví dụ `conda activate fleetpy`):
+Với mạng đường thật (mạng mẫu `data/networks/example_network`, định dạng FleetPy):
 
 ```bash
-python examples/03_fleetpy_network.py
-python -m kami run --network fleetpy:example_network --zones example_zones --preset accident
+python -m kami.network.road.cpp.build                # tuỳ chọn, một lần: router C++ (cần cython)
+python examples/03_road_network.py
+python -m kami run --network road:example_network --zones example_zones --preset accident
 ```
 
 ## Ví dụ tối thiểu
@@ -64,7 +66,7 @@ print(pooling_rule_example().evaluate(cmp))
 | `kami/core/crn.py` | Common Random Numbers | [docs/engine/05-crn.md](docs/engine/05-crn.md) |
 | `kami/behavior/` | Interface điểm quyết định, model mặc định, registry | [docs/engine/06-behavior.md](docs/engine/06-behavior.md) |
 | `kami/policy/` | Policy plugin + policy dựng sẵn | [docs/engine/07-policy.md](docs/engine/07-policy.md) |
-| `kami/network/`, `kami/traffic.py` | Mạng đường (lưới / FleetPy), zone, traffic layer, sự cố | [docs/engine/08-network-traffic.md](docs/engine/08-network-traffic.md) |
+| `kami/network/`, `kami/traffic.py` | Mạng đường (lưới / mạng thật `network/road`), zone, traffic layer, sự cố | [docs/engine/08-network-traffic.md](docs/engine/08-network-traffic.md) |
 | `kami/scenario.py` | Kịch bản, preset, replay FleetPy / CSV | [docs/engine/09-scenario.md](docs/engine/09-scenario.md) |
 | `kami/matching.py`, `kami/pooling.py`, `kami/pricing.py` | Matching, ghép chuyến, cước | [docs/engine/10-matching-pooling-pricing.md](docs/engine/10-matching-pooling-pricing.md) |
 | `kami/metrics.py` | Bộ metric | [docs/engine/11-metrics.md](docs/engine/11-metrics.md) |
@@ -72,7 +74,7 @@ print(pooling_rule_example().evaluate(cmp))
 | `kami/eventlog.py` | Event log & export | [docs/engine/13-eventlog.md](docs/engine/13-eventlog.md) |
 | `kami/training/` | Pipeline fit model → registry | [docs/engine/14-training-registry.md](docs/engine/14-training-registry.md) |
 | `kami/cli.py` | `python -m kami …` | [docs/engine/15-cli.md](docs/engine/15-cli.md) |
-| — | Tái sử dụng FleetPy | [docs/engine/16-fleetpy-integration.md](docs/engine/16-fleetpy-integration.md) |
+| — | Phần lấy từ FleetPy | [docs/engine/16-fleetpy-integration.md](docs/engine/16-fleetpy-integration.md) |
 | — | Giới hạn & lộ trình | [docs/engine/17-limitations-roadmap.md](docs/engine/17-limitations-roadmap.md) |
 
 Bắt đầu từ [docs/README.md](docs/README.md) (mục lục chung), [docs/engine/README.md](docs/engine/README.md) (tài liệu
@@ -99,6 +101,6 @@ dynamic pricing, policy lưu trong DB và tạo được bằng ngôn ngữ tự
 | Kịch bản | Mạng | Thời gian / lần chạy |
 |---|---|---|
 | 3h cao điểm, ~1.000 request, 150 xe | Lưới 8×8 km | ~0,4–0,7 s |
-| 3h có tai nạn, ~800 request, 60 xe | FleetPy `example_network` (7,6k node), router C++ | ~1,5 s |
-| như trên | FleetPy, router Python | ~35 s |
+| 3h có tai nạn, ~740 request, 60 xe | `example_network` (7,6k node), router C++ | ~1,7 s |
+| như trên | `example_network`, router Python | ~20–25 s |
 | 960 lần chạy (4 kịch bản × 30 seed × 2 arm × 4 biến thể) | Lưới, 16 tiến trình | ~70 s |

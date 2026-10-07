@@ -12,7 +12,7 @@
 | 05 | [Common Random Numbers](05-crn.md) | Thiết kế CRN, danh mục khoá, quy tắc giữ CRN |
 | 06 | [Behavior models](06-behavior.md) | Interface từng điểm quyết định, model mặc định, registry |
 | 07 | [Policy plugin](07-policy.md) | Hook, API, policy dựng sẵn, cách viết policy mới |
-| 08 | [Network, zone & traffic](08-network-traffic.md) | Lưới synthetic, mạng FleetPy, zone, ETA theo giờ/thời tiết, sự cố |
+| 08 | [Network, zone & traffic](08-network-traffic.md) | Lưới synthetic, mạng đường thật (`RoadNetwork`), zone, ETA theo giờ/thời tiết, sự cố |
 | 09 | [Kịch bản](09-scenario.md) | `Scenario`, preset, sinh synthetic, replay FleetPy/CSV |
 | 10 | [Matching, pooling, pricing](10-matching-pooling-pricing.md) | Batch matching, insertion pooling, mô hình cước |
 | 11 | [Metrics](11-metrics.md) | Định nghĩa từng metric, đơn vị, chiều "tốt hơn" |
@@ -20,7 +20,7 @@
 | 13 | [Event log](13-eventlog.md) | Định dạng, export CSV/JSONL/pandas/Parquet |
 | 14 | [Training & model registry](14-training-registry.md) | Fit model ngoài simulator, checkpoint JSON |
 | 15 | [CLI](15-cli.md) | `python -m kami presets/run/compare` |
-| 16 | [Tái sử dụng FleetPy](16-fleetpy-integration.md) | Phần dùng lại, phần viết lại và lý do |
+| 16 | [Phần lấy từ FleetPy](16-fleetpy-integration.md) | Phần đã port vào kami, phần viết lại và lý do |
 | 17 | [Giới hạn & lộ trình](17-limitations-roadmap.md) | Phần chưa làm, rủi ro, việc tiếp theo |
 
 **Quy ước đơn vị trong code:** thời gian là giây, khoảng cách là mét, tiền là VND. Riêng metric báo cáo

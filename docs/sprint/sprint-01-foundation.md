@@ -2,11 +2,11 @@
 
 | | |
 |---|---|
-| Trạng thái | Chưa bắt đầu |
+| Trạng thái | Đang lập plan |
 | Yêu cầu | NFR-1, NFR-4, NFR-5, PERF-3; nền cho FLEET-3, POL-3, RUN-4 |
 | Phụ thuộc | — |
 | Backlog đầu vào | Không có (sprint đầu tiên) |
-| Implementation plan | [sprint-01-plan.md](../implementation-plan/sprint-01-plan.md) (chưa có) |
+| Implementation plan | [sprint-01-plan.md](../implementation-plan/sprint-01-plan.md) (Chờ duyệt) |
 
 ## Mục tiêu
 

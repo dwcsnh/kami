@@ -109,8 +109,10 @@ python examples/01_quickstart.py               # chạy thử nhanh trên lướ
 python -m kami presets                         # danh sách preset kịch bản
 ```
 
-Mạng FleetPy cần môi trường có `numpy`, `pandas`, `pyproj` (ví dụ `conda activate fleetpy`) và checkout FleetPy ở
-`../FleetPy` (hoặc biến `KAMI_FLEETPY_ROOT`); xem [docs/engine/16-fleetpy-integration.md](docs/engine/16-fleetpy-integration.md).
+Mạng đường thật (`RoadNetwork`, dữ liệu ở `data/`) chạy bằng thư viện chuẩn; FleetPy **không** còn là phụ thuộc
+(phần cần thiết đã port vào `kami/network/road/`). Router C++ tuỳ chọn: `pip install cython && python -m
+kami.network.road.cpp.build` (build lại cho mỗi môi trường Python); `lonlat()` cần `pyproj`. Xem
+[docs/engine/16-fleetpy-integration.md](docs/engine/16-fleetpy-integration.md).
 
 ## 6. Khi nào phải hỏi người dùng
 

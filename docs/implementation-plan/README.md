@@ -6,7 +6,7 @@ plan phải được người dùng **duyệt** trước khi bắt đầu viết
 
 | Sprint | Plan | Trạng thái |
 |---|---|---|
-| 01 | — | Chưa có |
+| 01 | [sprint-01-plan.md](sprint-01-plan.md) | Chờ duyệt |
 
 Trạng thái plan: `Nháp` → `Chờ duyệt` → `Đã duyệt` (ghi ngày và người duyệt) → `Đã thực hiện`. Plan đã duyệt mà cần
 đổi hướng đáng kể thì sửa plan, ghi vào mục "Lịch sử thay đổi" và xin duyệt lại phần thay đổi.

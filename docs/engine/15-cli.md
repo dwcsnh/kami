@@ -12,8 +12,8 @@ python -m kami compare [...]  # thí nghiệm cặp baseline vs treatment với 
 
 | Cờ | Mặc định | Ý nghĩa |
 |---|---|---|
-| `--network` | `grid` | `grid`, hoặc `fleetpy[:<tên mạng>]` (ví dụ `fleetpy:example_network`) |
-| `--zones` | (zone vuông) | Tên zone system của FleetPy, ví dụ `example_zones` |
+| `--network` | `grid` | `grid`, hoặc `road[:<tên mạng hoặc thư mục>]` (ví dụ `road:example_network`; `fleetpy:` là cách viết cũ, vẫn chạy) |
+| `--zones` | (zone vuông) | Tên zone system trong `data/zones`, ví dụ `example_zones` |
 | `--zone-m` | 1000 | Cạnh zone vuông (m) |
 | `--grid-km` | 8 | Kích thước thành phố lưới |
 | `--demand` | 200 | Request/giờ ở mức profile 1,0 |

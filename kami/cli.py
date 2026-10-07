@@ -10,7 +10,7 @@ from typing import Dict, List
 from kami.behavior import BehaviorSuite, ModelRegistry
 from kami.core.engine import SimConfig, Simulation
 from kami.evaluation import Experiment, pooling_rule_example, report
-from kami.network import FleetPyNetwork, FleetPyZoneSystem, GridNetwork, SquareZoneSystem
+from kami.network import FileZoneSystem, GridNetwork, RoadNetwork, SquareZoneSystem
 from kami.policy import POLICIES
 from kami.scenario import PRESETS, ScenarioBuilder
 
@@ -34,10 +34,10 @@ def _parse_kv(items: List[str]) -> Dict:
 
 
 def _world(args):
-    if args.network.startswith("fleetpy"):
+    if args.network.startswith(("road", "fleetpy")):   # "fleetpy:" is the kami 0.1 spelling
         name = args.network.partition(":")[2] or "example_network"
-        net = FleetPyNetwork(name)
-        zones = FleetPyZoneSystem(net, args.zones) if args.zones else SquareZoneSystem(net, args.zone_m)
+        net = RoadNetwork(name)
+        zones = FileZoneSystem(net, args.zones) if args.zones else SquareZoneSystem(net, args.zone_m)
     else:
         net = GridNetwork(args.grid_km * 1000, args.grid_km * 1000)
         zones = SquareZoneSystem(net, args.zone_m)
@@ -45,8 +45,8 @@ def _world(args):
 
 
 def _common(p):
-    p.add_argument("--network", default="grid", help="grid | fleetpy[:<network name>]")
-    p.add_argument("--zones", default=None, help="FleetPy zone system name (default: square zones)")
+    p.add_argument("--network", default="grid", help="grid | road[:<network name or folder>] (alias fleetpy:)")
+    p.add_argument("--zones", default=None, help="zone system name under data/zones (default: square zones)")
     p.add_argument("--zone-m", type=float, default=1000.0)
     p.add_argument("--grid-km", type=float, default=8.0)
     p.add_argument("--demand", type=float, default=200.0, help="requests/hour at demand-profile 1.0")

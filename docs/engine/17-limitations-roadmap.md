@@ -43,7 +43,7 @@
    tức tiêu chí 5 ở §14.
 8. **Hiệu năng:**
    - mạng lưới synthetic chạy khoảng 1.000 request trong dưới 1 giây;
-   - mạng FleetPy cần router C++ (router Python chậm khoảng 20 lần);
+   - mạng đường thật nên dùng router C++ (router Python chậm khoảng 12–15 lần);
    - quy mô hàng trăm nghìn chuyến/ngày cần profile lại phần matching và hazard, và cân nhắc Numba/Cython như §12
      gợi ý.
 
