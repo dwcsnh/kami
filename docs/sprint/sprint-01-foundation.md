@@ -2,11 +2,11 @@
 
 | | |
 |---|---|
-| Trạng thái | Đang lập plan |
+| Trạng thái | Xong (2026-10-07) |
 | Yêu cầu | NFR-1, NFR-4, NFR-5, PERF-3; nền cho FLEET-3, POL-3, RUN-4 |
 | Phụ thuộc | — |
 | Backlog đầu vào | Không có (sprint đầu tiên) |
-| Implementation plan | [sprint-01-plan.md](../implementation-plan/sprint-01-plan.md) (Chờ duyệt) |
+| Implementation plan | [sprint-01-plan.md](../implementation-plan/sprint-01-plan.md) (Đã thực hiện) · Backlog ra: [sprint-01-backlog.md](../backlog/sprint-01-backlog.md) |
 
 ## Mục tiêu
 
@@ -44,18 +44,18 @@ Mọi thứ người dùng sẽ cấu hình qua UI (kịch bản, fleet, loại 
 
 ## Acceptance criteria
 
-- [ ] AC01-1 Một `RunSpec` JSON chạy qua CLI cho **metric giống hệt** lần chạy tương đương viết bằng API Python 0.1
+- [x] AC01-1 Một `RunSpec` JSON chạy qua CLI cho **metric giống hệt** lần chạy tương đương viết bằng API Python 0.1
       (cùng kịch bản, policy, seed) — NFR-1.
-- [ ] AC01-2 Mọi preset (`python -m kami presets`) và mọi policy trong `POLICIES` có cấu hình tương ứng và chạy được.
-- [ ] AC01-3 Cấu hình sai (thiếu trường, sai kiểu, tham số policy không tồn tại) bị từ chối với thông báo chỉ rõ trường.
-- [ ] AC01-4 Round-trip: lưu spec vào DB rồi đọc lại cho object bằng nhau với mọi loại thực thể.
-- [ ] AC01-5 Migration tạo được DB từ rỗng; chạy lại migration trên DB đã có không lỗi.
-- [ ] AC01-6 Sau một lần chạy, DB có bản ghi `run` với snapshot cấu hình, metric tổng hợp, chuỗi thời gian metric và
+- [x] AC01-2 Mọi preset (`python -m kami presets`) và mọi policy trong `POLICIES` có cấu hình tương ứng và chạy được.
+- [x] AC01-3 Cấu hình sai (thiếu trường, sai kiểu, tham số policy không tồn tại) bị từ chối với thông báo chỉ rõ trường.
+- [x] AC01-4 Round-trip: lưu spec vào DB rồi đọc lại cho object bằng nhau với mọi loại thực thể.
+- [x] AC01-5 Migration tạo được DB từ rỗng; chạy lại migration trên DB đã có không lỗi.
+- [x] AC01-6 Sau một lần chạy, DB có bản ghi `run` với snapshot cấu hình, metric tổng hợp, chuỗi thời gian metric và
       đường dẫn event log đọc được.
-- [ ] AC01-7 `import kami` và chạy `examples/01_quickstart.py` không cần cài thư viện DB.
-- [ ] AC01-8 Lệnh benchmark chạy xong và xuất JSON; kết quả lần đầu được ghi vào `docs/backlog/sprint-01-backlog.md`
+- [x] AC01-7 `import kami` và chạy `examples/01_quickstart.py` không cần cài thư viện DB.
+- [x] AC01-8 Lệnh benchmark chạy xong và xuất JSON; kết quả lần đầu được ghi vào `docs/backlog/sprint-01-backlog.md`
       làm mốc.
-- [ ] AC01-9 Toàn bộ test cũ pass; có test mới cho schema, bộ dựng, repository.
+- [x] AC01-9 Toàn bộ test cũ pass; có test mới cho schema, bộ dựng, repository.
 
 ## Rủi ro & câu hỏi mở
 

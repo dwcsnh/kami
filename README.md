@@ -39,6 +39,16 @@ python examples/03_road_network.py
 python -m kami run --network road:example_network --zones example_zones --preset accident
 ```
 
+Chạy từ file cấu hình khai báo, lưu vào DB và benchmark (kami 0.2, cần `pip install 'kami[store]'` cho event log
+Parquet):
+
+```bash
+python -m kami run --spec examples/specs/fleets_policy_group.json --out out/run1
+python -m kami run --spec examples/specs/preset_rain.json --db kami.db --artifacts runs
+python examples/05_run_from_spec.py
+python -m kami bench --compare benchmarks/results/2026-10-07-sprint01.json
+```
+
 ## Ví dụ tối thiểu
 
 ```python
@@ -78,6 +88,8 @@ print(pooling_rule_example().evaluate(cmp))
 | `kami/eventlog.py` | Event log & export | [docs/engine/13-eventlog.md](docs/engine/13-eventlog.md) |
 | `kami/training/` | Pipeline fit model → registry | [docs/engine/14-training-registry.md](docs/engine/14-training-registry.md) |
 | `kami/cli.py` | `python -m kami …` | [docs/engine/15-cli.md](docs/engine/15-cli.md) |
+| `kami/config/`, `kami/timeseries.py` | Spec JSON, bộ dựng spec → engine, chuỗi thời gian metric | [docs/engine/18-config-persistence.md](docs/engine/18-config-persistence.md) |
+| `kami/store/`, `kami/bench.py`, `benchmarks/` | DB SQLite, lưu run, benchmark | [docs/engine/18-config-persistence.md](docs/engine/18-config-persistence.md) |
 | — | Phần lấy từ FleetPy | [docs/engine/16-fleetpy-integration.md](docs/engine/16-fleetpy-integration.md) |
 | — | Giới hạn & lộ trình | [docs/engine/17-limitations-roadmap.md](docs/engine/17-limitations-roadmap.md) |
 

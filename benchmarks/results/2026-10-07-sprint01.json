@@ -1,0 +1,129 @@
+{
+  "created_at": "2026-10-07T12:20:09+00:00",
+  "suite": "/home/ducanh/Documents/AI20K/Build Phase/simulation/kami/benchmarks/specs",
+  "repeat": 5,
+  "env": {
+    "python": "3.10.21",
+    "implementation": "CPython",
+    "executable": "/home/ducanh/miniconda3/envs/fleetpy/bin/python",
+    "os": "Linux-7.0.0-34-generic-x86_64-with-glibc2.39",
+    "cpu": "AMD Ryzen 9 6900HS Creator Edition",
+    "cpu_count": 16,
+    "git_commit": "be389e0",
+    "git_dirty": true,
+    "kami_version": "0.1.0",
+    "cpp_router_built": true
+  },
+  "cases": {
+    "grid_am_peak_baseline": {
+      "wall_s": {
+        "median": 0.6334589999969467,
+        "min": 0.6144670729991049,
+        "max": 0.6652608549993602
+      },
+      "build_s": 0.012939529005961958,
+      "events": 8375,
+      "events_per_s": 13221.060873774575,
+      "peak_rss_mb": 77.03515625,
+      "network_backend": "grid",
+      "requests": 1011,
+      "drivers": 150,
+      "metrics": {
+        "platform.trips": 859,
+        "rider.completion_rate": 0.9460352422907489,
+        "rider.wait_mean": 4.545525805199847,
+        "driver.utilization": 0.5882184282059961,
+        "platform.gmv": 55032300.0
+      },
+      "deterministic": true
+    },
+    "grid_am_peak_baseline_nots": {
+      "wall_s": {
+        "median": 0.6446610950006288,
+        "min": 0.6264748079993296,
+        "max": 0.6950536550066317
+      },
+      "build_s": 0.013207714997406583,
+      "events": 8375,
+      "events_per_s": 12991.322207821197,
+      "peak_rss_mb": 76.8203125,
+      "network_backend": "grid",
+      "requests": 1011,
+      "drivers": 150,
+      "metrics": {
+        "platform.trips": 859,
+        "rider.completion_rate": 0.9460352422907489,
+        "rider.wait_mean": 4.545525805199847,
+        "driver.utilization": 0.5882184282059961,
+        "platform.gmv": 55032300.0
+      },
+      "deterministic": true
+    },
+    "grid_am_peak_surge": {
+      "wall_s": {
+        "median": 0.6275055119986064,
+        "min": 0.6229130430001533,
+        "max": 0.6788730010011932
+      },
+      "build_s": 0.013329745997907594,
+      "events": 8456,
+      "events_per_s": 13475.578840841768,
+      "peak_rss_mb": 76.90234375,
+      "network_backend": "grid",
+      "requests": 1011,
+      "drivers": 150,
+      "metrics": {
+        "platform.trips": 839,
+        "rider.completion_rate": 0.9512471655328798,
+        "rider.wait_mean": 4.309537147397696,
+        "driver.utilization": 0.5788570745272612,
+        "platform.gmv": 60075000.0
+      },
+      "deterministic": true
+    },
+    "grid_pm_peak_x5": {
+      "wall_s": {
+        "median": 2.5916432100057136,
+        "min": 2.4075599319985486,
+        "max": 2.8321465070039267
+      },
+      "build_s": 0.05441534100100398,
+      "events": 26170,
+      "events_per_s": 10097.84058969379,
+      "peak_rss_mb": 96.921875,
+      "network_backend": "grid",
+      "requests": 5438,
+      "drivers": 600,
+      "metrics": {
+        "platform.trips": 3042,
+        "rider.completion_rate": 0.9316998468606432,
+        "rider.wait_mean": 5.808148391332891,
+        "driver.utilization": 0.7363046474929823,
+        "platform.gmv": 360655000.0
+      },
+      "deterministic": true
+    },
+    "road_example_400": {
+      "wall_s": {
+        "median": 0.7083022719962173,
+        "min": 0.6829014220056706,
+        "max": 0.7761671839980409
+      },
+      "build_s": 0.2274955519969808,
+      "events": 3901,
+      "events_per_s": 5507.535630241256,
+      "peak_rss_mb": 85.18359375,
+      "network_backend": "cpp",
+      "requests": 400,
+      "drivers": 25,
+      "metrics": {
+        "platform.trips": 380,
+        "rider.completion_rate": 0.9947643979057592,
+        "rider.wait_mean": 0.8116094880636575,
+        "driver.utilization": 0.2873349054280633,
+        "platform.gmv": 11468600.0
+      },
+      "deterministic": true
+    }
+  }
+}

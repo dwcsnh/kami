@@ -1,4 +1,7 @@
-"""Command line: ``python -m kami {presets,run,compare}``."""
+"""Command line: ``python -m kami {presets,run,compare,spec,db,bench}``.
+
+``kami.store`` (SQLite) is imported only by ``run --db`` and ``db`` so the plain commands stay DB-free (NFR-5).
+"""
 from __future__ import annotations
 
 import argparse
@@ -55,18 +58,103 @@ def _common(p):
     p.add_argument("--employed-drivers", action="store_true", help="drivers cannot reject trips")
 
 
+def _run_args(p):
+    _common(p)
+    p.add_argument("--preset", default="weekday_am_peak")
+    p.add_argument("--seed", type=int, default=0)
+    p.add_argument("--policy", default="baseline", choices=sorted(POLICIES))
+    p.add_argument("--arg", action="append", default=[], help="policy argument k=v (repeatable)")
+
+
+LEGACY_RUN_FLAGS = ("network", "zones", "zone_m", "grid_km", "demand", "drivers", "registry", "employed_drivers",
+                    "preset", "seed", "policy", "arg")
+
+
+def _print_run(sc, policy, sim, m) -> None:
+    print(json.dumps({"scenario": sc.summary(), "policy": policy.describe(), "wall_s": round(sim.wall_time, 2),
+                      "events": sim.events_processed}, default=str, indent=2))
+    for k, v in m.items():
+        print(f"  {k:34s} {v:,.4f}" if isinstance(v, float) else f"  {k:34s} {v}")
+
+
+def _run_spec_cmd(args, parser) -> int:
+    from kami.config import SpecError, build_run, load_run_spec
+
+    changed = [f"--{k.replace('_', '-')}" for k in LEGACY_RUN_FLAGS if getattr(args, k) != parser.get_default(k)]
+    if changed:
+        print(f"error: --spec cannot be combined with {', '.join(changed)} (put them in the spec file)",
+              file=sys.stderr)
+        return 2
+    try:
+        spec = load_run_spec(args.spec)
+    except SpecError as e:
+        print(f"error: {args.spec}: {e}", file=sys.stderr)
+        return 2
+    run_id = None
+    try:
+        if args.db:
+            from kami.store import Repository, execute
+
+            repo = Repository.open(args.db)
+            res = execute(spec, repo, args.artifacts)
+            run_id = res.run_id
+            if res.status != "succeeded":
+                print(f"run {run_id} failed:\n{res.error}", file=sys.stderr)
+                return 1
+            sim, resolved = res.sim, repo.run_spec(run_id)
+        else:
+            resolved = spec
+            sim = build_run(spec).simulation().run()
+    except SpecError as e:
+        print(f"error: {args.spec}: {e}", file=sys.stderr)
+        return 2
+    m = sim.metrics()
+    _print_run(sim.scenario, sim.policy, sim, m)
+    if run_id is not None:
+        print(f"run_id {run_id} stored in {args.db}")
+    if args.out:
+        out = Path(args.out)
+        out.mkdir(parents=True, exist_ok=True)
+        (out / "metrics.json").write_text(json.dumps(m, indent=2))
+        (out / "run_spec.resolved.json").write_text(resolved.to_json())
+        written = ["metrics.json", "run_spec.resolved.json"]
+        if sim.timeseries is not None:
+            sim.timeseries.to_json(out / "timeseries.json")
+            written.append("timeseries.json")
+        fmt = resolved.outputs.event_log
+        if fmt != "none":
+            name = "events.parquet" if fmt == "parquet" else "events.csv.gz"
+            sim.log.save(out / name, fmt)
+            written.append(name)
+        print(f"wrote {out}/: {', '.join(written)}")
+    return 0
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="kami", description="kami ride-hailing policy simulator")
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("presets", help="list scenario presets and policies")
 
-    r = sub.add_parser("run", help="run one simulation")
-    _common(r)
-    r.add_argument("--preset", default="weekday_am_peak")
-    r.add_argument("--seed", type=int, default=0)
-    r.add_argument("--policy", default="baseline", choices=sorted(POLICIES))
-    r.add_argument("--arg", action="append", default=[], help="policy argument k=v (repeatable)")
+    r = sub.add_parser("run", help="run one simulation (flags as in kami 0.1, or --spec FILE)")
+    _run_args(r)
     r.add_argument("--out", default=None, help="folder for metrics.json and events.csv")
+    r.add_argument("--spec", default=None, help="RunSpec JSON file (replaces the scenario/policy flags)")
+    r.add_argument("--db", default=None, help="with --spec: store the run in this SQLite database")
+    r.add_argument("--artifacts", default="runs", help="with --db: folder for event log files (<dir>/<run_id>/)")
+
+    s = sub.add_parser("spec", help="print the RunSpec JSON equivalent to `run` flags")
+    _run_args(s)
+    s.add_argument("--out", default=None, help="write to this file instead of stdout")
+
+    d = sub.add_parser("db", help="database maintenance")
+    dsub = d.add_subparsers(dest="db_cmd", required=True)
+    di = dsub.add_parser("init", help="create the database or apply pending migrations")
+    di.add_argument("--db", default="kami.db")
+
+    b = sub.add_parser("bench", help="benchmark suite (wall-clock, events/s, peak RAM) -> JSON")
+    from kami.bench import add_arguments as _bench_args
+
+    _bench_args(b)
 
     c = sub.add_parser("compare", help="paired baseline vs treatment experiment (CRN)")
     _common(c)
@@ -80,6 +168,41 @@ def main(argv=None) -> int:
     c.add_argument("--report", default=None, help="write a Markdown report here")
     c.add_argument("--pooling-rule", action="store_true", help="evaluate the sample decision rule (doc §10.5)")
     args = ap.parse_args(argv)
+
+    if args.cmd == "run" and args.spec:
+        return _run_spec_cmd(args, r)
+    if args.cmd == "run" and (args.db or args.artifacts != "runs"):
+        print("error: --db/--artifacts need --spec", file=sys.stderr)
+        return 2
+    if args.cmd == "spec":
+        from kami.config import SpecError, spec_from_cli
+
+        try:
+            spec = spec_from_cli(args.preset, args.policy, _parse_kv(args.arg), seed=args.seed, demand=args.demand,
+                                 drivers=args.drivers, network=args.network, zones=args.zones, zone_m=args.zone_m,
+                                 grid_km=args.grid_km, registry=args.registry, employed_drivers=args.employed_drivers)
+        except SpecError as e:
+            print(f"error: {e}", file=sys.stderr)
+            return 2
+        if args.out:
+            Path(args.out).parent.mkdir(parents=True, exist_ok=True)
+            Path(args.out).write_text(spec.to_json() + "\n")
+            print(f"wrote {args.out}")
+        else:
+            print(spec.to_json())
+        return 0
+    if args.cmd == "db":
+        from kami.store import connect, current_version, migrate
+
+        conn = connect(args.db)
+        applied = migrate(conn)
+        print(f"{args.db}: schema version {current_version(conn)}"
+              + (f" (applied {', '.join(map(str, applied))})" if applied else " (up to date)"))
+        return 0
+    if args.cmd == "bench":
+        from kami.bench import run_cli
+
+        return run_cli(args)
 
     if args.cmd == "presets":
         print("Scenario presets:")
@@ -101,10 +224,7 @@ def main(argv=None) -> int:
         pol = POLICIES[args.policy](**_parse_kv(args.arg))
         sim = Simulation(sc, pol, behavior()).run()
         m = sim.metrics()
-        print(json.dumps({"scenario": sc.summary(), "policy": pol.describe(), "wall_s": round(sim.wall_time, 2),
-                          "events": sim.events_processed}, default=str, indent=2))
-        for k, v in m.items():
-            print(f"  {k:34s} {v:,.4f}" if isinstance(v, float) else f"  {k:34s} {v}")
+        _print_run(sc, pol, sim, m)
         if args.out:
             out = Path(args.out)
             out.mkdir(parents=True, exist_ok=True)

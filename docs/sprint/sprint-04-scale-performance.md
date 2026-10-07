@@ -5,7 +5,7 @@
 | Trạng thái | Chưa bắt đầu |
 | Yêu cầu | PERF-1, PERF-2, PERF-3; UI-1 (hiển thị quy mô thành phố) |
 | Phụ thuộc | Sprint 01, Sprint 02, Sprint 03 (visualizer) |
-| Backlog đầu vào | [sprint-03-backlog.md](../backlog/sprint-03-backlog.md); các mục `B02-k` có "Sprint dự kiến xử lý" là 04 |
+| Backlog đầu vào | [sprint-03-backlog.md](../backlog/sprint-03-backlog.md); các mục `B02-k` có "Sprint dự kiến xử lý" là 04; từ [sprint-01-backlog.md](../backlog/sprint-01-backlog.md): B01-5, B01-6, B01-7, B01-8 |
 | Implementation plan | [sprint-04-plan.md](../implementation-plan/sprint-04-plan.md) (chưa có) |
 
 ## Mục tiêu

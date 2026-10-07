@@ -5,7 +5,7 @@
 | Trạng thái | Chưa bắt đầu |
 | Yêu cầu | POL-1, POL-2, POL-3, POL-5, NFR-3 |
 | Phụ thuộc | Sprint 01 (schema/DB), Sprint 05 (hook sạc), Sprint 06 (pricing strategy) |
-| Backlog đầu vào | [sprint-06-backlog.md](../backlog/sprint-06-backlog.md) |
+| Backlog đầu vào | [sprint-06-backlog.md](../backlog/sprint-06-backlog.md); từ [sprint-01-backlog.md](../backlog/sprint-01-backlog.md): B01-3 |
 | Implementation plan | [sprint-07-plan.md](../implementation-plan/sprint-07-plan.md) (chưa có) |
 
 ## Mục tiêu

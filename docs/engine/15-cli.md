@@ -6,6 +6,10 @@ Chạy từ thư mục `kami/`, hoặc cài bằng `pip install -e .` để có 
 python -m kami presets        # liệt kê preset kịch bản và policy đã đăng ký
 python -m kami run [...]      # một lần chạy
 python -m kami compare [...]  # thí nghiệm cặp baseline vs treatment với CRN
+python -m kami spec [...]     # in RunSpec JSON tương đương các cờ của run (0.2)
+python -m kami run --spec F   # chạy từ file RunSpec (0.2)
+python -m kami db init        # tạo / migrate DB (0.2)
+python -m kami bench [...]    # benchmark suite (0.2)
 ```
 
 ## Tuỳ chọn chung
@@ -33,6 +37,52 @@ python -m kami run --preset rain --seed 3 --policy pool_after_wait \
 
 In thông tin kịch bản, cấu hình policy, thời gian chạy và toàn bộ metric. Nếu có `--out`, lệnh ghi thêm
 `metrics.json` và `events.csv`. `--arg k=v` tự ép kiểu sang int, float hoặc bool.
+
+### Chạy từ file cấu hình (kami 0.2)
+
+```bash
+python -m kami spec --preset rain --policy surge --arg every=60 --out run.json   # cách gọi cũ → spec
+python -m kami run --spec run.json --out out/run1                              # chạy, không cần DB
+python -m kami run --spec run.json --db kami.db --artifacts runs                # chạy và lưu vào DB
+```
+
+| Cờ | Ý nghĩa |
+|---|---|
+| `--spec` | File RunSpec JSON (docs/engine/18). Không dùng chung với các cờ kịch bản/policy cũ (`--preset`, `--policy`, `--arg`, `--network`…): lệnh báo lỗi và trả mã 2 |
+| `--out` | Ghi `metrics.json`, `run_spec.resolved.json`, `timeseries.json` và event log theo `outputs.event_log` (`events.parquet` hoặc `events.csv.gz`) |
+| `--db` | Lưu run vào DB SQLite (tạo/migrate nếu cần) và in `run_id`. Bắt buộc khi spec có tham chiếu `{"ref": …}` |
+| `--artifacts` | Thư mục file event log của run lưu DB (mặc định `runs/`, file ở `runs/<run_id>/`) |
+
+Spec sai trả mã 2 kèm danh sách trường sai; run thất bại khi chạy (đã có bản ghi `failed`) trả mã 1.
+
+## `spec`
+
+Nhận đúng các cờ của `run` (trừ `--out` là file đích) và in RunSpec tương đương. Chạy spec này bằng
+`run --spec` cho metric giống hệt `run` với cùng cờ.
+
+## `db init`
+
+```bash
+python -m kami db init --db kami.db      # tạo DB rỗng hoặc áp migration còn thiếu; chạy lại an toàn
+```
+
+## `bench`
+
+```bash
+python -m kami bench --repeat 5 --out benchmarks/results/<ngày>.json
+python -m kami bench --compare benchmarks/results/2026-10-07-sprint01.json
+```
+
+| Cờ | Mặc định | Ý nghĩa |
+|---|---|---|
+| `--suite` | `benchmarks/specs` | Thư mục các case (mỗi file RunSpec là một case) |
+| `--cases` | tất cả | Tên case (tên file không đuôi), cách nhau bởi dấu phẩy |
+| `--repeat` | 3 | Số lần lặp mỗi case, mỗi lần một tiến trình riêng |
+| `--out` | — | Ghi kết quả JSON |
+| `--compare` | — | File kết quả mốc; trả mã 1 nếu case chậm hơn hoặc tốn RAM hơn quá ngưỡng |
+| `--threshold` | 0,10 | Ngưỡng thoái lui |
+
+Chi tiết ở docs/engine/18 §4.
 
 ## `compare`
 

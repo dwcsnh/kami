@@ -33,6 +33,8 @@
 | Behavior models | `kami.behavior`, `kami.training` | 06, 14 |
 | Traffic layer | `kami.traffic`, `kami.network` | 08 |
 | Event log | `kami.eventlog` | 13 |
+| Cấu hình khai báo, chuỗi thời gian metric (0.2) | `kami.config`, `kami.timeseries` | 18 |
+| Lưu trữ DB, benchmark (0.2) | `kami.store`, `kami.bench` | 18 |
 | Evaluator (CRN) | `kami.core.crn`, `kami.metrics`, `kami.evaluation` | 05, 11, 12 |
 
 ## Luồng một chuyến đi
@@ -78,4 +80,6 @@ gài lại thời điểm hủy của khách đang chờ.
   khai triển Cornish–Fisher.
 - Mạng đường thật (`kami/network/road/`, port từ FleetPy): chỉ cần thư viện chuẩn. Router C++ tuỳ chọn (build bằng
   Cython), `pyproj` tuỳ chọn cho lon/lat.
-- `h3`, `pandas`, `pyarrow` (tuỳ chọn): zone H3, DataFrame, Parquet.
+- `h3`, `pandas`, `pyarrow` (tuỳ chọn): zone H3, DataFrame, Parquet. `pyarrow` (extra `kami[store]`) cần cho event
+  log Parquet của run lưu trữ (định dạng mặc định, docs/engine/18); thiếu thì chọn `csv.gz`.
+- `kami.store` dùng `sqlite3` của thư viện chuẩn; lõi engine và `import kami` không nạp nó (NFR-5).

@@ -5,7 +5,7 @@
 | Trạng thái | Chưa bắt đầu |
 | Yêu cầu | MAP-1, MAP-2, MAP-3, MAP-4, MAP-5 |
 | Phụ thuộc | Sprint 01 |
-| Backlog đầu vào | [sprint-01-backlog.md](../backlog/sprint-01-backlog.md) |
+| Backlog đầu vào | [sprint-01-backlog.md](../backlog/sprint-01-backlog.md) — liên quan: B01-9 (spec kịch bản cho tắc đường theo khu vực × giờ, travel time động, nguồn demand Hà Nội), B01-10 (đo lại mốc benchmark sau commit). Mốc benchmark để so sánh: `benchmarks/results/2026-10-07-sprint01.json` |
 | Implementation plan | [sprint-02-plan.md](../implementation-plan/sprint-02-plan.md) (chưa có) |
 
 ## Mục tiêu

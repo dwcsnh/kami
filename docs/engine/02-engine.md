@@ -7,6 +7,7 @@ sim = Simulation(scenario, policy=PoolAfterWait(), behavior=BehaviorSuite(), con
 sim.run()            # chỉ chạy được một lần; muốn chạy lại thì tạo Simulation mới
 sim.metrics()        # dict metric (docs/engine/11)
 sim.log              # EventLog (docs/engine/13)
+sim.timeseries       # MetricSampler nếu SimConfig.timeseries_interval_s được đặt, ngược lại None (docs/engine/18)
 sim.riders, sim.drivers, sim.jobs
 ```
 
@@ -29,6 +30,7 @@ sim.riders, sim.drivers, sim.jobs
 | `default_quote_eta` | 900 s | ETA hiển thị khi không thấy xe rảnh nào |
 | `traffic_update_s` | 3600 s | Chu kỳ `TRAFFIC_UPDATE` (nạp travel time động của `RoadNetwork` nếu có) |
 | `record_events` | True | Tắt để chạy nhanh hơn khi chỉ cần metric |
+| `timeseries_interval_s` | None | Bật `MetricSampler` với chu kỳ này (s thời gian mô phỏng); kết quả ở `sim.timeseries` (docs/engine/18). Không đổi kết quả mô phỏng |
 | `fare` | `FareModel()` | Docs/10 |
 | `pooling` | `PoolingParams()` | Docs/10 |
 

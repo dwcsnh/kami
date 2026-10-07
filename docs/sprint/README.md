@@ -8,7 +8,7 @@ xong** (phạm vi, hạng mục, acceptance criteria). **Cách làm** nằm tron
 
 | Sprint | Tên | Yêu cầu chính | Phụ thuộc | Trạng thái |
 |---|---|---|---|---|
-| [01](sprint-01-foundation.md) | Nền tảng cấu hình, lưu trữ & benchmark | NFR-1, NFR-4, NFR-5, PERF-3, nền cho FLEET-3/POL-3/RUN-4 | — | Đang lập plan |
+| [01](sprint-01-foundation.md) | Nền tảng cấu hình, lưu trữ & benchmark | NFR-1, NFR-4, NFR-5, PERF-3, nền cho FLEET-3/POL-3/RUN-4 | — | Xong |
 | [02](sprint-02-hanoi-network-traffic.md) | Bản đồ Hà Nội & giao thông giờ cao điểm | MAP-1…MAP-5 | 01 | Chưa bắt đầu |
 | [03](sprint-03-map-visualizer.md) | Bản đồ vận hành (fleet operation visualizer) trên web | UI-1 (phát lại), MAP-2 (hiển thị) | 02 | Chưa bắt đầu |
 | [04](sprint-04-scale-performance.md) | Hiệu năng quy mô GreenSM | PERF-1, PERF-2, PERF-3, UI-1 (quy mô thành phố) | 01, 02, 03 | Chưa bắt đầu |

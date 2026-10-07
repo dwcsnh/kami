@@ -5,7 +5,7 @@
 | Trạng thái | Chưa bắt đầu |
 | Yêu cầu | RUN-1, RUN-2, RUN-3, RUN-4; API cho FLEET-3, POL-3 |
 | Phụ thuộc | Sprint 01, Sprint 07 |
-| Backlog đầu vào | [sprint-07-backlog.md](../backlog/sprint-07-backlog.md) |
+| Backlog đầu vào | [sprint-07-backlog.md](../backlog/sprint-07-backlog.md); từ [sprint-01-backlog.md](../backlog/sprint-01-backlog.md): B01-4 |
 | Implementation plan | [sprint-08-plan.md](../implementation-plan/sprint-08-plan.md) (chưa có) |
 
 ## Mục tiêu

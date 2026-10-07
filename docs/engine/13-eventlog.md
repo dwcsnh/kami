@@ -17,10 +17,31 @@ sim.log.counts()                                  # {"PICKUP": 958, …}
 sim.log.filter(event="RIDER_CANCEL")              # danh sách dòng
 sim.log.filter(rider_id=42)                       # toàn bộ lịch sử của một khách
 sim.log.to_csv("out/events.csv")                  # cột info dạng JSON
+sim.log.to_csv("out/events.csv.gz")               # nén gzip (tự nhận theo đuôi .gz, hoặc compress=True)
 sim.log.to_jsonl("out/events.jsonl")              # mỗi dòng một object, info được trải phẳng
 df = sim.log.to_pandas()                          # cần pandas
-sim.log.to_parquet("out/events.parquet")          # cần pandas + pyarrow (design doc §12)
+sim.log.to_parquet("out/events.parquet")          # cần pandas + pyarrow (design doc §12), info trải phẳng
+sim.log.save("runs/7/events.parquet", "parquet")  # định dạng file của run (docs/engine/18), chỉ cần pyarrow
+from kami.eventlog import load
+rows = load("runs/7/events.parquet")              # đọc lại .parquet / .csv.gz / .csv thành list tuple
+log.subscribe(fn)                                 # fn(t, event, rider_id, driver_id, info) cho mọi dòng
 ```
+
+## Định dạng file của run (Sprint 01)
+
+`EventLog.save(path, fmt)` là định dạng event log của một lần chạy được lưu (`kami.store`, `run --spec --out`):
+
+- `parquet` (mặc định, cần `pyarrow` — `pip install 'kami[store]'`): ghi theo lô 100.000 dòng, nén zstd;
+- `csv.gz`: thư viện chuẩn.
+
+Cả hai có đúng 5 cột `t, event, rider_id, driver_id, info`; `info` là chuỗi JSON (khác `to_parquet`/`to_pandas`
+trải phẳng `info` thành cột). Lõi engine không import `pyarrow`: chỉ `save`/`load` import khi được gọi.
+
+## Listener
+
+`EventLog.subscribe(fn)` đăng ký hàm được gọi cho **mọi** dòng, kể cả khi `record_events=False` (khi đó dòng không
+được giữ trong bộ nhớ). Bộ thu chuỗi thời gian (docs/engine/18) dùng cơ chế này; Sprint 04/09 sẽ dùng để ghi dần ra
+file và stream live. Khi không có listener và không ghi log, `add` không làm gì như 0.1.
 
 `SimConfig(record_events=False)` tắt ghi log. Metric vẫn tính được vì chỉ dựa trên trạng thái agent, và cách này
 nhanh hơn khoảng 5% và tiết kiệm RAM khi chạy hàng nghìn replication.

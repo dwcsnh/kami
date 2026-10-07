@@ -1,0 +1,38 @@
+{
+  "name": "fleets_policy_group",
+  "scenario": {
+    "name": "pm_peak_small",
+    "network": {"kind": "grid", "width_m": 8000, "height_m": 8000},
+    "zones": {"kind": "square", "cell_m": 1000},
+    "source": {"kind": "preset", "preset": "weekday_pm_peak", "demand_per_hour": 250,
+               "overrides": {"t_end": 64800}},
+    "seed": 7
+  },
+  "vehicle_types": [
+    {"name": "vf_e34", "group": "car", "seats": 4, "range_km": 285},
+    {"name": "vf_vs", "group": "car", "seats": 7, "range_km": 400},
+    {"name": "evo_bike", "group": "bike", "seats": 1, "range_km": 120}
+  ],
+  "fleets": [
+    {"name": "taxi", "composition": [{"vehicle_type": "vf_e34", "count": 90}, {"vehicle_type": "vf_vs", "count": 30}]},
+    {"name": "bike", "composition": [{"vehicle_type": "evo_bike", "count": 60}]}
+  ],
+  "charging_stations": [
+    {"name": "hub_center", "node": 528, "ports": 10, "power_kw": 60}
+  ],
+  "policy_group": {
+    "name": "surge+reposition",
+    "members": [
+      {"policy": {"plugin": "surge", "params": {"every": 60, "max_surge": 1.8}}},
+      {"policy": {"plugin": "heatmap_reposition", "params": {"every": 300, "max_moves": 15}}},
+      {"policy": {"plugin": "baseline", "params": {"matching": {"max_pickup_eta": 600}}}, "enabled": false}
+    ]
+  },
+  "behavior": {
+    "preset": "default",
+    "models": {"cancel_wait": {"class": "HazardScaler", "params": {"inner": {"class": "WeibullCancel"}, "factor": 1.2}}}
+  },
+  "sim_config": {"batch_window": 15, "timeseries_interval_s": 600, "fare": {"base": 15000, "per_km": 10000}},
+  "seed": 7,
+  "outputs": {"event_log": "parquet"}
+}

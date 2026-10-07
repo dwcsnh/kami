@@ -23,9 +23,10 @@
 | 12 | [Evaluation](12-evaluation.md) | Experiment CRN, CI, decision rule, sensitivity, grid search, report |
 | 13 | [Event log](13-eventlog.md) | Định dạng, export CSV/JSONL/pandas/Parquet |
 | 14 | [Training & model registry](14-training-registry.md) | Fit model ngoài simulator, checkpoint JSON |
-| 15 | [CLI](15-cli.md) | `python -m kami presets/run/compare` |
+| 15 | [CLI](15-cli.md) | `python -m kami presets/run/compare/spec/db/bench` |
 | 16 | [Phần lấy từ FleetPy](16-fleetpy-integration.md) | Phần đã port vào kami, phần viết lại và lý do |
 | 17 | [Giới hạn & lộ trình](17-limitations-roadmap.md) | Phần chưa làm, rủi ro, việc tiếp theo |
+| 18 | [Cấu hình, lưu trữ & benchmark](18-config-persistence.md) | Spec JSON, bộ dựng, chuỗi thời gian metric, DB SQLite, lưu run, benchmark (0.2) |
 
 **Quy ước đơn vị trong code:** thời gian là giây, khoảng cách là mét, tiền là VND. Riêng metric báo cáo
 thời gian theo phút và khoảng cách theo km (xem [11-metrics.md](11-metrics.md)). Thời điểm mô phỏng tính bằng giây

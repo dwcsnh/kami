@@ -16,6 +16,7 @@ geo = ["pyproj"]                           # lon/lat of road networks (H3 zones,
 cpp = ["cython", "setuptools"]             # build the C++ road router: python -m kami.network.road.cpp.build
 h3 = ["h3"]
 data = ["pandas", "pyarrow"]               # DataFrame / Parquet export of the event log
+store = ["pyarrow"]                        # Parquet event logs of stored runs (kami.store, run --spec)
 
 [project.scripts]
 kami = "kami.cli:main"

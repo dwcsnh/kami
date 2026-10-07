@@ -4,7 +4,7 @@
 |---|---|
 | Sprint | [sprint-01-foundation.md](../sprint/sprint-01-foundation.md) |
 | Backlog đầu vào | Không có (sprint đầu tiên) — không có mục backlog nào cần xử lý |
-| Trạng thái | Chờ duyệt |
+| Trạng thái | Đã thực hiện (duyệt 2026-10-07; kết thúc 2026-10-07, backlog [sprint-01-backlog.md](../backlog/sprint-01-backlog.md)) |
 
 ## 1. Tóm tắt hướng tiếp cận
 
@@ -24,8 +24,8 @@ kami/bench.py  benchmark harness; mỗi case benchmark chính là một file Run
 - **Engine chỉ đổi hai điểm nhỏ**, đều tắt mặc định: (1) `EventLog` cho phép đăng ký listener; (2) vòng lặp sự kiện
   gọi bộ thu metric theo thời gian tại các mốc chu kỳ. Khi tắt, đường chạy giống 0.1 từng lệnh.
 - **Lưu trữ**: spec lưu dạng JSON trong cột `spec_json`, cộng các bảng liên kết cần cho toàn vẹn tham chiếu (fleet ↔
-  loại xe, policy group ↔ phiên bản policy). Event log lưu ra **file** (CSV nén gzip, Parquet nếu có `pyarrow`),
-  DB chỉ giữ đường dẫn.
+  loại xe, policy group ↔ phiên bản policy). Event log lưu ra **file Parquet** (cần `pyarrow`, phụ thuộc tuỳ chọn
+  `kami[store]`; `csv.gz` là định dạng thay thế không cần phụ thuộc), DB chỉ giữ đường dẫn.
 - **Benchmark** chạy mỗi case trong một tiến trình con để đo RAM đỉnh riêng từng case, xuất JSON, có chế độ so sánh
   với kết quả mốc để phát hiện thoái lui > 10%.
 
@@ -41,12 +41,15 @@ kami/bench.py  benchmark harness; mỗi case benchmark chính là một file Run
 | D6 | **Fleet ở Sprint 01**: tổng số xe các fleet thay cho `n_drivers` của kịch bản; xe thứ `i` (theo thứ tự sinh của kịch bản) gán vào slot `L[floor(i·len(L)/n)]` của danh sách mở rộng `(fleet, loại xe)`; `capacity` = `seats` của loại xe; `fleet_id`, `vehicle_type` ghi vào `DriverSpec.attrs` **sau khi** sinh (không đổi rút ngẫu nhiên). `supply_multiplier` của preset vẫn áp như 0.1 | Mỗi fleet sinh xe riêng | Giữ nguyên dòng ngẫu nhiên của `ScenarioBuilder` → spec không có fleet, hoặc 1 fleet 1 loại xe 4 chỗ, cho kết quả giống hệt 0.1. Sprint 05 sẽ thay bằng phân bố ban đầu/ca theo fleet. Câu hỏi mở Q-B |
 | D7 | **Bộ thu metric theo thời gian không tạo sự kiện mới**: vòng lặp kiểm tra `ev.time >= next_sample` trước khi xử lý sự kiện và chụp nhanh tại mốc `t_start + k·Δ`. Snapshot = trạng thái sau mọi sự kiện có thời điểm `< mốc` | Thêm sự kiện `METRIC_SAMPLE` vào hàng đợi | Không đổi `events_processed`, không đổi số thứ tự `seq`, không ảnh hưởng điều kiện dừng → metric giống hệt khi bật/tắt |
 | D8 | Bộ thu nhận dữ liệu qua **listener của `EventLog`** (gọi cả khi `record_events=False`), đọc thêm trạng thái tài xế trực tiếp lúc chụp | Quét lại toàn bộ rider mỗi mốc | O(sự kiện) thay vì O(rider × số mốc); vẫn chạy được khi Sprint 04 chuyển event log sang ghi dần ra file |
-| D9 | **Event log của run lưu ra file** `runs/<run_id>/events.csv.gz` (stdlib); `events.parquet` khi có `pyarrow` và spec yêu cầu; bảng `run_artifact` giữ đường dẫn, định dạng, kích thước, sha256 | Lưu event log trong DB | Event log một ngày GreenSM có thể hàng chục triệu dòng (rủi ro đã nêu trong sprint). Câu hỏi mở Q-C |
+| D9 | **Event log của run lưu ra file Parquet** `runs/<run_id>/events.parquet` (mặc định, cần `pyarrow` — chỉ `kami/store` import, lõi engine không); `csv.gz` (stdlib) khi spec chọn; bảng `run_artifact` giữ đường dẫn, định dạng, kích thước, sha256 | Lưu event log trong DB; `csv.gz` mặc định | Event log một ngày GreenSM có thể hàng chục triệu dòng (rủi ro đã nêu trong sprint); Parquet nén cột, đọc nhanh cho visualizer/phân tích. Q-C: người dùng chọn Parquet |
 | D10 | **Snapshot run = RunSpec đã "giải tham chiếu"**: mọi tham chiếu DB (`{"ref": id}`) được thay bằng nội dung đầy đủ, kèm id + số phiên bản policy đã dùng, rồi lưu vào `run.run_spec_json` | Lưu chỉ id tham chiếu | NFR-4: chạy lại từ snapshot không cần dữ liệu khác còn tồn tại |
 | D11 | **Benchmark case = file RunSpec** trong `benchmarks/specs/*.json`; mỗi case chạy trong tiến trình con (`multiprocessing`, `spawn`), đo wall-clock (median của N lần), sự kiện/giây, RAM đỉnh (`resource.getrusage(...).ru_maxrss` của tiến trình con) | `tracemalloc` | `tracemalloc` làm chậm 2–3 lần và chỉ đo heap Python; `ru_maxrss` theo tiến trình con là RAM thật mỗi case |
 | D12 | Chỉ hỗ trợ **JSON** cho file spec | YAML | YAML cần thêm phụ thuộc |
 
-### Câu hỏi mở cần người dùng chốt
+### Câu hỏi mở — đã chốt 2026-10-07
+
+Người dùng đồng ý đề xuất ở Q-A, Q-B, Q-D; **Q-C chọn Parquet** cho event log.
+
 
 - **Q-A (DB)**: đồng ý SQLite stdlib cho 0.2 (đổi sang PostgreSQL sau nếu cần, qua `Repository`)? Hay muốn
   SQLAlchemy + Alembic ngay từ đầu (thêm phụ thuộc tuỳ chọn `kami[store]`)? *Đề xuất: SQLite stdlib.*
@@ -109,7 +112,7 @@ Thứ tự thực hiện: S01-1 → S01-2 → S01-3 → S01-6 → S01-4/S01-5 �
      diễn cấu hình 0.1 — pooling ngoài phạm vi 0.2); thêm
      `timeseries_interval_s` (mặc định 300).
    - `RunSpec`: `name`, `scenario` (spec hoặc `Ref`), `vehicle_types`, `fleets`, `charging_stations`, `policy_group`,
-     `behavior`, `sim_config`, `seed`, `crn_seed`, `outputs` (`event_log`: `csv.gz`/`parquet`/`none`).
+     `behavior`, `sim_config`, `seed`, `crn_seed`, `outputs` (`event_log`: `parquet` (mặc định)/`csv.gz`/`none`).
 4. Kiểm tra chéo: loại xe được fleet tham chiếu phải tồn tại; `count > 0`; tên plugin tồn tại; tham số policy theo D4;
    khung giờ `t_start < t_end`; preset tồn tại.
 
@@ -227,3 +230,6 @@ Không dùng mock. Những phần **có schema/lưu được nhưng engine chưa
 | 2026-10-07 | Tạo plan, trạng thái Chờ duyệt |
 | 2026-10-07 | Cập nhật sau khi port mạng đường FleetPy vào `kami/network/road/` (việc ngoài sprint): Q-D, spec mạng `road`/zone `file`, case benchmark `road_example_400` |
 | 2026-10-07 | Phạm vi sản phẩm chỉ matching 1 tài xế – 1 khách: case benchmark `grid_am_peak_pool` → `grid_am_peak_surge`; `pooling`/slot `pool_accept` trong spec chỉ để tương thích 0.1 (AC01-2 vẫn phủ `pool_after_wait` vì NFR-2) |
+| 2026-10-07 | Người dùng duyệt plan; Q-A/Q-B/Q-D theo đề xuất, Q-C chọn Parquet làm định dạng event log mặc định (D9); thêm extra `store = ["pyarrow"]` |
+| 2026-10-07 | Lệch nhỏ khi implement: (1) `PolicySpec` thêm `name`/`version` (tuỳ chọn), `Ref` thêm `version`, `PolicyGroupMember` thêm `params` ghi đè tham số trong nhóm; `policy_group_member` lưu thêm `plugin`; tham chiếu policy không ghi version được ghim vào phiên bản mới nhất lúc lưu group. (2) `SimConfigSpec` là dict ghi đè thưa, kiểm tra theo các trường của `SimConfig`/`FareModel`/`PoolingParams` thay vì khai báo lại từng trường. (3) Snapshot cuối của `MetricSampler` chụp **trước** `_finalise` (sau `_finalise` mọi tài xế đã OFFLINE nên các cột trạng thái vô nghĩa); cột tích luỹ đặt hậu tố `_cum`, `platform.gmv` là theo cửa sổ. (4) Ghi/đọc event log (`EventLog.save`, `kami.eventlog.load`) đặt trong `kami/eventlog.py` (import `pyarrow` lười) để `run --spec --out` không cần DB vẫn ghi Parquet. (5) Bảng `run` thêm `source_spec_json`, `provenance_json`; `runs.execute` trả `RunResult`. (6) Thêm case benchmark `grid_am_peak_baseline_nots` để đo chi phí bộ thu chuỗi thời gian; mốc chạy `--repeat 5`. (7) Thêm extra `store = ["pyarrow"]` vào `pyproject.toml` |
+| 2026-10-07 | Kết thúc sprint: mọi AC đạt, backlog ở [sprint-01-backlog.md](../backlog/sprint-01-backlog.md); trạng thái Đã thực hiện |

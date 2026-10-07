@@ -50,6 +50,7 @@ class SimConfig:
     default_quote_eta: float = 900.0  # ETA shown when no driver is visible
     traffic_update_s: float = 3600.0  # TRAFFIC_UPDATE period (time-dependent road networks)
     record_events: bool = True
+    timeseries_interval_s: Optional[float] = None  # MetricSampler period (s of sim time); None = off
     fare: FareModel = field(default_factory=FareModel)
     pooling: PoolingParams = field(default_factory=PoolingParams)
 
@@ -119,6 +120,7 @@ class Simulation:
         self.events_processed = 0
         self.wall_time = 0.0
         self._finished = False
+        self.timeseries = None                     # MetricSampler when config.timeseries_interval_s is set
 
     # ===================================================================== scheduling
     def _push(self, t: float, kind: E, **payload) -> None:
@@ -140,6 +142,11 @@ class Simulation:
             raise RuntimeError("a Simulation object can only run once; build a new one")
         wall = _time.perf_counter()
         sc = self.scenario
+        ts = None
+        if self.config.timeseries_interval_s:
+            from kami.timeseries import MetricSampler
+
+            ts = self.timeseries = MetricSampler(self, self.config.timeseries_interval_s)
         for d in sc.drivers:
             drv = Driver(d.id, d.loc, d.shift_start, d.shift_end, dict(d.attrs), d.capacity)
             drv.home_zone = self.zones.zone_of(d.loc)
@@ -164,15 +171,30 @@ class Simulation:
         self.policy.on_start(self)
 
         q = self._q
-        while q:
-            ev = heapq.heappop(q)
-            if ev.time > self.t_stop:
-                break
-            self.t = ev.time
-            self.events_processed += 1
-            getattr(self, "_on_" + ev.kind.value.lower())(**ev.payload)
+        if ts is None:
+            while q:
+                ev = heapq.heappop(q)
+                if ev.time > self.t_stop:
+                    break
+                self.t = ev.time
+                self.events_processed += 1
+                getattr(self, "_on_" + ev.kind.value.lower())(**ev.payload)
+        else:
+            # snapshot at mark m = state after every event with time < m (no extra events, decision D7)
+            mark = ts.next_mark
+            while q:
+                ev = heapq.heappop(q)
+                if ev.time > self.t_stop:
+                    break
+                if ev.time >= mark:
+                    mark = ts.sample_until(ev.time)
+                self.t = ev.time
+                self.events_processed += 1
+                getattr(self, "_on_" + ev.kind.value.lower())(**ev.payload)
 
         self.t = min(max(self.t, sc.t_end), self.t_stop)
+        if ts is not None:
+            ts.finish(self.t)
         self._finalise()
         self.policy.on_end(self)
         self._finished = True
