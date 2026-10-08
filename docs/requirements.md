@@ -9,10 +9,10 @@
 kami 0.1 là engine agent-based, discrete-event chạy bằng CLI/thư viện Python, mạnh ở phần **policy plugin, behavior
 model và đánh giá nhân quả bằng CRN** (xem [engine/README.md](engine/README.md)). kami 0.2 biến engine đó thành
 **nền tảng mô phỏng vận hành** cho một hãng gọi xe điện quy mô GreenSM tại Hà Nội: có bản đồ thật, nhiều fleet xe
-điện cần sạc, dynamic pricing, policy lưu trong DB và cấu hình qua giao diện web.
+điện cần sạc, dynamic pricing, cấu hình và chạy qua giao diện web.
 
 **Phạm vi sản phẩm hiện tại: matching 1 tài xế – 1 khách** (mỗi chuyến chở một khách/một booking). Chưa có ghép
-chuyến (shared ride / pooling); xem §5.
+chuyến (shared ride / pooling), chưa có hệ thống policy (policy plugin, policy group, policy agent); xem §5.
 
 Các nguyên tắc của kami 0.1 vẫn giữ nguyên: policy chỉ tác động qua API của engine, hành vi là model tại điểm quyết
 định, ngẫu nhiên đi qua CRN, phần ngoại sinh của kịch bản được replay y hệt cho mọi cấu hình.
@@ -24,9 +24,7 @@ Các nguyên tắc của kami 0.1 vẫn giữ nguyên: policy chỉ tác động
 | **Vehicle type** (loại xe) | Mẫu xe: tên, nhóm (bike/car), số chỗ, quãng đường tối đa khi đầy pin, thông số sạc |
 | **Fleet** | Một đội xe: tên, danh sách (vehicle type × số lượng), sản phẩm phục vụ (bike, car 4 chỗ, car 7 chỗ…) |
 | **Charging station** | Trạm sạc: vị trí, số cổng, công suất |
-| **Policy plugin** | Một đơn vị logic vận hành (matching, pricing, reposition, sạc, khuyến khích…) viết bằng code, có tham số khai báo được |
-| **Policy group** | Tập policy plugin đã cấu hình tham số, áp cùng nhau cho một lần chạy |
-| **Simulation scenario** (kịch bản) | Cấu hình một lần chạy: bản đồ, khung thời gian, demand, thời tiết/sự cố, fleet, policy group, seed |
+| **Simulation scenario** (kịch bản) | Cấu hình một lần chạy: bản đồ, khung thời gian, demand, thời tiết/sự cố, fleet, seed |
 | **Simulation run** | Một lần thực thi một kịch bản, có trạng thái, tiến độ, metric và event log |
 
 ## 3. Yêu cầu chức năng
@@ -58,7 +56,6 @@ Các nguyên tắc của kami 0.1 vẫn giữ nguyên: policy chỉ tác động
 | EV-2 | Mỗi xe theo dõi mức pin (SOC) giảm theo quãng đường đã đi; xe không thể nhận chuyến vượt quá quãng đường còn lại |
 | EV-3 | Có hạ tầng sạc: trạm sạc với vị trí, số cổng, công suất; xe xếp hàng khi trạm đầy |
 | EV-4 | Có **behavioral model cho quyết định sạc** của tài xế (khi nào sạc, sạc ở đâu, sạc đến mức nào), đi qua CRN như các điểm quyết định khác |
-| EV-5 | Policy có thể tác động vào việc sạc (ví dụ điều xe đi sạc ngoài giờ cao điểm) qua API của engine |
 
 ### 3.4 Fleet — `FLEET`
 
@@ -73,49 +70,36 @@ Các nguyên tắc của kami 0.1 vẫn giữ nguyên: policy chỉ tác động
 
 | Mã | Yêu cầu |
 |---|---|
-| PRICE-1 | Có interface chiến lược pricing dạng policy plugin; hiện thực lại các chiến lược của FleetPy (`TimeBasedDP`, `UtilizationBasedDP`) cùng `SurgePricing` hiện có |
+| PRICE-1 | Có interface chiến lược pricing, chọn và cấu hình tham số qua kịch bản; hiện thực lại các chiến lược của FleetPy (`TimeBasedDP`, `UtilizationBasedDP`) cùng `SurgePricing` hiện có |
 | PRICE-2 | Giá ảnh hưởng tới **offer** gửi cho khách (giá, ETA, sản phẩm) |
 | PRICE-3 | Quyết định **đặt / hủy** của khách phụ thuộc vào giá (độ co giãn theo giá), qua behavior model và CRN |
 | PRICE-4 | Bảng giá theo sản phẩm (bike, các loại car) cấu hình được |
 
-### 3.6 Policy — `POL`
-
-| Mã | Yêu cầu |
-|---|---|
-| POL-1 | Policy plugin được thiết kế để **mô phỏng được policy ngoài đời thật bằng code** (đủ hook và API cho matching, pricing, reposition, sạc, khuyến khích tài xế…) |
-| POL-2 | Có thể **tạo và nhóm** policy plugin thành **policy group** |
-| POL-3 | Policy plugin và policy group **lưu được vào DB** (định nghĩa, tham số, phiên bản) |
-| POL-4 | UI cho người dùng tự định nghĩa policy (chọn plugin, nhập tham số) và apply policy |
-| POL-5 | Người dùng chọn được hệ thống đang **apply / không apply** policy nào |
-| POL-6 | Có **policy agent** giúp người dùng tạo policy mới từ ngôn ngữ tự nhiên |
-
-### 3.7 Chạy mô phỏng — `RUN`
+### 3.6 Chạy mô phỏng — `RUN`
 
 | Mã | Yêu cầu |
 |---|---|
 | RUN-1 | Người dùng tạo và chạy kịch bản mô phỏng; hiện tại **chỉ cho phép 1 kịch bản chạy tại một thời điểm** |
 | RUN-2 | Người dùng xem được kịch bản nào đang chạy (trạng thái, tiến độ) |
-| RUN-3 | Mỗi kịch bản cấu hình được: chọn fleet nào, policy group nào (và các tham số kịch bản khác) |
+| RUN-3 | Mỗi kịch bản cấu hình được: chọn fleet nào (và các tham số kịch bản khác: bản đồ, khung giờ, demand, pricing, seed…) |
 | RUN-4 | Metric của từng lần chạy được **lưu vào DB** |
 
-### 3.8 Giao diện — `UI`
+### 3.7 Giao diện — `UI`
 
 | Mã | Yêu cầu |
 |---|---|
 | UI-1 | **Simulation visualizer**: xem bản đồ mô phỏng (xe, khách, trạm sạc) cùng **live metric**. Chạy trên web, bản đồ **Mapbox** phóng to/thu nhỏ/nghiêng được, xe để lại **vệt đường chạy màu theo trạng thái**; tham khảo chức năng từ ảnh `draft/operation_visualizer_*.png` và video mẫu trong `draft/` (không sao chép phong cách). Giao diện hiện đại, **ưu tiên light mode**, **màu chủ đạo xanh Tiffany**. Có fixture demo (một số xe trong một khu vực Hà Nội) để xem trước khi có backend |
 | UI-2 | Trang quản lý kịch bản mô phỏng |
 | UI-3 | Trang quản lý fleet xe (và vehicle type) |
-| UI-4 | Trang quản lý policy, tích hợp policy agent |
 | UI-5 | Trang xem metric của các lần chạy (đọc từ DB), so sánh giữa các lần chạy |
 
 ## 4. Yêu cầu phi chức năng
 
 | Mã | Yêu cầu |
 |---|---|
-| NFR-1 | **Tái lập**: cùng kịch bản + cùng seed + cùng phiên bản policy cho cùng kết quả |
+| NFR-1 | **Tái lập**: cùng kịch bản + cùng seed cho cùng kết quả |
 | NFR-2 | **Tương thích**: API thư viện và CLI của kami 0.1 vẫn chạy; test hiện có không bị phá |
-| NFR-3 | **An toàn khi chạy code policy**: policy do người dùng hoặc agent sinh ra không được truy cập tuỳ ý hệ thống file/mạng, không làm treo engine |
-| NFR-4 | **Truy vết**: mỗi run lưu lại đầy đủ cấu hình đã dùng (snapshot fleet, policy group kèm phiên bản, kịch bản) |
+| NFR-4 | **Truy vết**: mỗi run lưu lại đầy đủ cấu hình đã dùng (snapshot fleet, loại xe, trạm sạc, kịch bản) |
 | NFR-5 | Lõi engine vẫn dùng được không cần DB/UI (chế độ thư viện) |
 
 ## 5. Ngoài phạm vi (hiện tại)
@@ -129,6 +113,14 @@ Các nguyên tắc của kami 0.1 vẫn giữ nguyên: policy chỉ tác động
   `rider.pooled_*`, `rider.detour_ratio`, `platform.pooled_jobs`, `platform.surcharge_total`, quy tắc
   `pooling_rule_example`, ví dụ `examples/02_pool_after_wait.py`. Khi đưa shared ride vào phạm vi, cập nhật mục này
   và thêm yêu cầu riêng.
+- **Policy plugin, policy group và mọi tính năng xoay quanh policy** (trước đây là `POL-1`…`POL-6`, `EV-5`, `UI-4`,
+  `NFR-3`): manifest/`params_schema`, plugin tuỳ biến lưu mã trong DB, sandbox chạy code policy, policy group
+  (nhóm, bật/tắt thành viên), chọn policy group cho kịch bản, policy lưu DB qua API/UI, trang quản lý policy, policy
+  agent sinh policy từ ngôn ngữ tự nhiên, hook policy điều xe đi sạc. Cơ chế `Policy` của kami 0.1 (`kami/policy/`,
+  `POLICIES`, `Composite`, các policy dựng sẵn, bảng `policy`/`policy_version`/`policy_group` và `PolicySpec`/
+  `PolicyGroupSpec` của Sprint 01) **giữ nguyên trong code** để API/CLI/ví dụ 0.1 và cấu hình hiện có vẫn chạy
+  (NFR-2), nhưng không phát triển thêm và không đưa lên backend/UI 0.2. Matching, pricing của 0.2 là tham số của
+  kịch bản. Khi đưa policy trở lại phạm vi, cập nhật mục này và thêm yêu cầu riêng.
 - Chạy song song nhiều kịch bản trên giao diện (RUN-1 giới hạn 1 run/lần). Experiment nhiều seed vẫn chạy được
   qua thư viện/CLI.
 - Đồng mô phỏng vi mô với SUMO (traffic mức 3).
@@ -144,4 +136,3 @@ Các nguyên tắc của kami 0.1 vẫn giữ nguyên: policy chỉ tác động
 | Q3 | Vị trí và quy mô trạm sạc tại Hà Nội? | Seed data giả lập từ OSM (`amenity=charging_station`) + nhập tay |
 | Q4 | Phân bố demand theo giờ/khu của Hà Nội? | Sinh synthetic theo profile giờ cao điểm; thay bằng dữ liệu thật khi có |
 | Q5 | Công nghệ DB / backend / frontend? | DB quyết định trong plan Sprint 01 (đề xuất SQLite/PostgreSQL); bản đồ: **Mapbox** (người dùng chốt); framework frontend quyết định trong plan Sprint 03; backend trong plan Sprint 08 (đề xuất FastAPI) |
-| Q6 | Model LLM cho policy agent và nơi chạy? | Quyết định trong implementation plan Sprint 10 |

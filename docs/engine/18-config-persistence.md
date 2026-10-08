@@ -205,7 +205,7 @@ repo.get_run(result.run_id); repo.run_metrics(result.run_id); repo.run_timeserie
 |---|---|
 | `vehicle_type`, `fleet`, `charging_station`, `policy_group`, `scenario` | `id`, `name` (duy nhất trong các bản chưa xoá), `spec_json`, `created_at`, `updated_at`, `deleted_at` |
 | `fleet_vehicle` | `(fleet_id, position)` → `vehicle_type_id`, `count` — toàn vẹn tham chiếu fleet ↔ loại xe |
-| `policy` / `policy_version` | `name`, `plugin`, `source_kind` / `version`, `params_json`, `params_schema_json` và `source_code` (để trống tới Sprint 07) |
+| `policy` / `policy_version` | `name`, `plugin`, `source_kind` / `version`, `params_json`, `params_schema_json` và `source_code` (để trống; policy tuỳ biến ngoài phạm vi — requirements §5) |
 | `policy_group_member` | `(group_id, position)` → `policy_version_id` (NULL nếu policy khai báo trực tiếp), `plugin`, `params_json` (tham số hiệu lực), `enabled` |
 | `run` | `status` (`queued`/`running`/`succeeded`/`failed`/`cancelled`), `run_spec_json` (snapshot đã giải tham chiếu), `source_spec_json` (bản gửi lên), `provenance_json`, `kami_version`, `schema_version`, `seed`, thời điểm, `wall_s`, `events`, `error` |
 | `run_metric_summary` | `(run_id, name)` → `value` (NaN lưu `NULL`) |

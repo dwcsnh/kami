@@ -31,11 +31,11 @@ phẩm) cho khách; khách **đặt hoặc hủy** dựa trên giá qua behavior
 | Mã | Hạng mục |
 |---|---|
 | S06-1 | Bảng giá theo sản phẩm (`FareModel` theo bike/từng loại car): giá mở cửa, theo km, theo phút, giá tối thiểu, take rate; cấu hình qua spec và lưu DB |
-| S06-2 | Interface `PricingStrategy` (một loại policy plugin): nhận trạng thái thị trường (cung/cầu theo zone, giờ, sản phẩm) và trả hệ số/giá cho offer; tương thích với hook `price()` hiện có |
+| S06-2 | Interface `PricingStrategy`, chọn và cấu hình tham số trong kịch bản: nhận trạng thái thị trường (cung/cầu theo zone, giờ, sản phẩm) và trả hệ số/giá cho offer; tương thích với hook `price()` hiện có |
 | S06-3 | Hiện thực lại theo ý tưởng FleetPy: `TimeBasedDP` (hệ số giá theo khung giờ) và `UtilizationBasedDP` (hệ số giá theo tỷ lệ sử dụng fleet); chuyển `SurgePricing` hiện có sang interface mới. Ghi rõ điểm giống/khác FleetPy trong tài liệu |
 | S06-4 | Offer: khi khách tạo request, engine sinh offer cho sản phẩm khách yêu cầu (tuỳ chọn: nhiều sản phẩm) gồm giá, ETA đón, ETA đến; offer có thời hạn |
 | S06-5 | Behavior model đặt chuyến nhạy giá: xác suất đặt phụ thuộc giá (so với giá tham chiếu/ngân sách của khách), ETA, sản phẩm; thuộc tính cá nhân (độ nhạy giá) rút từ phân phối trong kịch bản |
-| S06-6 | Behavior model hủy nhạy giá: hazard hủy khi chờ có thể phụ thuộc giá đã trả; giá thay đổi sau khi đặt (nếu policy cho phép) ảnh hưởng xác suất hủy |
+| S06-6 | Behavior model hủy nhạy giá: hazard hủy khi chờ có thể phụ thuộc giá đã trả; giá thay đổi sau khi đặt (nếu chiến lược pricing cho phép) ảnh hưởng xác suất hủy |
 | S06-7 | (Tuỳ chọn) Khách không đặt có thể yêu cầu lại sau một khoảng thời gian (re-request), tham số hoá và tắt được |
 | S06-8 | Metric: tỷ lệ chuyển đổi offer → đặt, doanh thu, giá trung bình, hệ số surge trung bình theo zone/giờ, thu nhập tài xế, metric theo sản phẩm |
 | S06-10 | Visualizer: lớp nhiệt (heatmap) theo zone cho hệ số surge/giá, cầu và cung rảnh; KPI doanh thu và giá trung bình trong bảng metric |

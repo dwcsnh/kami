@@ -26,7 +26,6 @@
 |---|---|---|---|---|---|---|
 | B01-1 | Chờ phụ thuộc | Cao | `VehicleTypeSpec.range_km`, `group` và `ChargingStationSpec` được lưu và kiểm tra nhưng engine chưa dùng | Mô hình pin/sạc thuộc Sprint 05 | 05 | Mở |
 | B01-2 | Chờ phụ thuộc | Cao | Fleet chưa có phân bố ban đầu / ca làm việc riêng; xe được gán vào fleet theo quy tắc D6 sau khi kịch bản sinh | FLEET-1/2 thuộc Sprint 05 | 05 | Mở |
-| B01-3 | Chờ phụ thuộc | Thấp | `policy_version.params_schema_json`, `source_code` và `policy.source_kind` khác `builtin` để trống; tham số policy kiểm tra bằng introspection chữ ký `__init__` (D4) | Manifest / `params_schema` / code policy người dùng thuộc Sprint 07 | 07 | Mở |
 | B01-4 | Nợ kỹ thuật | Thấp | Chỉ hỗ trợ SQLite; chưa có PostgreSQL | Q-A chốt SQLite; mọi truy cập qua `Repository` nên đổi chỉ chạm `kami/store` | 08 (xem lại khi có backend nhiều người dùng) | Mở |
 | B01-5 | Chờ phụ thuộc | Cao | Benchmark chưa có case quy mô GreenSM (`hanoi_greensm_day`, ~100k request, ~8k xe) | Cần mạng Hà Nội (Sprint 02) và tối ưu quy mô (Sprint 04) | 04 | Mở |
 | B01-6 | Nợ kỹ thuật | Cao | Kết quả phụ thuộc môi trường: có `scipy` thì matching Hungarian, không có thì greedy (cùng spec + seed cho số sự kiện khác nhau giữa Python hệ thống và env `fleetpy`). Snapshot run chưa ghi solver thực dùng / môi trường | Hành vi có từ 0.1, ngoài phạm vi sprint | 04 (ghi môi trường vào run, hoặc báo lỗi khi `solver="hungarian"` mà thiếu `scipy`) | Mở |

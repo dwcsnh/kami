@@ -13,6 +13,9 @@ File này dành cho mọi coding agent (và người) phát triển kami. Đọc
   (`kami/pooling.py`, `PoolAfterWait`, slot `pool_accept`/`LogitPoolAccept`, metric `pool_*`…) chỉ được giữ cho tương
   thích; không dùng nó trong tính năng mới, không phát triển thêm (danh sách đầy đủ ở
   [requirements §5](docs/requirements.md#5-ngoài-phạm-vi-hiện-tại)).
+- **Policy (policy plugin, policy group, policy agent) cũng nằm ngoài phạm vi hiện tại.** Sprint 07 và 10 đã bị xoá.
+  Cơ chế `Policy` của 0.1 (`kami/policy/`, `PolicySpec`/`PolicyGroupSpec`, bảng `policy*` trong DB) chỉ được giữ
+  cho tương thích; không thêm hook/plugin/API/UI policy mới. Matching và pricing của 0.2 là tham số của kịch bản.
 
 ## 2. Bản đồ tài liệu
 

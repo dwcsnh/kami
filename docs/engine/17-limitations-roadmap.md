@@ -57,10 +57,9 @@
 | 2. Traffic chung toàn thành phố, chưa theo zone × giờ | [Sprint 02](../sprint/sprint-02-hanoi-network-traffic.md) — xong (giả định, chưa hiệu chỉnh GPS) |
 | 4. Chưa có sạc xe điện | [Sprint 05](../sprint/sprint-05-fleet-ev-charging.md) |
 | 5. Khách không đặt lại; chưa chọn sản phẩm | [Sprint 05](../sprint/sprint-05-fleet-ev-charging.md) (sản phẩm), [Sprint 06](../sprint/sprint-06-dynamic-pricing.md) (re-request) |
-| 6. Chưa có sổ chi phí khuyến khích, phí hủy | [Sprint 07](../sprint/sprint-07-policy-v2-groups.md) |
 | 8. Hiệu năng quy mô hàng trăm nghìn chuyến/ngày | [Sprint 04](../sprint/sprint-04-scale-performance.md) |
 | Chưa có dashboard / animation quỹ đạo | [Sprint 03](../sprint/sprint-03-map-visualizer.md) (bản đồ vận hành, phát lại), [Sprint 09](../sprint/sprint-09-ui-simulation-manager.md) (simulation manager, visualizer live) |
-| 1. Behavior model chưa fit bằng dữ liệu thật; 3. pooling / ghép batch tối ưu; 4. day-to-day; 7. interference A/B | Chưa xếp sprint (ngoài phạm vi 0.2, xem requirements §5) |
+| 1. Behavior model chưa fit bằng dữ liệu thật; 3. pooling / ghép batch tối ưu; 4. day-to-day; 6. sổ chi phí khuyến khích, phí hủy (policy); 7. interference A/B | Chưa xếp sprint (ngoài phạm vi 0.2, xem requirements §5) |
 
 ## Việc nên làm tiếp (danh sách gốc của kami 0.1)
 

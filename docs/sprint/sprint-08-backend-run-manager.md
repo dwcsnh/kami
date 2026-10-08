@@ -3,9 +3,9 @@
 | | |
 |---|---|
 | Trạng thái | Chưa bắt đầu |
-| Yêu cầu | RUN-1, RUN-2, RUN-3, RUN-4; API cho FLEET-3, POL-3 |
-| Phụ thuộc | Sprint 01, Sprint 07 |
-| Backlog đầu vào | [sprint-07-backlog.md](../backlog/sprint-07-backlog.md); từ [sprint-01-backlog.md](../backlog/sprint-01-backlog.md): B01-4 |
+| Yêu cầu | RUN-1, RUN-2, RUN-3, RUN-4; API cho FLEET-3 |
+| Phụ thuộc | Sprint 01, Sprint 05 (fleet, loại xe, trạm sạc), Sprint 06 (bảng giá, chiến lược pricing) |
+| Backlog đầu vào | [sprint-06-backlog.md](../backlog/sprint-06-backlog.md); từ [sprint-01-backlog.md](../backlog/sprint-01-backlog.md): B01-4 |
 | Implementation plan | [sprint-08-plan.md](../implementation-plan/sprint-08-plan.md) (chưa có) |
 
 ## Mục tiêu
@@ -15,7 +15,7 @@ theo dõi trạng thái/tiến độ, phát **live metric** và lưu metric vào
 
 ## Phạm vi
 
-- API cho vehicle type, fleet, trạm sạc, policy plugin, policy group, kịch bản, run, metric.
+- API cho vehicle type, fleet, trạm sạc, kịch bản, run, metric.
 - Bộ chạy run ở tiến trình nền, giới hạn 1 run chạy cùng lúc.
 - Kênh đẩy dữ liệu trực tiếp (tiến độ, metric theo thời gian, vị trí xe dạng snapshot) cho visualizer.
 - Truy vấn metric và so sánh giữa các run.
@@ -30,7 +30,7 @@ theo dõi trạng thái/tiến độ, phát **live metric** và lưu metric vào
 
 | Mã | Hạng mục |
 |---|---|
-| S08-1 | API CRUD: vehicle type, fleet (kèm thành phần), trạm sạc, policy plugin (liệt kê built-in, tạo/sửa plugin tuỳ biến qua bước kiểm tra của Sprint 07), policy group, kịch bản. Kiểm tra hợp lệ dùng chung schema Sprint 01 |
+| S08-1 | API CRUD: vehicle type, fleet (kèm thành phần), trạm sạc, kịch bản (gồm cấu hình matching và pricing). Kiểm tra hợp lệ dùng chung schema Sprint 01 |
 | S08-2 | Không cho xoá thực thể đang được kịch bản/run tham chiếu (hoặc xoá mềm); run luôn giữ snapshot |
 | S08-3 | API run: tạo run từ kịch bản; bắt đầu; huỷ; xem trạng thái (`queued`/`running`/`succeeded`/`failed`/`cancelled`), tiến độ (thời gian mô phỏng hiện tại / tổng, ước lượng thời gian còn lại), lỗi |
 | S08-4 | Bộ chạy nền: chạy engine ở tiến trình riêng để API không bị chặn; **chỉ 1 run `running`**; yêu cầu chạy khi đang bận bị từ chối với thông báo rõ (hoặc xếp hàng nếu plan chọn vậy, nhưng chỉ 1 chạy) |
@@ -44,7 +44,7 @@ theo dõi trạng thái/tiến độ, phát **live metric** và lưu metric vào
 ## Acceptance criteria
 
 - [ ] AC08-1 Mọi thực thể tạo/đọc/sửa/xoá được qua API; dữ liệu sai bị từ chối với lỗi theo trường.
-- [ ] AC08-2 Tạo kịch bản chọn fleet + policy group, chạy qua API, run chuyển `queued → running → succeeded`.
+- [ ] AC08-2 Tạo kịch bản chọn fleet, chạy qua API, run chuyển `queued → running → succeeded`.
 - [ ] AC08-3 Khi đã có 1 run `running`, yêu cầu chạy run thứ hai không làm có 2 run chạy cùng lúc (test đồng thời).
 - [ ] AC08-4 Huỷ run đang chạy dừng engine trong ≤ vài giây và đặt trạng thái `cancelled`.
 - [ ] AC08-5 Client nhận được tiến độ và metric live trong lúc run chạy; tần suất cấu hình được.
