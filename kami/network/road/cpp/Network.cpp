@@ -264,6 +264,13 @@ void Network::updateEdgeTravelTimes(std::string file_path) {
     }
 }
 
+void Network::setEdgeTravelTimes(int n, const int* from_nodes, const int* to_nodes, const double* edge_tts) {
+    // kami addition: same as updateEdgeTravelTimes, from memory instead of a CSV file
+    for (int i = 0; i < n; i++) {
+        updateEdgeTravelTime(from_nodes[i], to_nodes[i], edge_tts[i]);
+    }
+}
+
 void Network::updateEdgeTravelTime(int start_node_index, int end_node_index, double edge_travel_time) {
     //cout << "update edge" << start_node_index << " " << end_node_index << " " << edge_travel_time << endl;
     bool fw_found = false;

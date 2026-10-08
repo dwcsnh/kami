@@ -1,0 +1,53 @@
+{
+  "name": "hoan_kiem_fixture",
+  "description": "Fixture test: ~1,6 km² quanh Hồ Gươm, cắt từ vietnam-261006.osm.pbf (make_fixture.py); một way có motorcycle=no giả lập",
+  "source": {
+    "path": "hoan_kiem.osm.pbf",
+    "file": "hoan_kiem.osm.pbf",
+    "date": "2026-10-06",
+    "sha256": "2494775d8841e69d35ee7e95d7c62421012289d8f3a1c7c97d47a501fbd693c2",
+    "license": "© OpenStreetMap contributors, ODbL 1.0"
+  },
+  "area": "hoan_kiem_area.geojson",
+  "crs": "EPSG:32648",
+  "highway": [
+    "motorway",
+    "motorway_link",
+    "trunk",
+    "trunk_link",
+    "primary",
+    "primary_link",
+    "secondary",
+    "secondary_link",
+    "tertiary",
+    "tertiary_link",
+    "unclassified",
+    "residential",
+    "living_street"
+  ],
+  "speeds_kmh": {
+    "motorway": 70,
+    "motorway_link": 40,
+    "trunk": 50,
+    "trunk_link": 35,
+    "primary": 40,
+    "primary_link": 30,
+    "secondary": 35,
+    "secondary_link": 25,
+    "tertiary": 30,
+    "tertiary_link": 25,
+    "unclassified": 25,
+    "residential": 20,
+    "living_street": 10
+  },
+  "zones": {
+    "h3": {
+      "name": "fixture_h3_r8",
+      "resolution": 8
+    },
+    "admin": {
+      "name": "fixture_wards",
+      "admin_level": "6"
+    }
+  }
+}

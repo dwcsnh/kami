@@ -17,7 +17,7 @@ from kami.config.specs import (DEFAULT_TIMESERIES_INTERVAL_S, WRAPPERS, Behavior
                                FileZoneSpec, FleetPyDemandSourceSpec, FleetSpec, GridNetworkSpec, H3ZoneSpec,
                                ModelSpec, PolicyGroupSpec, PolicySpec, PresetSourceSpec, Ref, RoadNetworkSpec,
                                RunSpec, ScenarioSpec, SimConfigSpec, SquareZoneSpec, SyntheticSourceSpec,
-                               VehicleTypeSpec, _model_classes, model_params_class)
+                               VehicleTypeSpec, ZonalSourceSpec, _model_classes, model_params_class)
 from kami.config.validate import SpecError
 from kami.core.engine import SimConfig, Simulation
 from kami.matching import MatchingParams
@@ -25,7 +25,7 @@ from kami.network import FileZoneSystem, GridNetwork, H3ZoneSystem, RoadNetwork,
 from kami.policy import POLICIES, Baseline, Composite, Policy
 from kami.pooling import PoolingParams
 from kami.pricing import FareModel
-from kami.scenario import Scenario, ScenarioBuilder
+from kami.scenario import Scenario, ScenarioBuilder, read_zone_weights
 
 _WORLD_CACHE: Dict[str, Tuple[Any, Any]] = {}
 
@@ -96,13 +96,27 @@ def apply_fleets(scenario: Scenario, fleets: Sequence[FleetSpec], vehicle_types:
         d.capacity = vt.seats
         d.attrs["fleet_id"] = fl.name
         d.attrs["vehicle_type"] = vt.name
+        d.attrs["vehicle_group"] = vt.group      # used on the network when the scenario declares vehicle_groups
     scenario.tags["fleets"] = {fl.name: fl.size() for fl in fleets}
+
+
+def _zone_weights(spec: ScenarioSpec, src: ZonalSourceSpec, net):
+    """Zone weights of a ``zonal`` source: the given file, else ``zone_weights.csv`` next to the zone file."""
+    if src.weights:
+        return read_zone_weights(_data_file(src.weights, net))
+    if isinstance(spec.zones, FileZoneSpec):
+        p = Path(spec.zones.name)
+        folder = p.parent if p.is_file() else (Path(getattr(net, "data_root", "")) / "zones" / spec.zones.name /
+                                               getattr(net, "name", ""))
+        if (folder / "zone_weights.csv").exists():
+            return read_zone_weights(folder / "zone_weights.csv")
+    return None
 
 
 def build_scenario(spec: ScenarioSpec, seed: Optional[int] = None, fleets: Sequence[FleetSpec] = (),
                    vehicle_types: Sequence[VehicleTypeSpec] = (), world=None) -> Scenario:
     net, zones = world or build_world(spec)
-    builder = ScenarioBuilder(net, zones, traffic=spec.traffic.kwargs())
+    builder = ScenarioBuilder(net, zones, traffic=spec.traffic.kwargs(lambda p: _data_file(p, net)))
     seed = spec.seed if seed is None else seed
     n_drivers = sum(fl.size() for fl in fleets) if fleets else spec.n_drivers
     src = spec.source
@@ -115,6 +129,9 @@ def build_scenario(spec: ScenarioSpec, seed: Optional[int] = None, fleets: Seque
         sc = builder.from_fleetpy_demand(_data_file(src.file, net), name=spec.name, seed=seed, n_drivers=n_drivers,
                                          t_start=src.t_start, t_end=src.t_end, time_offset=src.time_offset,
                                          capacity=src.capacity)
+    elif isinstance(src, ZonalSourceSpec):
+        sc = builder.zonal(name=spec.name, seed=seed, n_drivers=n_drivers, weights=_zone_weights(spec, src, net),
+                           **src.zonal_kwargs())
     elif isinstance(src, CsvSourceSpec):
         sc = builder.from_csv(_data_file(src.file, net), name=spec.name, seed=seed, n_drivers=n_drivers,
                               time_col=src.time_col, origin=tuple(src.origin), dest=tuple(src.dest),
@@ -206,8 +223,10 @@ def _require_resolved(spec: RunSpec) -> None:
 def build_run(spec: RunSpec) -> BuiltRun:
     _require_resolved(spec)
     sc = build_scenario(spec.scenario, seed=spec.seed, fleets=spec.fleets, vehicle_types=spec.vehicle_types)
-    return BuiltRun(sc, build_policy(spec.policy_group), build_behavior(spec.behavior),
-                    build_sim_config(spec.sim_config), spec.crn_seed)
+    config = build_sim_config(spec.sim_config)
+    if spec.outputs.trajectories != "none":
+        config.record_trajectories = True
+    return BuiltRun(sc, build_policy(spec.policy_group), build_behavior(spec.behavior), config, spec.crn_seed)
 
 
 def run_spec(spec: RunSpec) -> Simulation:

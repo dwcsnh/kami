@@ -5,7 +5,7 @@
 | Trạng thái | Chưa bắt đầu |
 | Yêu cầu | UI-1 (phần bản đồ + metric, chế độ phát lại), MAP-2 (hiển thị) |
 | Phụ thuộc | Sprint 02 (mạng Hà Nội, quỹ đạo xe) |
-| Backlog đầu vào | [sprint-02-backlog.md](../backlog/sprint-02-backlog.md) |
+| Backlog đầu vào | [sprint-02-backlog.md](../backlog/sprint-02-backlog.md) — liên quan: B02-9 (kích thước `trajectories.parquet`, định dạng fixture cho visualizer), B02-11 (đo lại mốc benchmark sau commit). Đầu vào dữ liệu: mạng `hanoi` + `trajectories.parquet` (`python -m kami run --spec scenarios/hanoi/am_peak.json --out out/hanoi`, docs/engine/02 mục "Quỹ đạo") |
 | Implementation plan | [sprint-03-plan.md](../implementation-plan/sprint-03-plan.md) (chưa có) |
 
 ## Mục tiêu

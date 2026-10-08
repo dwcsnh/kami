@@ -51,7 +51,7 @@ nhanh hơn khoảng 5% và tiết kiệm RAM khi chạy hàng nghìn replication
 - **Kiểm chứng và gỡ lỗi:** dựng lại timeline của một khách hay một tài xế.
 - **Hiệu chỉnh:** so phân bố thời gian chờ và tỷ lệ hủy theo giờ với log thật (`by_hour`).
 - **Training:** sinh dữ liệu tổng hợp cho pipeline fit, như trong `examples/04_train_and_register.py`.
-- **Trực quan hoá:** `REQUEST_CREATED` (`origin`/`dest`), `IDLE_MOVE` (`origin`/`dest`) và các mốc
-  `TRIP_ACCEPTED`/`PICKUP`/`DROPOFF` đủ để dựng animation quỹ đạo (deck.gl `TripsLayer`, kepler.gl).
-  Đổi node sang lon/lat bằng `network.lonlat(node)`; lộ trình chi tiết lấy từ `sim.traffic.path(o, d)`
-  (`RoadNetwork`).
+- **Trực quan hoá:** các mốc `TRIP_ACCEPTED`/`PICKUP`/`DROPOFF` + quỹ đạo xe. Từ Sprint 02 quỹ đạo không cần dựng
+  lại từ log: bật `SimConfig.record_trajectories` (spec: `outputs.trajectories = "parquet"`) để có
+  `trajectories.parquet` — lộ trình thật của mọi chặng với thời điểm qua từng điểm, đúng dạng deck.gl `TripsLayer`
+  (docs/engine/02, mục "Quỹ đạo"). Event log ghi thời gian làm tròn 3 chữ số thập phân; quỹ đạo giữ thời gian đầy đủ.

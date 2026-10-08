@@ -17,6 +17,7 @@ cpp = ["cython", "setuptools"]             # build the C++ road router: python -
 h3 = ["h3"]
 data = ["pandas", "pyarrow"]               # DataFrame / Parquet export of the event log
 store = ["pyarrow"]                        # Parquet event logs of stored runs (kami.store, run --spec)
+osm = ["osmium", "pyproj", "h3"]           # build road networks from OSM: python -m kami.osm build hanoi
 
 [project.scripts]
 kami = "kami.cli:main"

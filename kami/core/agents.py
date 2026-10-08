@@ -72,6 +72,8 @@ class Leg:
     purpose: str               # "stop" | "idle" | "reposition"
     promised_arrive: Optional[float] = None  # platform's estimate (plan vs. reality)
     path: Optional[list] = field(default=None, repr=False)  # lazily computed [(node, cum_tt)]
+    group: str = "car"         # vehicle group whose router drives the leg (sprint 02)
+    rider_id: Optional[int] = None   # rider of the next stop (purpose "stop")
 
 
 @dataclass
@@ -151,6 +153,8 @@ class Driver:
     job_ids: List[int] = field(default_factory=list)
     going_offline: bool = False
     home_zone: Any = None
+    group: str = "car"                # effective vehicle group on the network (sprint 02, attrs["vehicle_group"])
+    legs: int = 0                     # legs driven so far (trajectory sequence number)
 
     # accounting
     t_online: Optional[float] = None

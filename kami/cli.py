@@ -126,6 +126,9 @@ def _run_spec_cmd(args, parser) -> int:
             name = "events.parquet" if fmt == "parquet" else "events.csv.gz"
             sim.log.save(out / name, fmt)
             written.append(name)
+        if resolved.outputs.trajectories == "parquet" and sim.trajectories is not None:
+            sim.trajectories.save(out / "trajectories.parquet")
+            written.append("trajectories.parquet")
         print(f"wrote {out}/: {', '.join(written)}")
     return 0
 
@@ -208,6 +211,20 @@ def main(argv=None) -> int:
         print("Scenario presets:")
         for k, v in PRESETS.items():
             print(f"  {k:18s} {v}")
+        hanoi = sorted((Path(__file__).resolve().parents[1] / "scenarios").glob("*/*.json"))
+        if hanoi:
+            print("Scenario files (run --spec FILE):")
+            for p in hanoi:
+                try:
+                    doc = json.loads(p.read_text(encoding="utf-8"))
+                    src = doc["scenario"]["source"]
+                    vehicles = sum(c["count"] for fl in doc.get("fleets", []) for c in fl["composition"])
+                    desc = (f"{doc['scenario']['network'].get('name')} {src.get('kind')} "
+                            f"{src.get('t_start', 0) / 3600:g}h–{src.get('t_end', 0) / 3600:g}h, "
+                            f"{vehicles or doc['scenario'].get('n_drivers', 150)} vehicles")
+                except (ValueError, KeyError, TypeError):
+                    desc = ""
+                print(f"  {p.relative_to(p.parents[2])}  {desc}")
         print("Policies:", ", ".join(sorted(POLICIES)))
         return 0
 

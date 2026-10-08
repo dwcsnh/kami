@@ -11,6 +11,7 @@
 | | `INCIDENT_START` | `incident_id` | Bật sự cố trên các zone trong bán kính, tính lại chặng, gài lại hủy | 0 |
 | | `INCIDENT_END` | `incident_id` | Tắt sự cố | 0 |
 | | `TRAFFIC_UPDATE` | — | Ghi hệ số giờ vào log; nạp travel time động của `RoadNetwork` nếu tới mốc | 0 |
+| | `CONGESTION_UPDATE` | — | Chỉ có khi kịch bản bật tắc đường zone × giờ (Sprint 02): đặt travel time của chu kỳ mới cho mọi nhóm xe, tính lại các chặng lệch quá `retime_threshold`, gài lại hủy; hẹn lần kế tiếp. Log: `hour`, `moving`, `retimed` | 0 |
 | Tài xế | `DRIVER_ONLINE` | `driver_id` | Bắt đầu ca, chuyển IDLE | 1 |
 | | `DRIVER_OFFLINE` | `driver_id` | Hết ca: nghỉ ngay nếu đang rảnh, xong cuốc rồi nghỉ nếu đang bận | 1 |
 | | `ARRIVE_STOP` | `driver_id`, `version` | Tới stop kế tiếp trong plan, xử lý đón hoặc trả khách | 2 |

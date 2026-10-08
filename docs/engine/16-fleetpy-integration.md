@@ -14,7 +14,7 @@ FleetPy, không cần `numpy`/`pandas`.
 |---|---|---|
 | `src/routing/road/NetworkBasic.py` (đọc mạng, travel time động) | `kami/network/road/graph.py` — `RoadGraph` | Đọc CSV bằng thư viện chuẩn thay cho pandas |
 | `src/routing/road/routing_imports/Router.py` + `PriorityQueue_python3.py` | `kami/network/road/router.py` — `Router` | Chỉ giữ Dijkstra 1→1 hai chiều và 1→X / X→1 có bán kính; thứ tự duyệt, tie-break, điều kiện dừng giữ nguyên; trạng thái tìm kiếm để trong dict thay vì thuộc tính node |
-| `src/routing/road/NetworkBasicCpp.py` + `cpp_router/` (C++ + Cython) | `kami/network/road/cpp/` — `_router.pyx`, `Network/Node/Edge.cpp` | Wrapper Cython dùng `std::vector` thay cho numpy; bỏ log `cout`; lỗi mở file thành `RuntimeError` |
+| `src/routing/road/NetworkBasicCpp.py` + `cpp_router/` (C++ + Cython) | `kami/network/road/cpp/` — `_router.pyx`, `Network/Node/Edge.cpp` | Wrapper Cython dùng `std::vector` thay cho numpy; bỏ log `cout`; lỗi mở file thành `RuntimeError`; thêm `setEdgeTravelTimes(from[], to[], tt[])` (Sprint 02) — như `updateEdgeTravelTimes` nhưng đọc từ bộ nhớ thay vì file CSV |
 | Lớp ghép các phần trên | `kami/network/road/network.py` — `RoadNetwork` | Thay cho `FleetPyNetwork` cũ (tên cũ vẫn dùng được) |
 | Định dạng `data/networks/<name>/base/{nodes,edges}.csv`, `crs.info` | Giữ nguyên định dạng | Mạng tạo bằng công cụ tiền xử lý của FleetPy vẫn dùng được: chép thư mục mạng vào `data/networks/` |
 | Thư mục travel time động / file `network_dynamics_file` | `RoadNetwork(network_dynamics_file=…)` + `TRAFFIC_UPDATE` | Hỗ trợ cả thư mục theo mốc thời gian và hệ số `travel_time_factor` |
@@ -27,6 +27,22 @@ FleetPy, không cần `numpy`/`pandas`.
 giống hệt ở cả backend C++ và Python. Khác biệt duy nhất: FleetPy đọc CSV bằng pandas (bộ parse nhanh, không luôn làm
 tròn đúng) nên một số travel time lệch ở chữ số cuối (ví dụ `1952.6080000000002` so với `1952.608`); kami dùng
 `float()` chuẩn, cùng giá trị mà router C++ đọc bằng `stod`.
+
+## Phần mở rộng định dạng mạng (Sprint 02)
+
+Mạng do pipeline OSM của kami tạo (docs/engine/19) vẫn là một thư mục FleetPy hợp lệ: FleetPy và router C++ đọc
+`nodes.csv`/`edges.csv` theo tên cột nên bỏ qua cột và file thêm. kami dùng các phần thêm sau khi có:
+
+| File / cột | Nội dung | Dùng cho |
+|---|---|---|
+| `base/nodes.csv`: cột `lon`, `lat`, `osm_id` | Toạ độ WGS84 (7 chữ số), id node OSM | `lonlat()` không cần `pyproj`; `node_at_lonlat` |
+| `base/edge_attributes.csv` | `from_node,to_node,road_class,allow_car,allow_bike,speed_kmh,maxspeed_tag` | Hệ số tắc theo loại đường; cạnh cấm theo nhóm xe; cột `allow_<nhóm>` bất kỳ được đọc |
+| `base/edge_geometry.csv` | `from_node,to_node,lons,lats` (polyline gồm cả hai node đầu mút, phân cách `;`) | Quỹ đạo vẽ theo đường cong thật |
+| `manifest.json` (thư mục mạng) | Phiên bản dữ liệu: file PBF nguồn, ngày, sha256, phiên bản pipeline, số liệu mạng/zone | Truy vết dữ liệu (AC02-1) |
+
+Travel time động theo zone × giờ không ghi ra `edges_td_att.csv`: kami sinh trong bộ nhớ và đặt thẳng vào router
+(`RoadNetwork.set_edge_factors`, docs/engine/08) — cùng cơ chế "đặt lại travel time cạnh theo mốc" của FleetPy, tránh
+ghi/đọc ~70k cạnh × 2 nhóm xe mỗi giờ.
 
 ## Dữ liệu và build
 

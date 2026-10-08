@@ -200,15 +200,134 @@ ZoneSpec = Union[SquareZoneSpec, H3ZoneSpec, FileZoneSpec]
 parse_zones = union({"square": SquareZoneSpec, "h3": H3ZoneSpec, "file": FileZoneSpec}, default="square")
 
 
+def _profiles(v, path, errs):
+    if not check_value(v, path, errs, dict):
+        return None
+    return {k: _floats(x, join(path, k), errs, n=24) for k, x in v.items()}
+
+
+def _zone_groups(v, path, errs):
+    if isinstance(v, str):
+        check_value(v, path, errs, str, choices=("ring",))
+        return v
+    if not check_value(v, path, errs, dict):
+        return "ring"
+    for k, x in v.items():
+        check_value(x, join(path, k), errs, str)
+    return {str(k): x for k, x in v.items()}
+
+
+def _lonlat(v, path, errs):
+    if not check_value(v, path, errs, dict):
+        return None
+    unknown_keys(v, ("lon", "lat"), path, errs)
+    ok = True
+    for k, lo, hi in (("lon", -180, 180), ("lat", -90, 90)):
+        if k not in v:
+            errs.add(join(path, k), "thiếu trường bắt buộc")
+            ok = False
+        else:
+            ok = check_value(v[k], join(path, k), errs, float, ge=lo, le=hi) and ok
+    return {"lon": float(v["lon"]), "lat": float(v["lat"])} if ok else None
+
+
+@dataclass
+class CongestionSpec(Spec):
+    """Zone × hour congestion (``kami.congestion.CongestionModel``, sprint 02). Every field is optional.
+
+    ``kind="zone_group"``: 24 hourly factors per zone group (``profiles``; default Hà Nội profiles core/inner/outer),
+    zones assigned to groups by distance bands from ``center`` (``zone_groups="ring"``) or explicitly
+    (``zone_groups={zone: group}`` / ``zone_groups_file`` CSV ``zone,group``). ``kind="file"``: CSV
+    ``zone,hour,factor`` in ``file``. Files: path as given, or relative to the network's data root.
+    """
+
+    kind: str = f("zone_group", choices=("zone_group", "file"))
+    period_s: float = f(3600.0, typ=float, gt=0)
+    profiles: Optional[Dict[str, List[float]]] = f(nullable=True, parse=_profiles, omit_none=True)
+    zone_groups: Any = f("ring", parse=_zone_groups)
+    zone_groups_file: Optional[str] = f(typ=str, nullable=True, omit_none=True)
+    center: Optional[Dict[str, float]] = f(nullable=True, parse=_lonlat, omit_none=True)
+    ring_radii_m: Optional[List[float]] = f(nullable=True, parse=lambda v, p, e: _floats(v, p, e), omit_none=True)
+    ring_groups: Optional[List[str]] = f(nullable=True, parse=lambda v, p, e: _strs(v, p, e, n=None),
+                                         omit_none=True)
+    road_class_scale: Optional[Dict[str, float]] = f(nullable=True, parse=lambda v, p, e: _float_map(v, p, e),
+                                                     omit_none=True)
+    file: Optional[str] = f(typ=str, nullable=True, omit_none=True)
+
+    def check(self, path, errs):
+        if self.kind == "file" and not self.file:
+            errs.add(join(path, "file"), "kind 'file' cần file CSV zone,hour,factor")
+        groups = self.ring_groups or ["core", "inner", "outer"]
+        if self.ring_radii_m is not None and len(self.ring_radii_m) != len(groups) - 1:
+            errs.add(join(path, "ring_radii_m"), f"cần {len(groups) - 1} bán kính cho {len(groups)} nhóm")
+        if self.kind == "zone_group" and self.profiles is not None:
+            from kami.congestion import DEFAULT_GROUP_PROFILES
+
+            names = set(groups) if self.zone_groups == "ring" and not self.zone_groups_file else set()
+            if isinstance(self.zone_groups, dict):
+                names = set(self.zone_groups.values())
+            missing = sorted(g for g in names if g not in self.profiles and g not in DEFAULT_GROUP_PROFILES)
+            if missing:
+                errs.add(join(path, "profiles"), f"thiếu profile cho nhóm {missing}")
+
+    def model_kwargs(self, resolve=lambda p: p) -> Dict[str, Any]:
+        """Keyword arguments of ``CongestionModel`` (``resolve`` maps file paths)."""
+        from kami.congestion import DEFAULT_GROUP_PROFILES
+
+        kw: Dict[str, Any] = {"kind": self.kind, "period_s": self.period_s}
+        if self.profiles is not None:
+            kw["profiles"] = dict({k: list(v) for k, v in DEFAULT_GROUP_PROFILES.items()}, **self.profiles)
+        kw["zone_groups"] = resolve(self.zone_groups_file) if self.zone_groups_file else self.zone_groups
+        if self.center is not None:
+            kw["center"] = (self.center["lon"], self.center["lat"])
+        if self.ring_radii_m is not None:
+            kw["ring_radii_m"] = list(self.ring_radii_m)
+        if self.ring_groups is not None:
+            kw["ring_groups"] = list(self.ring_groups)
+        if self.road_class_scale is not None:
+            kw["road_class_scale"] = dict(self.road_class_scale)
+        if self.file:
+            kw["file"] = resolve(self.file)
+        return kw
+
+
+@dataclass
+class VehicleGroupSpec(Spec):
+    """Network behaviour of a vehicle group (``kami.congestion.VehicleGroup``); missing fields: group default."""
+
+    speed_factor: Optional[float] = f(typ=float, nullable=True, gt=0, omit_none=True)
+    congestion_scale: Optional[float] = f(typ=float, nullable=True, ge=0, omit_none=True)
+
+    def kwargs(self) -> Dict[str, float]:
+        return {k: getattr(self, k) for k in ("speed_factor", "congestion_scale") if getattr(self, k) is not None}
+
+
+def _vehicle_groups(v, path, errs):
+    if not check_value(v, path, errs, dict):
+        return None
+    out = {}
+    for k, x in v.items():
+        p = join(path, k)
+        check_value(k, p, errs, str, choices=("bike", "car"))
+        out[k] = VehicleGroupSpec.parse(x if x is not None else {}, p, errs)
+    return out
+
+
 @dataclass
 class TrafficSpec(Spec):
-    """``TrafficLayer`` parameters; ``null`` = engine default."""
+    """``TrafficLayer`` parameters; ``null`` = engine default.
+
+    Sprint 02: ``congestion`` (zone × hour, replaces ``hour_profile``) and ``vehicle_groups`` (per-group speed /
+    congestion scale / forbidden edges; without it every vehicle drives as a car).
+    """
 
     hour_profile: Optional[List[float]] = f(nullable=True, parse=lambda v, p, e: _floats(v, p, e, n=24))
     weather_factor: Optional[Dict[str, float]] = f(nullable=True, parse=lambda v, p, e: _float_map(v, p, e))
     platform_sees_incidents: bool = f(False, typ=bool)
+    congestion: Optional[CongestionSpec] = f(nullable=True, spec=CongestionSpec, omit_none=True)
+    vehicle_groups: Optional[Dict[str, VehicleGroupSpec]] = f(nullable=True, parse=_vehicle_groups, omit_none=True)
 
-    def kwargs(self) -> Dict[str, Any]:
+    def kwargs(self, resolve=lambda p: p) -> Dict[str, Any]:
         out: Dict[str, Any] = {}
         if self.hour_profile is not None:
             out["hour_profile"] = list(self.hour_profile)
@@ -216,6 +335,10 @@ class TrafficSpec(Spec):
             out["weather_factor"] = dict(self.weather_factor)
         if self.platform_sees_incidents:
             out["platform_sees_incidents"] = True
+        if self.congestion is not None:
+            out["congestion"] = self.congestion.model_kwargs(resolve)
+        if self.vehicle_groups is not None:
+            out["vehicle_groups"] = {k: g.kwargs() for k, g in self.vehicle_groups.items()}
         return out
 
 
@@ -238,7 +361,7 @@ def _float_map(v, path, errs):
 
 # =========================================================================== demand / supply sources
 WEATHER_STATES = ("clear", "rain", "heavy_rain")
-INCIDENT_KEYS = {"id": str, "t_offset": float, "duration": float, "at": (str, int), "radius_m": float,
+INCIDENT_KEYS = {"id": str, "t_offset": float, "duration": float, "at": (str, int, dict), "radius_m": float,
                  "factor": float, "cancel_multiplier": float}
 
 
@@ -272,8 +395,11 @@ def _incidents(v, path, errs):
                 check_value(item[k], join(p, k), errs, typ, ge=ge)
         at = item.get("at", "hotspot0")
         if isinstance(at, str) and not (at.startswith("hotspot") and (at[7:] == "" or at[7:].isdigit())):
-            errs.add(join(p, "at"), f"cần 'hotspot<N>' hoặc id node, nhận {at!r}")
-        out.append(dict(item))
+            errs.add(join(p, "at"), f"cần 'hotspot<N>', id node hoặc {{lon, lat}}, nhận {at!r}")
+        item = dict(item)
+        if isinstance(at, dict):
+            item["at"] = _lonlat(at, join(p, "at"), errs)
+        out.append(item)
     return out
 
 
@@ -392,17 +518,70 @@ class CsvSourceSpec(Spec):
     t_end: Optional[float] = f(typ=float, nullable=True, gt=0)
 
 
-def _strs(v, path, errs):
+def _strs(v, path, errs, n=2):
     if not check_value(v, path, errs, list):
         return []
-    if not 1 <= len(v) <= 2:
+    if n is not None and not 1 <= len(v) <= n:
         errs.add(path, f"cần 1 hoặc 2 tên cột, nhận {len(v)}")
     return [x for i, x in enumerate(v) if check_value(x, join(path, i), errs, str)]
 
 
-SourceSpec = Union[PresetSourceSpec, SyntheticSourceSpec, FleetPyDemandSourceSpec, CsvSourceSpec]
+def _hour_range(v, path, errs):
+    if not check_value(v, path, errs, list) or len(v) != 2:
+        if isinstance(v, list):
+            errs.add(path, "cần [giờ bắt đầu, giờ kết thúc]")
+        return None
+    if all(check_value(x, join(path, i), errs, float, ge=0, le=24) for i, x in enumerate(v)):
+        return [float(v[0]), float(v[1])]
+    return None
+
+
+@dataclass
+class ZonalSourceSpec(Spec):
+    """Demand by zone × hour (``ScenarioBuilder.zonal``, sprint 02, decision D15).
+
+    Pick-ups by zone weight (residential in the morning peak ``am_hours``, workplaces in the evening peak
+    ``pm_hours``, everything otherwise), drop-offs by a gravity model ``w_dest × exp(−distance / gravity_lambda_m)``,
+    nodes uniform inside a zone. ``weights``: ``zone_weights.csv`` (``zone_id,nodes,residential,work,poi``); default:
+    the file next to the scenario's zone file (``FileZoneSpec``), else node counts.
+    """
+
+    kind: str = f("zonal", choices=("zonal",))
+    t_start: float = f(7 * 3600.0, typ=float, ge=0)
+    t_end: float = f(10 * 3600.0, typ=float, gt=0)
+    demand_per_hour: float = f(1000.0, typ=float, ge=0)
+    profile: Union[str, List[float]] = f("weekday", parse=_profile)
+    weights: Optional[str] = f(typ=str, nullable=True, omit_none=True)
+    am_hours: List[float] = f(factory=lambda: [6.0, 10.0], parse=_hour_range)
+    pm_hours: List[float] = f(factory=lambda: [16.0, 20.0], parse=_hour_range)
+    gravity_lambda_m: float = f(3000.0, typ=float, gt=0)
+    smoothing: float = f(0.1, typ=float, ge=0)
+    min_trip_m: float = f(1000.0, typ=float, ge=0)
+    weather: List = f(factory=list, parse=_weather)
+    demand_weather_multiplier: float = f(1.0, typ=float, ge=0)
+    incidents: List[Dict[str, Any]] = f(factory=list, parse=_incidents)
+    supply_multiplier: float = f(1.0, typ=float, gt=0)
+    warmup_s: float = f(0.0, typ=float, ge=0)
+
+    def check(self, path, errs):
+        if self.t_start >= self.t_end:
+            errs.add(join(path, "t_end"), f"khung giờ rỗng: t_start {self.t_start} ≥ t_end {self.t_end}")
+        for i, inc in enumerate(self.incidents):
+            at = inc.get("at", "hotspot0")
+            if isinstance(at, str):
+                errs.add(join(join(join(path, "incidents"), i), "at"), "nguồn zonal không có hotspot: dùng id node "
+                                                                       "hoặc {lon, lat}")
+
+    def zonal_kwargs(self) -> Dict[str, Any]:
+        keys = ("t_start", "t_end", "demand_per_hour", "profile", "am_hours", "pm_hours", "gravity_lambda_m",
+                "smoothing", "min_trip_m", "weather", "demand_weather_multiplier", "incidents", "supply_multiplier",
+                "warmup_s")
+        return {k: getattr(self, k) for k in keys}
+
+
+SourceSpec = Union[PresetSourceSpec, SyntheticSourceSpec, FleetPyDemandSourceSpec, CsvSourceSpec, ZonalSourceSpec]
 parse_source = union({"preset": PresetSourceSpec, "synthetic": SyntheticSourceSpec,
-                      "fleetpy_demand": FleetPyDemandSourceSpec, "csv": CsvSourceSpec})
+                      "fleetpy_demand": FleetPyDemandSourceSpec, "csv": CsvSourceSpec, "zonal": ZonalSourceSpec})
 
 
 def _schema_version(v, path, errs):
@@ -715,6 +894,7 @@ SIMCONFIG_CONSTRAINTS = {k: dict(gt=0) for k in ("batch_window", "cancel_step_s"
 SIMCONFIG_CONSTRAINTS.update({k: dict(ge=0) for k in ("boarding_s", "alighting_s", "idle_decision_s",
                                                        "idle_recheck_s", "drain_s", "default_quote_eta")})
 SIMCONFIG_CONSTRAINTS["timeseries_interval_s"] = dict(gt=0)
+SIMCONFIG_CONSTRAINTS.update(retime_threshold=dict(ge=0), retime_min_s=dict(ge=0))
 FARE_CONSTRAINTS = {k: dict(ge=0) for k in ("base", "per_km", "per_min", "min_fare", "surcharge_to_driver")}
 FARE_CONSTRAINTS["take_rate"] = dict(ge=0, le=1)
 DEFAULT_TIMESERIES_INTERVAL_S = 300.0
@@ -754,6 +934,7 @@ class OutputSpec(Spec):
     """What a run writes besides metrics. ``parquet`` needs ``pyarrow`` (``pip install kami[store]``)."""
 
     event_log: str = f("parquet", choices=("parquet", "csv.gz", "none"))
+    trajectories: str = f("none", choices=("none", "parquet"))   # sprint 02: turns on SimConfig.record_trajectories
 
 
 # =========================================================================== run

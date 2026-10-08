@@ -32,7 +32,7 @@
 | B01-6 | Nợ kỹ thuật | Cao | Kết quả phụ thuộc môi trường: có `scipy` thì matching Hungarian, không có thì greedy (cùng spec + seed cho số sự kiện khác nhau giữa Python hệ thống và env `fleetpy`). Snapshot run chưa ghi solver thực dùng / môi trường | Hành vi có từ 0.1, ngoài phạm vi sprint | 04 (ghi môi trường vào run, hoặc báo lỗi khi `solver="hungarian"` mà thiếu `scipy`) | Mở |
 | B01-7 | Nợ kỹ thuật | Cao | Event log vẫn giữ toàn bộ trong RAM rồi mới ghi file; chưa ghi dần ra Parquet qua listener | Cơ chế listener đã có (`EventLog.subscribe`); ghi dần cần cho quy mô thành phố | 04 | Mở |
 | B01-8 | Nợ kỹ thuật | Thấp | Các case lưới ngắn (~0,6 s) nhạy nhiễu: dao động min–max ~8%, sát ngưỡng thoái lui 10% | Giữ đúng các case trong plan | 04 (thêm case dài hơn hoặc tăng `--repeat`) | Mở |
-| B01-9 | Ý tưởng | Cao | Spec kịch bản chưa có trường cho tắc đường theo khu vực × giờ, lịch travel time động của mạng Hà Nội và nguồn demand Hà Nội | Thuộc MAP-3/MAP-4; spec đã có `schema_version` để mở rộng | 02 | Mở |
+| B01-9 | Ý tưởng | Cao | Spec kịch bản chưa có trường cho tắc đường theo khu vực × giờ, lịch travel time động của mạng Hà Nội và nguồn demand Hà Nội | Thuộc MAP-3/MAP-4; spec đã có `schema_version` để mở rộng | 02 | Đã xử lý ở Sprint 02 (`traffic.congestion`, `traffic.vehicle_groups`, source `zonal` — docs/engine/18) |
 | B01-10 | Nợ kỹ thuật | Thấp | Benchmark mốc đo trên working tree chưa commit (`git_dirty: true`, commit gốc `be389e0`) | Sprint chưa được commit tại thời điểm đo | 02 (đo lại sau commit nếu cần mốc gắn commit) | Đã xử lý 2026-10-07: đo lại trên commit `c013913`, số liệu mốc bên dưới đã cập nhật |
 
 ## Mock đang dùng

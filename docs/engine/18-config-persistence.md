@@ -49,6 +49,7 @@ Mọi trường có giá trị mặc định trừ các trường ghi **bắt bu
 | `seed` | `null` | Ghi đè `scenario.seed` |
 | `crn_seed` | `null` | Seed CRN; `null` = seed kịch bản (docs/engine/05) |
 | `outputs.event_log` | `"parquet"` | `parquet` (cần `pyarrow`), `csv.gz` hoặc `none` |
+| `outputs.trajectories` | `"none"` | `parquet`: bật `SimConfig.record_trajectories` và ghi `trajectories.parquet` (Sprint 02, docs/engine/02) |
 
 ### `ScenarioSpec` — thế giới ngoại sinh
 
@@ -57,7 +58,7 @@ Mọi trường có giá trị mặc định trừ các trường ghi **bắt bu
 | `name` | `"scenario"` | Với nguồn `synthetic`, tên là một phần của dòng ngẫu nhiên (cùng tên + seed = cùng kịch bản) |
 | `network` | lưới 8 km | `{"kind": "grid", "width_m", "height_m", "spacing_m": 250, "speed_kmh": 25}` hoặc `{"kind": "road", "name": "example_network", "data_root", "dynamics_file", "scenario_time", "backend": "auto"}` |
 | `zones` | vuông 1 km | `{"kind": "square", "cell_m"}`, `{"kind": "h3", "resolution"}` hoặc `{"kind": "file", "name": "example_zones", "neighbor_radius_m": 1500}` |
-| `traffic` | mặc định engine | `hour_profile` (24 hệ số), `weather_factor` (`{trạng thái: hệ số}`), `platform_sees_incidents` |
+| `traffic` | mặc định engine | `hour_profile` (24 hệ số), `weather_factor` (`{trạng thái: hệ số}`), `platform_sees_incidents`; Sprint 02: `congestion`, `vehicle_groups` (bảng dưới) |
 | `source` | **bắt buộc** | Nguồn demand/supply, xem bảng dưới |
 | `n_drivers` | 150 | Số xe khi run không khai báo fleet |
 | `seed` | 0 | Seed kịch bản |
@@ -68,7 +69,18 @@ Mọi trường có giá trị mặc định trừ các trường ghi **bắt bu
 | `synthetic` | `ScenarioBuilder.synthetic` | `t_start`, `t_end`, `demand_per_hour`, `profile` (`weekday`/`weekend`/24 số), `n_hotspots`, `hotspot_sigma_m`, `min_trip_m`, `weather` (`[[t, "rain"], …]`), `demand_weather_multiplier`, `incidents` (`[{"t_offset", "duration", "at": "hotspot0" \| node, "radius_m", "factor", "cancel_multiplier"}]`), `supply_multiplier`, `warmup_s` |
 | `fleetpy_demand` | `from_fleetpy_demand` | `file` (**bắt buộc**), `t_start`, `t_end`, `time_offset`, `capacity`. Cần `network.kind = "road"` |
 | `csv` | `from_csv` | `file` (**bắt buộc**), `time_col`, `origin`, `dest`, `coords` (`xy`/`node`/`lonlat`), `t_start`, `t_end` |
+| `zonal` (Sprint 02) | `ScenarioBuilder.zonal` | `t_start`, `t_end`, `demand_per_hour` (1000), `profile`, `weights` (file `zone_weights.csv`; bỏ trống = file cạnh file zone của `FileZoneSpec`, không có thì theo số node), `am_hours` ([6, 10]), `pm_hours` ([16, 20]), `gravity_lambda_m` (3000), `smoothing` (0,1), `min_trip_m`, `weather`, `demand_weather_multiplier`, `incidents` (`at`: node hoặc `{"lon", "lat"}` — không có hotspot), `supply_multiplier`, `warmup_s` |
 
+`incidents[].at` của `synthetic`/`preset` cũng nhận `{"lon": …, "lat": …}` (Sprint 02).
+
+**Trường traffic của Sprint 02 (B01-9, quyết định D17).** Chỉ thêm trường tuỳ chọn, `schema_version` vẫn là 1: tài
+liệu cũ hợp lệ và không đổi nghĩa (`to_dict` của spec không khai báo các trường này không đổi).
+
+| Trường | Nội dung |
+|---|---|
+| `traffic.congestion` | `{}` = mặc định Hà Nội. `kind` (`zone_group` \| `file`), `period_s` (3600), `profiles` (`{nhóm: [24 hệ số]}`, ghép với mặc định `core`/`inner`/`outer`), `zone_groups` (`"ring"` hoặc `{zone: nhóm}`), `zone_groups_file` (CSV `zone,group`), `center` (`{"lon", "lat"}`), `ring_radii_m`, `ring_groups`, `road_class_scale`, `file` (CSV `zone,hour,factor` cho `kind="file"`). Đường dẫn file: như `source.file` |
+| `traffic.vehicle_groups` | `{"car": {}, "bike": {"speed_factor": 0.9, "congestion_scale": 0.5}}` — khoá chỉ nhận `car`/`bike`; trường bỏ trống lấy mặc định của nhóm. Không khai báo = mọi xe đi như ô tô |
+| `sim_config.record_trajectories`, `retime_threshold`, `retime_min_s` | Các trường mới của `SimConfig` (docs/engine/02) |
 Đường dẫn `file` được thử theo thứ tự: tuyệt đối hoặc tương đối với thư mục hiện tại, rồi tương đối với data root
 của mạng (ví dụ `demand/example_demand/matched/example_network/example_400.csv`).
 
@@ -84,9 +96,10 @@ của mạng (ví dụ `demand/example_demand/matched/example_network/example_40
 `supply_multiplier` của preset vẫn nhân lên (preset `undersupply` với fleet 50 xe → 30 xe). Kịch bản được sinh như
 0.1, rồi xe thứ `i` (theo thứ tự sinh) nhận slot `L[floor(i·len(L)/n)]` của danh sách mở rộng `L` các cặp
 `(fleet, loại xe)` — mỗi xe khai báo một phần tử, theo thứ tự fleet rồi thành phần. Chỉ `capacity` (= `seats`) và
-`attrs["fleet_id"]`, `attrs["vehicle_type"]` thay đổi; mọi rút ngẫu nhiên giữ nguyên, nên một fleet một loại xe 4
-chỗ cho kết quả giống hệt không khai báo fleet. `range_km`, `group` và trạm sạc được lưu và kiểm tra nhưng engine
-chưa dùng (Sprint 05).
+`attrs["fleet_id"]`, `attrs["vehicle_type"]`, `attrs["vehicle_group"]` (= `group`, Sprint 02) thay đổi; mọi rút ngẫu
+nhiên giữ nguyên, nên một fleet một loại xe 4 chỗ cho kết quả giống hệt không khai báo fleet. `group` có tác dụng
+trên mạng khi kịch bản khai báo `traffic.vehicle_groups` (Sprint 02, docs/engine/08). `range_km` và trạm sạc được lưu
+và kiểm tra nhưng engine chưa dùng (Sprint 05).
 
 ### Policy và policy group
 
@@ -196,7 +209,7 @@ repo.get_run(result.run_id); repo.run_metrics(result.run_id); repo.run_timeserie
 | `run` | `status` (`queued`/`running`/`succeeded`/`failed`/`cancelled`), `run_spec_json` (snapshot đã giải tham chiếu), `source_spec_json` (bản gửi lên), `provenance_json`, `kami_version`, `schema_version`, `seed`, thời điểm, `wall_s`, `events`, `error` |
 | `run_metric_summary` | `(run_id, name)` → `value` (NaN lưu `NULL`) |
 | `run_metric_timeseries` | `(run_id, name, t)` → `value` (dạng dài) |
-| `run_artifact` | `kind` (`event_log`), `path`, `format`, `size_bytes`, `sha256`, `rows` |
+| `run_artifact` | `kind` (`event_log`, `trajectories` — Sprint 02), `path`, `format`, `size_bytes`, `sha256`, `rows` |
 
 ### Vòng đời một lần chạy (`kami.store.runs.execute`)
 
@@ -205,7 +218,8 @@ repo.get_run(result.run_id); repo.run_metrics(result.run_id); repo.run_timeserie
 2. Snapshot = RunSpec đã giải tham chiếu (D10): chạy lại được mà không cần dữ liệu nào khác trong DB
    (`repo.run_spec(run_id)`, NFR-4).
 3. Tạo bản ghi `running` → dựng và chạy → ghi metric tổng hợp, chuỗi thời gian, file event log
-   `<artifacts>/<run_id>/events.parquet` (hoặc `.csv.gz`) + `run_artifact` → `succeeded`.
+   `<artifacts>/<run_id>/events.parquet` (hoặc `.csv.gz`) + `run_artifact`, và `trajectories.parquet` (artifact
+   `trajectories`, số dòng = số chặng) khi `outputs.trajectories = "parquet"` → `succeeded`.
 4. Ngoại lệ trong lúc dựng/chạy → `failed` kèm traceback; không bao giờ để treo `running`. Trả `RunResult(run_id,
    status, sim, error)`.
 
@@ -233,6 +247,7 @@ python -m kami bench --cases grid_pm_peak_x5,road_example_400 --repeat 3
   | `grid_am_peak_surge` | Như trên với `surge` |
   | `grid_pm_peak_x5` | Lưới 12 km, `weekday_pm_peak`, 1.000 req/h, 600 xe, group `surge` + `heatmap_reposition` |
   | `road_example_400` | `example_network`, replay `example_400.csv`, 25 xe |
+  | `hanoi_am_peak_small` (Sprint 02) | Mạng `hanoi`, zone H3 r8, tắc đường zone × giờ, nguồn `zonal` 7h–8h 600 req/h, 200 ô tô + 100 xe máy. **Bỏ qua** (ghi `skipped` trong JSON) khi mạng chưa build |
 
 - Mỗi lần lặp chạy trong một tiến trình Python riêng. Ghi `wall_s` của `Simulation.run` (median/min/max),
   `build_s` (nạp mạng + sinh kịch bản), `events`, `events_per_s`, `peak_rss_mb` (`ru_maxrss` của tiến trình con,

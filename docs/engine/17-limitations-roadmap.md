@@ -20,8 +20,11 @@
 1. **Behavior model mặc định là giả định.** Độ lớn hiệu ứng chưa có ý nghĩa thực tế cho tới khi fit bằng dữ liệu
    của hãng. Đặc biệt mô hình nhận ghép có phụ phí chưa có dữ liệu (design doc §14.1).
 2. **Traffic:**
-   - hệ số giờ và thời tiết áp chung cho cả thành phố, chưa theo zone × giờ;
-   - chặng đã xuất phát chỉ được tính lại khi thời tiết hoặc sự cố đổi;
+   - ~~hệ số giờ và thời tiết áp chung cho cả thành phố, chưa theo zone × giờ~~ — Sprint 02: tắc đường zone × giờ ×
+     loại đường × nhóm xe (docs/engine/08); profile mặc định là **giả định**, chưa hiệu chỉnh bằng GPS;
+   - chặng đã xuất phát được tính lại khi thời tiết, sự cố hoặc chu kỳ tắc đường đổi (từ Sprint 02); travel time
+     của một chặng không tích phân theo thời gian trong chặng;
+   - chưa có hạn chế rẽ và thời gian chờ đèn ở nút giao;
    - chưa có hiệu ứng ngược (xe rỗng làm tắc thêm), cần mức 3 (SUMO).
 3. **Pooling** *(ngoài phạm vi 0.2 — sản phẩm hiện chỉ matching 1 tài xế – 1 khách; requirements §5)*:
    - chỉ ghép do policy kích hoạt và chỉ tính cặp (khách + khách hoặc khách + plan có sẵn), chưa có ghép batch tối
@@ -51,7 +54,7 @@
 
 | Giới hạn (mục ở trên) | Sprint xử lý |
 |---|---|
-| 2. Traffic chung toàn thành phố, chưa theo zone × giờ | [Sprint 02](../sprint/sprint-02-hanoi-network-traffic.md) |
+| 2. Traffic chung toàn thành phố, chưa theo zone × giờ | [Sprint 02](../sprint/sprint-02-hanoi-network-traffic.md) — xong (giả định, chưa hiệu chỉnh GPS) |
 | 4. Chưa có sạc xe điện | [Sprint 05](../sprint/sprint-05-fleet-ev-charging.md) |
 | 5. Khách không đặt lại; chưa chọn sản phẩm | [Sprint 05](../sprint/sprint-05-fleet-ev-charging.md) (sản phẩm), [Sprint 06](../sprint/sprint-06-dynamic-pricing.md) (re-request) |
 | 6. Chưa có sổ chi phí khuyến khích, phí hủy | [Sprint 07](../sprint/sprint-07-policy-v2-groups.md) |
@@ -67,7 +70,8 @@
    cần fit `LogitDriverAccept` và một shift model thật.
 3. **Khảo sát SP hoặc A/B nhỏ cho phụ phí ghép**, rồi thay `LogitPoolAccept` mặc định *(chỉ khi shared ride vào
    phạm vi)*.
-4. **Ma trận ETA theo zone × giờ × thời tiết** từ GPS: viết `Network` hoặc `TrafficLayer` con đọc ma trận.
+4. **Ma trận ETA theo zone × giờ × thời tiết** từ GPS: từ Sprint 02 chỉ cần file `zone,hour,factor`
+   (`traffic.congestion.kind = "file"`, docs/engine/08).
 5. **Dashboard** so sánh baseline và treatment (đọc `ExperimentResult.to_csv` và event log); animation quỹ đạo bằng
    deck.gl `TripsLayer`.
 6. **Ghép batch tối ưu:** tận dụng thuật toán Alonso-Mora của FleetPy (cần tách khỏi `FleetControlBase`) hoặc một

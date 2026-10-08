@@ -32,6 +32,7 @@ private:
 public:
 	Network(std::string node_path, std::string edge_path);
 	void updateEdgeTravelTimes(std::string file_path);
+	void setEdgeTravelTimes(int n, const int* from_nodes, const int* to_nodes, const double* edge_tts);
 	unsigned int getNumberNodes();
 	std::vector<Resultstruct> computeTravelCosts1toX(int start_node_index, const std::vector<int>& targets, double time_range = -1, int max_targets = -1);
 	std::vector<Resultstruct> computeTravelCostsXto1(int start_node_index, const std::vector<int>& targets, double time_range = -1, int max_targets = -1);

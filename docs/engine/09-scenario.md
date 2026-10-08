@@ -41,7 +41,9 @@ builder = ScenarioBuilder(network, zones, traffic={...})
   và 50% điểm đến rơi vào các cụm. Chuyến ngắn hơn `min_trip_m` được rút lại.
 - **Nguồn cung:** `n_drivers × supply_multiplier` xe. 70% làm trọn cửa sổ, số còn lại làm một ca 50–90% cửa sổ.
   Vị trí ban đầu lệch về các cụm.
-- **Sự cố:** `incidents=[{"t_offset":1800, "duration":3600, "at":"hotspot0" | node, "radius_m":1000, "factor":3.0}]`.
+- **Sự cố:** `incidents=[{"t_offset":1800, "duration":3600, "at":"hotspot0" | node | {"lon":…, "lat":…},
+  "radius_m":1000, "factor":3.0}]`. Vị trí lon/lat (Sprint 02) được gán về location node gần nhất
+  (`builder.node_at_lonlat`; mạng cần lon/lat).
 - `warmup_s`: bắt đầu sớm hơn để hệ thống "ấm". Metric chỉ tính từ `t_start` (lưu ở `tags["measure_from"]`).
 - RNG là `random.Random("scenario|{name}|{seed}")`: cùng tên và seed thì ra cùng kịch bản.
 
@@ -63,6 +65,41 @@ builder.preset("rain", seed=3, demand_per_hour=200, n_drivers=150)      # mặc 
 builder.preset("accident", seed=1, t_end=9 * 3600)                     # ghi đè bất kỳ tham số nào
 builder.library(seed=0)                                                # 6 preset chính
 ```
+
+### Demand theo zone × giờ: `builder.zonal(...)` (Sprint 02, quyết định D15)
+
+Nguồn demand cho mạng thật, thay hotspot ngẫu nhiên bằng trọng số không gian của từng zone:
+
+- **Thời gian:** như `synthetic` (Poisson không thuần nhất, `demand_per_hour × profile[giờ] ×
+  demand_weather_multiplier`).
+- **Điểm đón:** zone rút theo trọng số `count + smoothing × nodes`, trong đó `count` là số **toà nhà ở** trong cao điểm
+  sáng (`am_hours`, mặc định 6–10h), số **nơi làm việc** trong cao điểm chiều (`pm_hours`, 16–20h), tổng nhà ở + nơi
+  làm việc + POI ở giờ khác. Node rút đều trong các location node của zone.
+- **Điểm đến:** mô hình trọng lực: trọng số "ngược" của khung giờ (sáng: nơi làm việc; chiều: nhà ở) ×
+  `exp(−khoảng_cách_tâm_zone / gravity_lambda_m)` (mặc định λ = 3 km). Chuyến ngắn hơn `min_trip_m` được rút lại.
+- **Nguồn cung:** vị trí đầu ca rút theo nhà ở + POI; ca làm như `synthetic`.
+- `weights`: `{zone: {"nodes","residential","work","poi"}}` — `read_zone_weights(path)` đọc `zone_weights.csv` của
+  pipeline OSM. Không có thì mọi zone theo số node.
+- RNG là `random.Random("zonal|{name}|{seed}")`.
+
+Trọng số mặc định của Hà Nội đếm từ OSM trong mỗi ô H3 (131.775 toà nhà ở, 6.736 nơi làm việc, 14.191 POI). Đây là
+**xấp xỉ** khi chưa có dữ liệu chuyến thật (requirements Q4), chưa hiệu chỉnh.
+
+### Kịch bản Hà Nội (`scenarios/hanoi/`, Sprint 02, quyết định D16)
+
+File RunSpec chạy bằng `python -m kami run --spec scenarios/hanoi/<tên>.json` (`python -m kami presets` liệt kê). Cần
+mạng `hanoi` đã build (`python -m kami.osm build hanoi`, docs/engine/19). Mọi file dùng zone `hanoi_h3_r8`, tắc đường
+zone × giờ mặc định, nhóm xe `car` + `bike`, nguồn `zonal`.
+
+| File | Khung giờ | Demand | Xe (ô tô + xe máy) | Đặc điểm |
+|---|---|---|---|---|
+| `am_peak.json` | 6h–10h | ≈ 15.200 request | 1.000 + 500 | Preset nghiệm thu AC02-8; ghi quỹ đạo (`outputs.trajectories`) |
+| `weekday.json` | 0h–24h | ≈ 100.000 request | 5.000 + 3.000 | Cả ngày; chạy đầy đủ từ Sprint 04 (hiệu năng) |
+| `pm_peak_rain.json` | 16h–20h | ≈ 15.200 × 1,3 | 1.000 + 500 | Mưa từ 16h30 |
+| `incident_arterial.json` | 16h–20h | ≈ 15.200 request | 1.000 + 500 | Sự cố ngã tư Nguyễn Trãi – Khuất Duy Tiến 17h30–18h30, bán kính 800 m, chậm ×2,5 |
+
+Kết quả `am_peak` (seed 0, router C++, môi trường mốc): 105.834 sự kiện trong 125 s, tỷ lệ hoàn thành 0,90, chờ
+trung bình 4,9 phút, 1,93 chuyến/xe-giờ — số liệu đầy đủ ở backlog Sprint 02.
 
 ### Replay dữ liệu
 

@@ -10,3 +10,9 @@ kami/network/road/cpp/_router.cpp
 *.db
 *.db-wal
 *.db-shm
+# sprint 02: OSM source cache and generated Hà Nội network (rebuild: python -m kami.osm build hanoi)
+data/osm/cache/
+data/networks/hanoi/
+data/zones/hanoi_h3_r8/
+data/zones/hanoi_wards/
+/out/

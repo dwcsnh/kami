@@ -28,7 +28,7 @@ class RunResult:
 
 
 def _check_output_deps(spec: RunSpec) -> None:
-    if spec.outputs.event_log == "parquet":
+    if spec.outputs.event_log == "parquet" or spec.outputs.trajectories == "parquet":
         try:
             import pyarrow  # noqa: F401
         except ImportError as e:
@@ -56,6 +56,9 @@ def execute(spec: RunSpec, repo: Repository, artifacts_dir: Union[str, Path] = "
             path = Path(artifacts_dir) / str(run_id) / EVENT_LOG_FILES[fmt]
             sim.log.save(path, fmt)
             repo.add_run_artifact(run_id, "event_log", path, fmt, rows=len(sim.log))
+        if resolved.outputs.trajectories == "parquet" and sim.trajectories is not None:
+            path = sim.trajectories.save(Path(artifacts_dir) / str(run_id) / "trajectories.parquet")
+            repo.add_run_artifact(run_id, "trajectories", path, "parquet", rows=len(sim.trajectories))
     except Exception:
         err = traceback.format_exc()
         repo.finish_run(run_id, "failed", wall_s=time.perf_counter() - wall,

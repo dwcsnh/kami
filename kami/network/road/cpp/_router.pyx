@@ -28,6 +28,16 @@ cdef class PyNetwork:
         """Apply a CSV with columns ``from_node,to_node,edge_tt``."""
         self.c_net.updateEdgeTravelTimes(_b(file_path))
 
+    def setEdgeTravelTimes(self, from_nodes, to_nodes, edge_tts):
+        """Set the travel time of edges ``from_nodes[i] → to_nodes[i]`` to ``edge_tts[i]`` (kami addition)."""
+        cdef vector[int] a = list(from_nodes)
+        cdef vector[int] b = list(to_nodes)
+        cdef vector[double] tt = list(edge_tts)
+        if a.size() != b.size() or a.size() != tt.size():
+            raise ValueError("from_nodes, to_nodes and edge_tts must have the same length")
+        if a.size():
+            self.c_net.setEdgeTravelTimes(a.size(), a.data(), b.data(), tt.data())
+
     cdef list _many(self, int start, targets, max_time_range, max_targets, bint forward):
         cdef vector[int] tg = list(targets)
         cdef int n = tg.size()

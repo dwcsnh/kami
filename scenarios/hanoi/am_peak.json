@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "name": "hanoi_am_peak",
+  "scenario": {
+    "name": "hanoi_am_peak",
+    "network": {
+      "kind": "road",
+      "name": "hanoi"
+    },
+    "zones": {
+      "kind": "file",
+      "name": "hanoi_h3_r8",
+      "neighbor_radius_m": 1000
+    },
+    "traffic": {
+      "congestion": {
+        "kind": "zone_group"
+      },
+      "vehicle_groups": {
+        "car": {},
+        "bike": {}
+      }
+    },
+    "source": {
+      "kind": "zonal",
+      "t_start": 21600,
+      "t_end": 36000,
+      "demand_per_hour": 2400
+    },
+    "seed": 0
+  },
+  "vehicle_types": [
+    {
+      "name": "vf_car",
+      "group": "car",
+      "seats": 4
+    },
+    {
+      "name": "vf_bike",
+      "group": "bike",
+      "seats": 1
+    }
+  ],
+  "fleets": [
+    {
+      "name": "greensm_car",
+      "composition": [
+        {
+          "vehicle_type": "vf_car",
+          "count": 1000
+        }
+      ]
+    },
+    {
+      "name": "greensm_bike",
+      "composition": [
+        {
+          "vehicle_type": "vf_bike",
+          "count": 500
+        }
+      ]
+    }
+  ],
+  "policy_group": {
+    "name": "baseline",
+    "members": [
+      {
+        "policy": {
+          "plugin": "baseline"
+        }
+      }
+    ]
+  },
+  "outputs": {
+    "event_log": "parquet",
+    "trajectories": "parquet"
+  }
+}

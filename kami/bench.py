@@ -106,6 +106,22 @@ def environment() -> Dict[str, Any]:
 
 
 # ---------------------------------------------------------------------------- suite
+def missing_data(spec_path: Path) -> Optional[str]:
+    """Reason to skip a case whose road network has not been built (e.g. Hà Nội: ``python -m kami.osm build``)."""
+    from kami.config import load_run_spec
+    from kami.config.specs import RoadNetworkSpec
+    from kami.network.road import network_path
+
+    spec = load_run_spec(spec_path)
+    net = getattr(spec.scenario, "network", None)
+    if isinstance(net, RoadNetworkSpec):
+        try:
+            network_path(net.name, net.data_root)
+        except FileNotFoundError:
+            return f"road network {net.name!r} not built"
+    return None
+
+
 def run_suite(suite: Path, cases: Optional[List[str]] = None, repeat: int = 3, progress: bool = True) -> Dict:
     files = sorted(Path(suite).glob("*.json"))
     if cases:
@@ -116,6 +132,12 @@ def run_suite(suite: Path, cases: Optional[List[str]] = None, repeat: int = 3, p
     out: Dict[str, Any] = {"created_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
                            "suite": str(suite), "repeat": repeat, "env": environment(), "cases": {}}
     for f in files:
+        reason = missing_data(f)
+        if reason:
+            if progress:
+                print(f"  {f.stem} skipped: {reason}", file=sys.stderr)
+            out.setdefault("skipped", {})[f.stem] = reason
+            continue
         runs = []
         for k in range(repeat):
             if progress:
@@ -145,6 +167,8 @@ def table(res: Dict) -> str:
         w = c["wall_s"]
         lines.append(f"{name:26s} {w['median']:8.2f} {w['min']:8.2f} {w['max']:8.2f} {c['events']:9d} "
                      f"{c['events_per_s'] or 0:9.0f} {c['peak_rss_mb'] or 0:7.0f} {c['network_backend']:>7s}")
+    for name, reason in res.get("skipped", {}).items():
+        lines.append(f"{name:26s} skipped: {reason}")
     return "\n".join(lines)
 
 

@@ -1,0 +1,25 @@
+{
+  "name": "hanoi",
+  "description": "Mạng đường Hà Nội (vùng đô thị trung tâm) cho kami 0.2 — Sprint 02",
+  "source": {
+    "url": "https://download.geofabrik.de/asia/vietnam-261006.osm.pbf",
+    "file": "vietnam-261006.osm.pbf",
+    "date": "2026-10-06",
+    "sha256": "121ba51ac35afa6a5f662d4e63c1798273333b940386a153cc914974de92795b",
+    "license": "© OpenStreetMap contributors, ODbL 1.0"
+  },
+  "area": "hanoi_area.geojson",
+  "crs": "EPSG:32648",
+  "highway": ["motorway", "motorway_link", "trunk", "trunk_link", "primary", "primary_link",
+              "secondary", "secondary_link", "tertiary", "tertiary_link",
+              "unclassified", "residential", "living_street"],
+  "speeds_kmh": {
+    "motorway": 70, "motorway_link": 40, "trunk": 50, "trunk_link": 35, "primary": 40, "primary_link": 30,
+    "secondary": 35, "secondary_link": 25, "tertiary": 30, "tertiary_link": 25,
+    "unclassified": 25, "residential": 20, "living_street": 10
+  },
+  "zones": {
+    "h3": {"name": "hanoi_h3_r8", "resolution": 8},
+    "admin": {"name": "hanoi_wards", "admin_level": "6"}
+  }
+}

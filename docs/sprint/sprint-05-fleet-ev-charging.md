@@ -5,7 +5,7 @@
 | Trạng thái | Chưa bắt đầu |
 | Yêu cầu | EV-1, EV-2, EV-3, EV-4, EV-5, FLEET-1, FLEET-2, FLEET-4 |
 | Phụ thuộc | Sprint 01, Sprint 02, Sprint 03 (visualizer) |
-| Backlog đầu vào | [sprint-04-backlog.md](../backlog/sprint-04-backlog.md); từ [sprint-01-backlog.md](../backlog/sprint-01-backlog.md): B01-1, B01-2 |
+| Backlog đầu vào | [sprint-04-backlog.md](../backlog/sprint-04-backlog.md); từ [sprint-01-backlog.md](../backlog/sprint-01-backlog.md): B01-1, B01-2; từ [sprint-02-backlog.md](../backlog/sprint-02-backlog.md): B02-1 (location theo nhóm xe — nếu người dùng chọn hướng b), B02-6 (loại dịch vụ ô tô / xe máy) |
 | Implementation plan | [sprint-05-plan.md](../implementation-plan/sprint-05-plan.md) (chưa có) |
 
 ## Mục tiêu

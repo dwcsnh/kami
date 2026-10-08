@@ -3,14 +3,19 @@
 Chạy từ thư mục `kami/`, hoặc cài bằng `pip install -e .` để có lệnh `kami`.
 
 ```bash
-python -m kami presets        # liệt kê preset kịch bản và policy đã đăng ký
+python -m kami presets        # liệt kê preset kịch bản, file kịch bản scenarios/*/*.json (0.2) và policy đã đăng ký
 python -m kami run [...]      # một lần chạy
 python -m kami compare [...]  # thí nghiệm cặp baseline vs treatment với CRN
 python -m kami spec [...]     # in RunSpec JSON tương đương các cờ của run (0.2)
 python -m kami run --spec F   # chạy từ file RunSpec (0.2)
 python -m kami db init        # tạo / migrate DB (0.2)
 python -m kami bench [...]    # benchmark suite (0.2)
+python -m kami.osm build hanoi  # tạo lại mạng Hà Nội từ OSM (0.2, docs/engine/19)
 ```
+
+`run --spec F --out DIR` ghi `metrics.json`, `run_spec.resolved.json`, `timeseries.json`, event log và — khi
+`outputs.trajectories = "parquet"` — `trajectories.parquet` (Sprint 02). Kịch bản Hà Nội:
+`python -m kami run --spec scenarios/hanoi/am_peak.json --out out/hanoi` (docs/engine/09).
 
 ## Tuỳ chọn chung
 

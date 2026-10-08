@@ -2,11 +2,11 @@
 
 | | |
 |---|---|
-| Trạng thái | Chưa bắt đầu |
+| Trạng thái | Xong |
 | Yêu cầu | MAP-1, MAP-2, MAP-3, MAP-4, MAP-5 |
 | Phụ thuộc | Sprint 01 |
 | Backlog đầu vào | [sprint-01-backlog.md](../backlog/sprint-01-backlog.md) — liên quan: B01-9 (spec kịch bản cho tắc đường theo khu vực × giờ, travel time động, nguồn demand Hà Nội). Mốc benchmark để so sánh: `benchmarks/results/2026-10-07-sprint01.json` |
-| Implementation plan | [sprint-02-plan.md](../implementation-plan/sprint-02-plan.md) (chưa có) |
+| Implementation plan | [sprint-02-plan.md](../implementation-plan/sprint-02-plan.md) (Đã thực hiện) · Backlog: [sprint-02-backlog.md](../backlog/sprint-02-backlog.md) |
 
 ## Mục tiêu
 
@@ -44,18 +44,18 @@ C++, travel time động theo mốc thời gian (`network_dynamics_file`).
 
 ## Acceptance criteria
 
-- [ ] AC02-1 Một lệnh tạo lại mạng Hà Nội từ dữ liệu OSM đã ghi phiên bản; kết quả đọc được bằng `RoadNetwork` (tên cũ `FleetPyNetwork`).
-- [ ] AC02-2 ≥ 95% node của mạng nằm trong thành phần liên thông mạnh dùng được (`location_nodes`).
-- [ ] AC02-3 Mỗi node thuộc đúng một zone; số zone và phạm vi được ghi trong tài liệu.
-- [ ] AC02-4 Với cùng một cặp OD nội thành, thời gian di chuyển lúc 8h và 18h lớn hơn rõ rệt lúc 23h (theo profile
+- [x] AC02-1 Một lệnh tạo lại mạng Hà Nội từ dữ liệu OSM đã ghi phiên bản; kết quả đọc được bằng `RoadNetwork` (tên cũ `FleetPyNetwork`).
+- [ ] AC02-2 *(một phần — `location_nodes` 92,6%, xem B02-1)* ≥ 95% node của mạng nằm trong thành phần liên thông mạnh dùng được (`location_nodes`).
+- [x] AC02-3 Mỗi node thuộc đúng một zone; số zone và phạm vi được ghi trong tài liệu.
+- [x] AC02-4 Với cùng một cặp OD nội thành, thời gian di chuyển lúc 8h và 18h lớn hơn rõ rệt lúc 23h (theo profile
       cấu hình); có test kiểm tra chiều của hiệu ứng.
-- [ ] AC02-5 Hai zone khác nhau trong cùng một giờ có thể có hệ số tắc khác nhau (không còn hệ số chung toàn thành phố).
-- [ ] AC02-6 Quỹ đạo của một xe bất kỳ là chuỗi điểm nằm trên cạnh của mạng, thời gian tăng dần, khớp với các sự kiện
+- [x] AC02-5 Hai zone khác nhau trong cùng một giờ có thể có hệ số tắc khác nhau (không còn hệ số chung toàn thành phố).
+- [x] AC02-6 Quỹ đạo của một xe bất kỳ là chuỗi điểm nằm trên cạnh của mạng, thời gian tăng dần, khớp với các sự kiện
       `PICKUP`/`DROPOFF` trong event log.
-- [ ] AC02-7 Cùng OD, xe máy và ô tô có thời gian khác nhau theo hệ số cấu hình; cạnh cấm theo nhóm xe không xuất hiện
+- [x] AC02-7 Cùng OD, xe máy và ô tô có thời gian khác nhau theo hệ số cấu hình; cạnh cấm theo nhóm xe không xuất hiện
       trong lộ trình của nhóm đó.
-- [ ] AC02-8 Preset Hà Nội chạy được qua CLI với ≥ 10.000 request và ≥ 1.000 xe (chưa yêu cầu thời gian).
-- [ ] AC02-9 Các kịch bản trên lưới synthetic và `example_network` của 0.1 cho kết quả không đổi (tương thích ngược).
+- [x] AC02-8 Preset Hà Nội chạy được qua CLI với ≥ 10.000 request và ≥ 1.000 xe (chưa yêu cầu thời gian).
+- [x] AC02-9 Các kịch bản trên lưới synthetic và `example_network` của 0.1 cho kết quả không đổi (tương thích ngược).
 
 ## Rủi ro & câu hỏi mở
 
