@@ -4,8 +4,8 @@
 |---|---|
 | Trạng thái | Chưa bắt đầu |
 | Yêu cầu | Toàn bộ [requirements.md](../requirements.md) |
-| Phụ thuộc | Sprint 01–10 |
-| Backlog đầu vào | [sprint-10-backlog.md](../backlog/sprint-10-backlog.md) và **mọi mục còn mở** trong các backlog trước |
+| Phụ thuộc | Sprint 01–09 (Sprint 07, 10 đã xoá) |
+| Backlog đầu vào | [sprint-09-backlog.md](../backlog/sprint-09-backlog.md) và **mọi mục còn mở** trong các backlog trước |
 | Implementation plan | [sprint-11-plan.md](../implementation-plan/sprint-11-plan.md) (chưa có) |
 
 ## Mục tiêu
@@ -16,7 +16,7 @@ backlog còn mở (hoặc chuyển chúng có chủ đích sang giai đoạn sau
 ## Phạm vi
 
 - Kịch bản nghiệm thu end-to-end đầy đủ.
-- Đo lại hiệu năng với sạc, pricing, policy group, stream cùng bật.
+- Đo lại hiệu năng với sạc, pricing, stream cùng bật.
 - Gom và xử lý backlog còn mở.
 - Rà soát tài liệu.
 
@@ -29,7 +29,7 @@ backlog còn mở (hoặc chuyển chúng có chủ đích sang giai đoạn sau
 | Mã | Hạng mục |
 |---|---|
 | S11-1 | Tổng hợp mọi mục còn mở trong `docs/backlog/*`: phân loại làm ngay trong sprint này / chuyển giai đoạn sau (ghi lý do) |
-| S11-2 | Kịch bản nghiệm thu: qua UI, tạo 2 fleet (bike + car nhiều loại), trạm sạc, policy group gồm dynamic pricing + reposition + sạc ngoài giờ cao điểm + một plugin tạo bởi policy agent; chạy ngày thường Hà Nội quy mô GreenSM; xem visualizer live; so sánh với run baseline trên trang metric |
+| S11-2 | Kịch bản nghiệm thu: qua UI, tạo 2 fleet (bike + car nhiều loại), trạm sạc, bảng giá theo sản phẩm và một chiến lược dynamic pricing; chạy ngày thường Hà Nội quy mô GreenSM; xem visualizer live; so sánh với run baseline trên trang metric |
 | S11-3 | Đo lại PERF-1/PERF-2/PERF-4 với mọi tính năng bật; tối ưu nếu không đạt |
 | S11-4 | Kiểm tra tái lập (NFR-1) và truy vết (NFR-4) trên run nghiệm thu: chạy lại từ snapshot cho kết quả giống hệt |
 | S11-5 | Kiểm tra tương thích (NFR-2, NFR-5): ví dụ và CLI của 0.1 vẫn chạy; engine dùng được không cần DB/UI |

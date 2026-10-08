@@ -7,7 +7,7 @@ phần chưa thể làm (đợi module/sprint khác), phần đang dùng mock/d�
 
 | Sprint | Backlog | Số mục còn mở |
 |---|---|---|
-| 01 | [sprint-01-backlog.md](sprint-01-backlog.md) | 8 |
+| 01 | [sprint-01-backlog.md](sprint-01-backlog.md) | 7 |
 | 02 | [sprint-02-backlog.md](sprint-02-backlog.md) | 10 |
 | 03 | [sprint-03-backlog.md](sprint-03-backlog.md) | 10 |
 

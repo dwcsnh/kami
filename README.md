@@ -215,7 +215,8 @@ engine) và [docs/engine/01-architecture.md](docs/engine/01-architecture.md).
 
 kami đang được mở rộng từ một engine chạy bằng CLI thành **nền tảng mô phỏng vận hành GreenSM tại Hà Nội**
 (~100k request/ngày, ~8k xe điện): bản đồ Hà Nội thật, tắc đường giờ cao điểm, nhiều fleet và loại xe, sạc xe,
-dynamic pricing, policy lưu trong DB và tạo được bằng ngôn ngữ tự nhiên, kèm giao diện quản lý và visualizer.
+dynamic pricing, kèm giao diện quản lý và visualizer. Hệ thống policy (policy plugin, policy group, policy agent) hiện
+nằm ngoài phạm vi (xem [requirements §5](docs/requirements.md#5-ngoài-phạm-vi-hiện-tại)).
 
 | Tài liệu | Nội dung |
 |---|---|
