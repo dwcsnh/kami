@@ -1,0 +1,329 @@
+/* Layout of the visualizer page: the map fills the window, panels float over it. */
+.root {
+  position: fixed;
+  inset: 0;
+  background: var(--color-map-ground);
+  overflow: hidden;
+}
+
+.leftColumn {
+  position: absolute;
+  top: var(--space-4);
+  left: var(--space-4);
+  width: 280px;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.header {
+  flex: none;
+}
+.brandRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-lg);
+  letter-spacing: -0.01em;
+  color: var(--color-text);
+}
+.logoMark {
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  background: linear-gradient(135deg, var(--color-brand-400), var(--color-brand-600));
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.12);
+}
+.pageTitle {
+  font-size: var(--font-size-md);
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-medium);
+}
+.areaName {
+  margin: var(--space-3) 0 var(--space-1);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--font-line-tight);
+}
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: var(--space-3);
+}
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.legend {
+  flex: none;
+}
+.legendFoot {
+  margin-top: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-neutral-100);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  display: flex;
+  justify-content: space-between;
+  font-variant-numeric: tabular-nums;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  align-self: flex-start;
+}
+.toolbar button {
+  border-color: transparent;
+}
+.toolbarSep {
+  width: 1px;
+  height: 22px;
+  background: var(--color-border);
+  margin: 0 2px;
+}
+
+.metrics {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  bottom: 104px;
+  width: 384px;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+}
+.metrics > div:last-child {
+  overflow-y: auto;
+  flex: 1;
+}
+.metricsCollapsed {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  z-index: 3;
+}
+.kpiGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+}
+.kpiNote {
+  margin: var(--space-2) 0 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+.miniStats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+  margin: var(--space-3) 0 var(--space-1);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+.miniStats b {
+  display: block;
+  color: var(--color-text);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+.chartTitle {
+  margin: var(--space-4) 0 var(--space-1);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.chartTitle small {
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+}
+
+.playback {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: var(--space-4);
+  width: min(920px, calc(100vw - 2 * var(--space-4)));
+  z-index: 4;
+}
+.playbackBody {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+}
+.clock {
+  display: flex;
+  flex-direction: column;
+  min-width: 112px;
+  margin-right: var(--space-2);
+}
+.clockTime {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+  line-height: 1.1;
+}
+.clockSub {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+.transport {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.vehicleCard {
+  position: absolute;
+  top: var(--space-4);
+  right: 416px;
+  width: 300px;
+  z-index: 3;
+}
+.vehicleCardWide {
+  right: 76px;
+}
+.dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px var(--space-3);
+  margin: 0;
+  font-size: var(--font-size-sm);
+}
+.dl dt {
+  color: var(--color-text-muted);
+}
+.dl dd {
+  margin: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--font-weight-medium);
+}
+.sectionLabel {
+  margin: var(--space-3) 0 var(--space-2);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.cardActions {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+.showChrome {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  z-index: 5;
+}
+
+.centerMessage {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  z-index: 6;
+  padding: var(--space-6);
+}
+.messageCard {
+  max-width: 560px;
+}
+.messageCard p {
+  color: var(--color-text-muted);
+  line-height: var(--font-line-normal);
+  font-size: var(--font-size-md);
+}
+.messageCard code,
+.messageCard pre {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-sm);
+  background: var(--color-neutral-50);
+  border: 1px solid var(--color-neutral-100);
+  border-radius: var(--radius-sm);
+}
+.messageCard code {
+  padding: 1px 5px;
+}
+.messageCard pre {
+  padding: var(--space-3);
+  overflow-x: auto;
+}
+
+.fps {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: var(--space-4);
+  z-index: 6;
+  font-size: var(--font-size-xs);
+  font-variant-numeric: tabular-nums;
+}
+.fps > div:last-child {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+}
+
+/* panels hidden (key F): only the map and a small restore button */
+.chromeHidden .leftColumn,
+.chromeHidden .metrics,
+.chromeHidden .metricsCollapsed,
+.chromeHidden .vehicleCard,
+.chromeHidden .toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  align-self: flex-start;
+}
+.toolbar button {
+  border-color: transparent;
+}
+.toolbarSep {
+  width: 1px;
+  height: 22px;
+  background: var(--color-border);
+  margin: 0 2px;
+}
+
+/* Mapbox controls */
+.root :global(.mapboxgl-ctrl-scale) {
+  border-color: var(--color-neutral-500);
+  color: var(--color-text-muted);
+  background: rgba(255, 255, 255, 0.8);
+}
+.root :global(.mapboxgl-ctrl-bottom-right) {
+  bottom: 0;
+  right: 0;
+}

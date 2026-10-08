@@ -103,7 +103,8 @@ class TestZonalFixture(unittest.TestCase):
 class TestHanoiPresets(unittest.TestCase):
     def test_preset_files_are_valid(self):
         files = sorted(SCENARIOS.glob("*.json"))
-        self.assertEqual({p.stem for p in files}, {"weekday", "am_peak", "pm_peak_rain", "incident_arterial"})
+        self.assertEqual({p.stem for p in files}, {"weekday", "am_peak", "pm_peak_rain", "incident_arterial",
+                                                   "demo_center"})                       # demo_center: sprint 03
         for p in files:
             spec = load_run_spec(p)
             sc = spec.scenario

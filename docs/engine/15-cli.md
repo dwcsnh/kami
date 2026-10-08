@@ -10,6 +10,7 @@ python -m kami spec [...]     # in RunSpec JSON tương đương các cờ của
 python -m kami run --spec F   # chạy từ file RunSpec (0.2)
 python -m kami db init        # tạo / migrate DB (0.2)
 python -m kami bench [...]    # benchmark suite (0.2)
+python -m kami replay {demo,export,validate} [...]   # file phát lại cho visualizer web (0.2, Sprint 03)
 python -m kami.osm build hanoi  # tạo lại mạng Hà Nội từ OSM (0.2, docs/engine/19)
 ```
 
@@ -54,7 +55,7 @@ python -m kami run --spec run.json --db kami.db --artifacts runs                
 | Cờ | Ý nghĩa |
 |---|---|
 | `--spec` | File RunSpec JSON (docs/engine/18). Không dùng chung với các cờ kịch bản/policy cũ (`--preset`, `--policy`, `--arg`, `--network`…): lệnh báo lỗi và trả mã 2 |
-| `--out` | Ghi `metrics.json`, `run_spec.resolved.json`, `timeseries.json` và event log theo `outputs.event_log` (`events.parquet` hoặc `events.csv.gz`) |
+| `--out` | Ghi `metrics.json`, `run_spec.resolved.json`, `timeseries.json` và event log theo `outputs.event_log` (`events.parquet` hoặc `events.csv.gz`); `trajectories.parquet` khi `outputs.trajectories = "parquet"`; thư mục `replay/` khi `outputs.replay = "json"` (Sprint 03) |
 | `--db` | Lưu run vào DB SQLite (tạo/migrate nếu cần) và in `run_id`. Bắt buộc khi spec có tham chiếu `{"ref": …}` |
 | `--artifacts` | Thư mục file event log của run lưu DB (mặc định `runs/`, file ở `runs/<run_id>/`) |
 
@@ -88,6 +89,24 @@ python -m kami bench --compare benchmarks/results/2026-10-07-sprint01.json
 | `--threshold` | 0,10 | Ngưỡng thoái lui |
 
 Chi tiết ở docs/engine/18 §4.
+
+## `replay` (Sprint 03)
+
+```bash
+python -m kami replay demo                                     # chạy scenarios/hanoi/demo_center.json → web/public/fixtures/hanoi_center_demo/
+python -m kami replay export --spec run.json --out out/replay  # chạy một RunSpec rồi ghi replay
+python -m kami replay export out/run1 --out out/replay         # replay của thư mục `run --spec --out` (cần trajectories.parquet, pyarrow)
+python -m kami replay validate out/replay                      # kiểm tra hợp lệ (mã 1 nếu lỗi)
+```
+
+| Cờ | Mặc định | Ý nghĩa |
+|---|---|---|
+| `--out` | `demo`: `web/public/fixtures/hanoi_center_demo` | Thư mục replay (file cũ cùng tên bị thay) |
+| `--spec` | `demo`: `scenarios/hanoi/demo_center.json` | RunSpec để chạy |
+| `--dist-m`, `--dt-s` | 1,0 / 0,5 | Ngưỡng giản lược điểm: lệch khỏi đường (m) và lệch thời gian (s) |
+| `--no-gzip` | tắt | Ghi `.json` thay vì `.json.gz` |
+
+Định dạng và quy tắc: [20-visualizer.md](20-visualizer.md).
 
 ## `compare`
 

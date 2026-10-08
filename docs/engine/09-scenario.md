@@ -81,6 +81,9 @@ Nguồn demand cho mạng thật, thay hotspot ngẫu nhiên bằng trọng số
 - `weights`: `{zone: {"nodes","residential","work","poi"}}` — `read_zone_weights(path)` đọc `zone_weights.csv` của
   pipeline OSM. Không có thì mọi zone theo số node.
 - RNG là `random.Random("zonal|{name}|{seed}")`.
+- `area` (Sprint 03): khung `[lon0, lat0, lon1, lat1]` (lưới không có lon/lat: toạ độ x/y của mạng). Chỉ các zone có
+  **trung bình toạ độ các location node** nằm trong khung mới sinh request và vị trí đầu ca; xe vẫn chạy trên toàn mạng
+  (đi rảnh, đón/trả ở biên). Không khai báo → như cũ (cùng kết quả).
 
 Trọng số mặc định của Hà Nội đếm từ OSM trong mỗi ô H3 (131.775 toà nhà ở, 6.736 nơi làm việc, 14.191 POI). Đây là
 **xấp xỉ** khi chưa có dữ liệu chuyến thật (requirements Q4), chưa hiệu chỉnh.
@@ -90,6 +93,11 @@ Trọng số mặc định của Hà Nội đếm từ OSM trong mỗi ô H3 (13
 File RunSpec chạy bằng `python -m kami run --spec scenarios/hanoi/<tên>.json` (`python -m kami presets` liệt kê). Cần
 mạng `hanoi` đã build (`python -m kami.osm build hanoi`, docs/engine/19). Mọi file dùng zone `hanoi_h3_r8`, tắc đường
 zone × giờ mặc định, nhóm xe `car` + `bike`, nguồn `zonal`.
+
+`demo_center.json` (Sprint 03) là kịch bản của fixture visualizer: khu vực Hoàn Kiếm, Ba Đình, Đống Đa, Hai Bà Trưng
+(`area.bbox` = [105,80, 20,995, 105,87, 21,050], ≈ 44 km²), 7h–9h, 750 request/giờ × profile (≈ 2.900 request), 200 ô
+tô + 100 xe máy, chuỗi metric mỗi 60 s, `drain_s` 1.800, `outputs.replay = "json"`. Sinh fixture:
+`python -m kami replay demo` (docs/engine/20).
 
 | File | Khung giờ | Demand | Xe (ô tô + xe máy) | Đặc điểm |
 |---|---|---|---|---|

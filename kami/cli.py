@@ -1,4 +1,4 @@
-"""Command line: ``python -m kami {presets,run,compare,spec,db,bench}``.
+"""Command line: ``python -m kami {presets,run,compare,spec,db,bench,replay}``.
 
 ``kami.store`` (SQLite) is imported only by ``run --db`` and ``db`` so the plain commands stay DB-free (NFR-5).
 """
@@ -129,6 +129,11 @@ def _run_spec_cmd(args, parser) -> int:
         if resolved.outputs.trajectories == "parquet" and sim.trajectories is not None:
             sim.trajectories.save(out / "trajectories.parquet")
             written.append("trajectories.parquet")
+        if resolved.outputs.replay == "json":
+            from kami.replay.cli import export_run
+
+            export_run(resolved, sim, out / "replay")
+            written.append("replay/")
         print(f"wrote {out}/: {', '.join(written)}")
     return 0
 
@@ -158,6 +163,11 @@ def main(argv=None) -> int:
     from kami.bench import add_arguments as _bench_args
 
     _bench_args(b)
+
+    rp = sub.add_parser("replay", help="replay files for the web visualizer (demo | export | validate)")
+    from kami.replay.cli import add_arguments as _replay_args
+
+    _replay_args(rp)
 
     c = sub.add_parser("compare", help="paired baseline vs treatment experiment (CRN)")
     _common(c)
@@ -206,6 +216,10 @@ def main(argv=None) -> int:
         from kami.bench import run_cli
 
         return run_cli(args)
+    if args.cmd == "replay":
+        from kami.replay.cli import run_cli as replay_cli
+
+        return replay_cli(args)
 
     if args.cmd == "presets":
         print("Scenario presets:")

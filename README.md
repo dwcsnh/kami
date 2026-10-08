@@ -17,37 +17,152 @@ Scenario (ngoại sinh, replay) ──▶ Simulation engine ◀──▶ Policy 
                                Event log ──▶ Metrics ──▶ Evaluator (CRN, bootstrap CI, decision rule)
 ```
 
-## Cài đặt & chạy nhanh
+## Hướng dẫn chạy kịch bản Hà Nội
 
-Lõi engine chỉ dùng **thư viện chuẩn Python ≥ 3.9**, kể cả mạng đường thật. `numpy`/`scipy` (Hungarian matching),
-`pyproj` (lon/lat) và router C++ (cần Cython để build) là tuỳ chọn.
+Phần này đi từ lúc vừa `git clone` tới lúc chạy được kịch bản Hà Nội và xem nó trên bản đồ. Các lệnh khác của CLI
+(lưới synthetic, mạng mẫu, so sánh policy, benchmark…) xem ở [docs/engine/15-cli.md](docs/engine/15-cli.md).
+
+### Cần chuẩn bị
+
+- Python ≥ 3.9, Node.js ≥ 20 (`web/.nvmrc`: 24), trình biên dịch C++ (`g++`) để build router C++.
+- Khoảng 2 GB RAM trống và kết nối Internet (tải dữ liệu OSM, tile bản đồ Mapbox).
+- Một **Mapbox public token** (`pk.…`), tạo miễn phí trên mapbox.com — chỉ cần cho phần bản đồ.
+
+### Dữ liệu: cái gì có sẵn, cái gì phải tự tạo
+
+| Dữ liệu | Có trong repo? | Ghi chú |
+|---|---|---|
+| Kịch bản `scenarios/hanoi/*.json` | Có | File cấu hình (RunSpec) của từng kịch bản |
+| Cấu hình build mạng `data/osm/hanoi.json`, `data/osm/hanoi_area.geojson` | Có | Phiên bản dữ liệu OSM và phạm vi 12 quận |
+| Replay demo `web/public/fixtures/hanoi_center_demo/` (~1,2 MB) | Có | Web mở được ngay, không cần build mạng |
+| File OSM `data/osm/cache/vietnam-*.osm.pbf` (~330 MB) | **Không** | Tự tải ở bước 2 |
+| Mạng `data/networks/hanoi/`, zone `data/zones/hanoi_*` | **Không** | Sinh ra ở bước 2 |
+| Mapbox token `web/.env.local` | **Không** (bí mật) | Tự tạo ở bước 4 |
+
+> Chỉ muốn **xem bản đồ demo**: bỏ qua bước 1–3, làm bước 4 rồi mở `http://localhost:3000`.
+
+### Bước 1 — Cài môi trường Python
+
+Cài môi trường python:
 
 ```bash
-cd kami
-python examples/01_quickstart.py                     # 1 lần chạy baseline trên thành phố lưới synthetic
-python examples/02_pool_after_wait.py 30             # ví dụ đầy đủ của design doc: ghép sau 5' +20k
-python -m kami compare --presets weekday_am_peak,undersupply --seeds 10 \
-       --treatment pool_after_wait --arg surcharge=20000 --pooling-rule --report out/report.md
-python -m unittest discover -s tests -t .            # toàn bộ test
+python -m venv .venv
+source .venv/bin/activate
 ```
 
-Với mạng đường thật (mạng mẫu `data/networks/example_network`, định dạng FleetPy):
+Cài kami ở chế độ editable (sửa code là có hiệu lực ngay) kèm các thư viện tuỳ chọn: `osm` (osmium, pyproj, h3 — đọc
+dữ liệu OSM để dựng mạng Hà Nội), `cpp` (cython — build router C++), `store` (pyarrow — ghi nhật ký sự kiện dạng
+Parquet mà các kịch bản Hà Nội dùng).
 
 ```bash
-python -m kami.network.road.cpp.build                # tuỳ chọn, một lần: router C++ (cần cython)
-python examples/03_road_network.py
-python -m kami run --network road:example_network --zones example_zones --preset accident
+pip install -e ".[osm,cpp,store]"
 ```
 
-Chạy từ file cấu hình khai báo, lưu vào DB và benchmark (kami 0.2, cần `pip install 'kami[store]'` cho event log
-Parquet):
+Biên dịch router C++ (tính đường đi ngắn nhất). Không bắt buộc, nhưng router Python chậm hơn khoảng 10 lần trên mạng
+Hà Nội. Phải build lại khi đổi môi trường Python.
 
 ```bash
-python -m kami run --spec examples/specs/fleets_policy_group.json --out out/run1
-python -m kami run --spec examples/specs/preset_rain.json --db kami.db --artifacts runs
-python examples/05_run_from_spec.py
-python -m kami bench --compare benchmarks/results/2026-10-07-sprint01.json
+python -m kami.network.road.cpp.build
 ```
+
+### Bước 2 — Dựng mạng đường Hà Nội (một lần)
+
+Tải file OSM Việt Nam của Geofabrik (~330 MB, cache ở `data/osm/cache/`, kiểm sha256), cắt theo phạm vi 12 quận nội
+thành, rồi ghi mạng đường vào `data/networks/hanoi/` và hệ zone vào `data/zones/hanoi_h3_r8/`, `data/zones/hanoi_wards/`.
+Mất khoảng 95 s (chưa tính thời gian tải) và 1,6 GB RAM. Chạy lại khi file OSM đã có thì không tải nữa.
+
+
+```bash
+python -m kami.osm build hanoi
+```
+
+Tuỳ chọn: in kích thước mạng, tỷ lệ cặp điểm có đường đi và thời gian truy vấn của router — để chắc mạng dựng đúng.
+
+> Cấu hình khoá đúng bản `vietnam-261006.osm.pbf` (sha256 trong `data/osm/hanoi.json`) để mạng tái tạo được từng byte.
+> Geofabrik không giữ bản theo ngày mãi mãi — nếu link hết hạn, xin file PBF từ người đã có và chép vào
+> `data/osm/cache/`. Chi tiết: [docs/engine/19-osm-pipeline.md](docs/engine/19-osm-pipeline.md).
+
+```bash
+python -m kami.osm check hanoi
+```
+
+### Bước 3 — Chạy kịch bản
+
+```bash
+python -m kami presets
+```
+Không chạy mô phỏng; liệt kê các kịch bản có sẵn (phần "Scenario files") và các policy. Kịch bản Hà Nội:
+
+| File | Nội dung |
+|---|---|
+| `scenarios/hanoi/demo_center.json` | Hoàn Kiếm, Ba Đình, Đống Đa, Hai Bà Trưng; 7h–9h; 300 xe — **dùng cho visualizer** |
+| `scenarios/hanoi/am_peak.json` | Toàn mạng, cao điểm sáng 6h–10h; 1.500 xe |
+| `scenarios/hanoi/pm_peak_rain.json` | Cao điểm chiều 16h–20h, trời mưa; 1.500 xe |
+| `scenarios/hanoi/incident_arterial.json` | 16h–20h, có sự cố ở nút Nguyễn Trãi – Khuất Duy Tiến; 1.500 xe |
+| `scenarios/hanoi/weekday.json` | Cả ngày 0h–24h; 8.000 xe |
+
+Có hai cách chạy, tuỳ mục đích:
+
+**a) Lấy số liệu** (không xem bản đồ):
+
+```bash
+python -m kami run --spec scenarios/hanoi/am_peak.json --out out/hanoi_am_peak
+```
+Chạy mô phỏng theo file kịch bản và ghi kết quả vào `out/hanoi_am_peak/`: `metrics.json` (chỉ số tổng: tỷ lệ hoàn
+thành, huỷ, thời gian chờ…), `timeseries.json` (chỉ số theo thời gian), `run_spec.resolved.json` (cấu hình đầy đủ đã
+dùng) và nhật ký sự kiện. Đổi `--spec` sang file kịch bản khác để chạy kịch bản đó.
+
+```bash
+python -m kami run --spec scenarios/hanoi/am_peak.json --db kami.db
+```
+Cách khác của lệnh trên: lưu lần chạy vào cơ sở dữ liệu SQLite `kami.db` (in ra `run_id`, file lớn ở `runs/<run_id>/`)
+để tra cứu, so sánh nhiều lần chạy về sau.
+
+**b) Xem trên bản đồ:**
+
+```bash
+python -m kami replay export --spec scenarios/hanoi/demo_center.json --out web/public/fixtures/my_run
+```
+Chạy kịch bản (có ghi quỹ đạo từng xe) rồi xuất thư mục replay cho visualizer — vị trí xe theo thời gian, sự kiện của
+khách (đặt, đón, trả, huỷ), chỉ số theo phút. Kịch bản demo mất khoảng 15 s. Thư mục ra phải nằm dưới `web/public/`
+để web đọc được. Hiện chỉ `demo_center.json` được thiết kế cho visualizer; các kịch bản 1.500–8.000 xe cho file rất
+lớn và web có thể chậm.
+
+```bash
+python -m kami replay validate web/public/fixtures/my_run
+```
+Tuỳ chọn: kiểm tra thư mục replay hợp lệ (đủ file, sha256 khớp, dữ liệu nhất quán); báo lỗi nếu có.
+
+### Bước 4 — Chạy visualizer web
+
+```bash
+cd web
+```
+Vào thư mục ứng dụng web.
+
+```bash
+cp .env.example .env.local
+```
+Tạo file cấu hình cục bộ, rồi mở `web/.env.local` và điền token: `NEXT_PUBLIC_MAPBOX_TOKEN=pk.…`. File này đã có trong
+`.gitignore`, không commit. Thiếu token thì trang hiện hướng dẫn cấu hình thay cho bản đồ.
+
+```bash
+npm ci
+```
+Cài thư viện JavaScript đúng phiên bản trong `package-lock.json` (chỉ cần lần đầu hoặc khi `package-lock.json` đổi).
+
+```bash
+npm run dev
+```
+Chạy web ở chế độ phát triển tại `http://localhost:3000`. Giữ terminal này mở trong lúc xem.
+
+Mở trình duyệt:
+
+- `http://localhost:3000/?replay=/fixtures/my_run` — replay vừa xuất ở bước 3b;
+- `http://localhost:3000` — replay demo có sẵn trong repo.
+
+Cách dùng màn hình (phát lại, tua, chọn xe, ẩn trạng thái, chế độ quỹ đạo) và các tham số URL khác:
+[docs/engine/20-visualizer.md](docs/engine/20-visualizer.md).
 
 ## Ví dụ tối thiểu
 

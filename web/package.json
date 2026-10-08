@@ -1,0 +1,36 @@
+{
+  "name": "kami-web",
+  "version": "0.2.0",
+  "private": true,
+  "description": "kami 0.2 web UI — fleet operation visualizer (sprint 03)",
+  "scripts": {
+    "tokens": "node scripts/build-tokens.mjs",
+    "predev": "npm run tokens",
+    "dev": "next dev",
+    "prebuild": "npm run tokens",
+    "build": "next build",
+    "start": "npx serve out",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@deck.gl/core": "^9.4.0",
+    "@deck.gl/geo-layers": "^9.4.0",
+    "@deck.gl/layers": "^9.4.0",
+    "@deck.gl/mapbox": "^9.4.0",
+    "echarts": "^6.1.0",
+    "mapbox-gl": "^3.32.0",
+    "next": "^16.4.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "zustand": "^5.0.15"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.4",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "playwright-core": "^1.64.0",
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.3"
+  }
+}

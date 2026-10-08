@@ -46,5 +46,46 @@ class TestIsolation(unittest.TestCase):
         self.assertEqual(offenders, [])
 
 
+WEB_MODULES = ("flask", "fastapi", "django", "starlette", "aiohttp", "tornado", "uvicorn", "websockets", "streamlit",
+               "dash", "bokeh", "plotly", "folium", "pydeck", "keplergl")
+
+
+class TestReplayIsolation(unittest.TestCase):
+    """Sprint 03 — AC03-9: the replay exporter is outside the engine core and no Python code imports web libraries."""
+
+    def test_import_kami_does_not_load_replay(self):
+        out = _run("import sys, kami, kami.core.engine, kami.config\n"
+                   "print([m for m in sys.modules if m.startswith('kami.replay')])")
+        self.assertEqual(out.strip(), "[]")
+
+    def test_core_does_not_import_replay(self):
+        offenders = []
+        for path in (ROOT / "kami").rglob("*.py"):
+            rel = path.relative_to(ROOT / "kami")
+            if rel.parts[0] in ("replay", "store") or path in ALLOWED:
+                continue
+            for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
+                names = [a.name for a in node.names] if isinstance(node, ast.Import) else \
+                    [node.module or ""] if isinstance(node, ast.ImportFrom) else []
+                if any(n.startswith("kami.replay") for n in names):
+                    offenders.append(str(path.relative_to(ROOT)))
+        self.assertEqual(offenders, [])
+
+    def test_no_web_library_imports(self):
+        offenders = []
+        for path in (ROOT / "kami").rglob("*.py"):
+            for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
+                names = [a.name for a in node.names] if isinstance(node, ast.Import) else \
+                    [node.module or ""] if isinstance(node, ast.ImportFrom) else []
+                if any(n.split(".")[0] in WEB_MODULES for n in names):
+                    offenders.append(str(path.relative_to(ROOT)))
+        self.assertEqual(offenders, [])
+
+    def test_replay_runs_without_db(self):
+        out = _run("import sys\nfrom kami.replay import export, validate\n"
+                   f"print([m for m in sys.modules if m.split('.')[0] in {DB_MODULES!r} or m.startswith('kami.store')])")
+        self.assertEqual(out.strip(), "[]")
+
+
 if __name__ == "__main__":
     unittest.main()

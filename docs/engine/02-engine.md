@@ -139,6 +139,10 @@ API: `sim.trajectories.of(driver_id) → [(lon, lat, t)]` (nội suy theo `edge_
 t)`), `legs_of(driver_id)`, `save(path)` → `trajectories.parquet` (một dòng mỗi chặng: `nodes`, `times`, `lon`, `lat`
 và polyline mở rộng `path_lon`, `path_lat`, `path_t` cho deck.gl `TripsLayer`; metadata `kami.coords`), `kami.trajectory.load(path)`.
 
+Sprint 03: `kami.replay` dựng từ các chặng này **dòng thời gian trạng thái** của từng xe (chặng = đoạn chạy, khoảng hở
+giữa hai chặng = đoạn đứng yên) và ghi thư mục phát lại cho web — xem [20-visualizer.md](20-visualizer.md). Chặng
+độ dài 0 (xe đã ở điểm đón) hoặc bị cắt trước giờ xuất phát không có chuyển động, chỉ kết thúc khoảng hở trước nó.
+
 ## API dành cho policy
 
 Policy **chỉ** tác động vào thế giới qua các hàm sau (design doc §7.1):

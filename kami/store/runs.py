@@ -59,6 +59,11 @@ def execute(spec: RunSpec, repo: Repository, artifacts_dir: Union[str, Path] = "
         if resolved.outputs.trajectories == "parquet" and sim.trajectories is not None:
             path = sim.trajectories.save(Path(artifacts_dir) / str(run_id) / "trajectories.parquet")
             repo.add_run_artifact(run_id, "trajectories", path, "parquet", rows=len(sim.trajectories))
+        if resolved.outputs.replay == "json" and sim.trajectories is not None:
+            from kami.replay.cli import export_run
+
+            path = export_run(resolved, sim, Path(artifacts_dir) / str(run_id) / "replay")
+            repo.add_run_artifact(run_id, "replay", path / "manifest.json", "kami.replay")   # folder: see manifest
     except Exception:
         err = traceback.format_exc()
         repo.finish_run(run_id, "failed", wall_s=time.perf_counter() - wall,

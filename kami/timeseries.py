@@ -8,7 +8,8 @@ event to the queue and draws no random number, so results are identical with it 
 Columns (times in minutes, money in VND):
 
 * window ``[m − Δ, m)``: ``rider.requests``, ``rider.booked``, ``rider.completed``,
-  ``rider.cancelled``, ``rider.wait_mean``, ``rider.wait_p90`` (pickups in the window),
+  ``rider.cancelled``, ``rider.wait_mean``, ``rider.wait_p90``, ``rider.pickup_mean`` (pickups in the window;
+  ``pickup_mean`` = trip accepted → pickup, sprint 03),
   ``platform.gmv``, ``platform.surge_mean`` (quotes shown in the window);
 * cumulative since the start: ``rider.*_cum``, ``platform.gmv_cum``;
 * state at ``m``: ``rider.waiting_now``, ``driver.online``, ``driver.idle`` (parked),
@@ -32,7 +33,7 @@ if TYPE_CHECKING:  # pragma: no cover
 NaN = float("nan")
 COUNTERS = ("requests", "booked", "completed", "cancelled")
 COLUMNS = (["t"] + [f"rider.{c}" for c in COUNTERS] + [f"rider.{c}_cum" for c in COUNTERS] +
-           ["rider.waiting_now", "rider.wait_mean", "rider.wait_p90",
+           ["rider.waiting_now", "rider.wait_mean", "rider.wait_p90", "rider.pickup_mean",
             "driver.online", "driver.idle", "driver.repositioning", "driver.en_route", "driver.on_trip",
             "driver.utilization_now", "platform.gmv", "platform.gmv_cum", "platform.surge_mean"])
 
@@ -50,6 +51,8 @@ class MetricSampler:
         self._win = dict.fromkeys(COUNTERS, 0)
         self._cum = dict.fromkeys(COUNTERS, 0)
         self._waits: List[float] = []
+        self._pickups: List[float] = []
+        self._matched: Dict[int, float] = {}
         self._gmv = 0.0
         self._gmv_cum = 0.0
         self._surge_sum = 0.0
@@ -68,14 +71,20 @@ class MetricSampler:
         elif ev == "OFFER_ACCEPTED":
             self._win["booked"] += 1
             self._waiting.add(rider_id)
+        elif ev == "TRIP_ACCEPTED":
+            self._matched[rider_id] = t
         elif ev == "PICKUP":
             self._waits.append(info.get("wait", 0.0) / 60.0)
+            t_matched = self._matched.pop(rider_id, None)
+            if t_matched is not None:
+                self._pickups.append((t - t_matched) / 60.0)
         elif ev == "DROPOFF":
             self._win["completed"] += 1
             fare = info.get("fare", 0.0) + info.get("surcharge", 0.0)
             self._gmv += fare
         elif ev == "RIDER_CANCEL":
             self._win["cancelled"] += 1
+            self._matched.pop(rider_id, None)
 
     # ------------------------------------------------------------------ sampling
     def sample_until(self, t: float) -> float:
@@ -121,6 +130,7 @@ class MetricSampler:
             "rider.waiting_now": len(self._waiting),
             "rider.wait_mean": mean(self._waits),
             "rider.wait_p90": percentile(self._waits, 90),
+            "rider.pickup_mean": mean(self._pickups),
             "driver.online": online, "driver.idle": idle, "driver.repositioning": moving,
             "driver.en_route": en_route, "driver.on_trip": on_trip,
             "driver.utilization_now": on_trip / online if online else NaN,
@@ -130,6 +140,7 @@ class MetricSampler:
         self.rows.append(row)
         self._win = dict.fromkeys(COUNTERS, 0)
         self._waits = []
+        self._pickups = []
         self._gmv = 0.0
         self._surge_sum, self._quotes = 0.0, 0
 

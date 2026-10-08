@@ -536,6 +536,31 @@ def _hour_range(v, path, errs):
     return None
 
 
+def _area(v, path, errs):
+    """``{"bbox": [lon0, lat0, lon1, lat1], "name": optional}`` (sprint 03)."""
+    if v is None:
+        return None
+    if not check_value(v, path, errs, dict):
+        return None
+    unknown = sorted(set(v) - {"bbox", "name"})
+    if unknown:
+        errs.add(path, f"khoá lạ {unknown}; cho phép: bbox, name")
+    bbox = v.get("bbox")
+    p = join(path, "bbox")
+    if not isinstance(bbox, list) or len(bbox) != 4:
+        errs.add(p, "cần [lon0, lat0, lon1, lat1]")
+        return None
+    if not all(check_value(x, join(p, i), errs, float) for i, x in enumerate(bbox)):
+        return None
+    if not (bbox[0] < bbox[2] and bbox[1] < bbox[3]):
+        errs.add(p, "cần lon0 < lon1 và lat0 < lat1")
+        return None
+    out = {"bbox": [float(x) for x in bbox]}
+    if "name" in v and check_value(v["name"], join(path, "name"), errs, str):
+        out["name"] = v["name"]
+    return out
+
+
 @dataclass
 class ZonalSourceSpec(Spec):
     """Demand by zone × hour (``ScenarioBuilder.zonal``, sprint 02, decision D15).
@@ -562,6 +587,7 @@ class ZonalSourceSpec(Spec):
     incidents: List[Dict[str, Any]] = f(factory=list, parse=_incidents)
     supply_multiplier: float = f(1.0, typ=float, gt=0)
     warmup_s: float = f(0.0, typ=float, ge=0)
+    area: Optional[Dict[str, Any]] = f(parse=_area, nullable=True, omit_none=True)   # sprint 03: {"bbox": [...]}
 
     def check(self, path, errs):
         if self.t_start >= self.t_end:
@@ -576,7 +602,10 @@ class ZonalSourceSpec(Spec):
         keys = ("t_start", "t_end", "demand_per_hour", "profile", "am_hours", "pm_hours", "gravity_lambda_m",
                 "smoothing", "min_trip_m", "weather", "demand_weather_multiplier", "incidents", "supply_multiplier",
                 "warmup_s")
-        return {k: getattr(self, k) for k in keys}
+        kw = {k: getattr(self, k) for k in keys}
+        if self.area is not None:
+            kw["area"] = self.area["bbox"]
+        return kw
 
 
 SourceSpec = Union[PresetSourceSpec, SyntheticSourceSpec, FleetPyDemandSourceSpec, CsvSourceSpec, ZonalSourceSpec]
@@ -935,6 +964,8 @@ class OutputSpec(Spec):
 
     event_log: str = f("parquet", choices=("parquet", "csv.gz", "none"))
     trajectories: str = f("none", choices=("none", "parquet"))   # sprint 02: turns on SimConfig.record_trajectories
+    # sprint 03: replay folder for the web visualizer (kami.replay); omitted = "none"
+    replay: Optional[str] = f(None, typ=str, choices=("none", "json"), nullable=True, omit_none=True)
 
 
 # =========================================================================== run

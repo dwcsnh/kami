@@ -40,7 +40,9 @@ class LogitBookingParams:
 
 
 class LogitBooking(Model):
-    """Book or not after seeing fare/ETA (Cohen et al. style price elasticity)."""
+    """Book or not after seeing fare/ETA (Cohen et al. style price elasticity).
+        Random Utility Theory (RUT)
+    """
 
     def __init__(self, params: Optional[LogitBookingParams] = None, **kw):
         self.params = params or LogitBookingParams(**kw)

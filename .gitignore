@@ -16,3 +16,9 @@ data/networks/hanoi/
 data/zones/hanoi_h3_r8/
 data/zones/hanoi_wards/
 /out/
+.env.local
+# sprint 03: web app (also in web/.gitignore)
+web/node_modules/
+web/.next/
+web/out/
+web/.env.local

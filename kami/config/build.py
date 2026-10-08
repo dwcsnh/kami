@@ -224,7 +224,7 @@ def build_run(spec: RunSpec) -> BuiltRun:
     _require_resolved(spec)
     sc = build_scenario(spec.scenario, seed=spec.seed, fleets=spec.fleets, vehicle_types=spec.vehicle_types)
     config = build_sim_config(spec.sim_config)
-    if spec.outputs.trajectories != "none":
+    if spec.outputs.trajectories != "none" or spec.outputs.replay == "json":
         config.record_trajectories = True
     return BuiltRun(sc, build_policy(spec.policy_group), build_behavior(spec.behavior), config, spec.crn_seed)
 

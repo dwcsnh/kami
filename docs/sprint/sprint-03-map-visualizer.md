@@ -2,11 +2,11 @@
 
 | | |
 |---|---|
-| Trạng thái | Chưa bắt đầu |
+| Trạng thái | Xong (2026-10-08) — backlog: [sprint-03-backlog.md](../backlog/sprint-03-backlog.md) |
 | Yêu cầu | UI-1 (phần bản đồ + metric, chế độ phát lại), MAP-2 (hiển thị) |
 | Phụ thuộc | Sprint 02 (mạng Hà Nội, quỹ đạo xe) |
 | Backlog đầu vào | [sprint-02-backlog.md](../backlog/sprint-02-backlog.md) — liên quan: B02-9 (kích thước `trajectories.parquet`, định dạng fixture cho visualizer), B02-11 (đo lại mốc benchmark sau commit). Đầu vào dữ liệu: mạng `hanoi` + `trajectories.parquet` (`python -m kami run --spec scenarios/hanoi/am_peak.json --out out/hanoi`, docs/engine/02 mục "Quỹ đạo") |
-| Implementation plan | [sprint-03-plan.md](../implementation-plan/sprint-03-plan.md) (chưa có) |
+| Implementation plan | [sprint-03-plan.md](../implementation-plan/sprint-03-plan.md) (Đã thực hiện) |
 
 ## Mục tiêu
 
@@ -87,22 +87,22 @@ các lớp dữ liệu của tính năng sau (sạc, surge, khách chờ) đư�
 
 ## Acceptance criteria
 
-- [ ] AC03-1 Một lệnh sinh fixture demo trên mạng Hà Nội; chạy hai lần cùng seed cho file giống hệt; file qua được
+- [x] AC03-1 Một lệnh sinh fixture demo trên mạng Hà Nội; chạy hai lần cùng seed cho file giống hệt; file qua được
       hàm kiểm tra hợp lệ của S03-1.
-- [ ] AC03-2 Mở ứng dụng trên trình duyệt (theo hướng dẫn trong tài liệu) thấy bản đồ Mapbox nền sáng căn vào khu vực
+- [x] AC03-2 Mở ứng dụng trên trình duyệt (theo hướng dẫn trong tài liệu) thấy bản đồ Mapbox nền sáng căn vào khu vực
       demo; zoom in/out, xoay, nghiêng 3D hoạt động.
-- [ ] AC03-3 Khi phát, xe di chuyển trên đường của mạng (không đi xuyên khối nhà), có vệt đường chạy mờ dần, màu khớp
+- [x] AC03-3 Khi phát, xe di chuyển trên đường của mạng (không đi xuyên khối nhà), có vệt đường chạy mờ dần, màu khớp
       trạng thái trong event log tại cùng thời điểm (kiểm tra tự động trên mẫu điểm của fixture + kiểm tra bằng mắt).
-- [ ] AC03-4 Bật/tắt từng loại vệt theo trạng thái và chuyển chế độ "xe di chuyển" ↔ "quỹ đạo" hoạt động.
-- [ ] AC03-5 Tua đến thời điểm bất kỳ: vị trí xe, vệt và panel metric hiển thị đúng trạng thái tại thời điểm đó; số
+- [x] AC03-4 Bật/tắt từng loại vệt theo trạng thái và chuyển chế độ "xe di chuyển" ↔ "quỹ đạo" hoạt động.
+- [x] AC03-5 Tua đến thời điểm bất kỳ: vị trí xe, vệt và panel metric hiển thị đúng trạng thái tại thời điểm đó; số
       liệu KPI khớp chuỗi metric engine xuất ra.
-- [ ] AC03-6 Fixture demo (vài trăm xe) phát mượt (≥ 30 fps trên máy dev, con số chốt trong plan) ở mọi mức thu phóng.
-- [ ] AC03-7 Giao diện ở light mode dùng màu chủ đạo xanh Tiffany theo design tokens; màu các trạng thái xe phân biệt
+- [x] AC03-6 Fixture demo (vài trăm xe) phát mượt (≥ 30 fps trên máy dev, con số chốt trong plan) ở mọi mức thu phóng.
+- [x] AC03-7 Giao diện ở light mode dùng màu chủ đạo xanh Tiffany theo design tokens; màu các trạng thái xe phân biệt
       được với nhau và với nền bản đồ; chữ và số liệu đạt độ tương phản tối thiểu WCAG AA.
-- [ ] AC03-8 Trang có đủ các khối: bản đồ, KPI, biểu đồ, đồng hồ mô phỏng + điều khiển phát lại, chú giải/công tắc
+- [x] AC03-8 Trang có đủ các khối: bản đồ, KPI, biểu đồ, đồng hồ mô phỏng + điều khiển phát lại, chú giải/công tắc
       trạng thái; dùng được trên màn hình ≥ 1280px; panel thu gọn được để xem bản đồ toàn màn hình; có ảnh chụp
       trong tài liệu.
-- [ ] AC03-9 Lõi engine không import thư viện web (NFR-5); test cũ vẫn pass.
+- [x] AC03-9 Lõi engine không import thư viện web (NFR-5); test cũ vẫn pass.
 
 ## Rủi ro & câu hỏi mở
 

@@ -240,7 +240,7 @@ class ScenarioBuilder:
               gravity_lambda_m: float = 3000.0, smoothing: float = 0.1, min_trip_m: float = 1000.0,
               weather: Optional[List[Tuple[float, str]]] = None, demand_weather_multiplier: float = 1.0,
               incidents: Optional[List[Dict[str, Any]]] = None, supply_multiplier: float = 1.0,
-              warmup_s: float = 0.0) -> Scenario:
+              warmup_s: float = 0.0, area: Optional[Sequence[float]] = None) -> Scenario:
         """Non-homogeneous Poisson demand whose pick-ups follow zone weights by time of day (decision D15).
 
         ``weights``: ``{zone: {"nodes", "residential", "work", "poi"}}`` (``read_zone_weights``); default: node
@@ -248,13 +248,19 @@ class ScenarioBuilder:
         morning peak (``am_hours``), workplaces in the evening peak (``pm_hours``), all kinds otherwise; drop-off
         zones are drawn with the *opposite* weight × ``exp(−distance / gravity_lambda_m)``. Drivers start in zones
         weighted by residential + POI counts. Same parameters + seed → same scenario.
+
+        ``area`` (sprint 03): bounding box ``[lon0, lat0, lon1, lat1]`` (network x/y on networks without lon/lat);
+        only zones whose location nodes have their mean point inside it get requests and start vehicles. Vehicles
+        still drive on the whole network.
         """
         rng = random.Random(f"zonal|{name}|{seed}")
         prof = (DEMAND_PROFILE_WEEKDAY if profile == "weekday" else
                 DEMAND_PROFILE_WEEKEND if profile == "weekend" else list(profile))
         zones = [z for z in sorted(self.zones.zones(), key=str) if self.zones.location_nodes_in(z)]
+        if area is not None:
+            zones = self._zones_in_area(zones, area)
         if not zones:
-            raise ValueError("no zone has location nodes")
+            raise ValueError("no zone has location nodes" + (" inside the area" if area is not None else ""))
         counts = {z: dict((weights or {}).get(z) or {}) for z in zones}
         for z in zones:
             counts[z].setdefault("nodes", len(self.zones.nodes_in(z)))
@@ -337,6 +343,27 @@ class ScenarioBuilder:
                         traffic=dict(self.traffic),
                         tags={"generator": "zonal", "profile": profile if isinstance(profile, str) else "custom",
                               "measure_from": t_start, "weighted": bool(weights)})
+
+    def _zones_in_area(self, zones: List[Hashable], area: Sequence[float]) -> List[Hashable]:
+        x0, y0, x1, y1 = (float(v) for v in area)
+        net = self.network
+        lonlat = getattr(net, "lonlats", None)
+        out = []
+        for z in zones:
+            nodes = self.zones.location_nodes_in(z)
+            pts = None
+            if lonlat is not None:
+                try:
+                    pts = lonlat(nodes)
+                except (ImportError, ValueError):
+                    pts = None
+            if pts is None or (pts and pts[0] is None):
+                pts = [net.coords(n) for n in nodes]
+            cx = sum(p[0] for p in pts) / len(pts)
+            cy = sum(p[1] for p in pts) / len(pts)
+            if x0 <= cx <= x1 and y0 <= cy <= y1:
+                out.append(z)
+        return out
 
     def preset(self, preset: str, seed: int = 0, demand_per_hour: float = 200, n_drivers: int = 150,
                **overrides) -> Scenario:

@@ -50,6 +50,7 @@ Mọi trường có giá trị mặc định trừ các trường ghi **bắt bu
 | `crn_seed` | `null` | Seed CRN; `null` = seed kịch bản (docs/engine/05) |
 | `outputs.event_log` | `"parquet"` | `parquet` (cần `pyarrow`), `csv.gz` hoặc `none` |
 | `outputs.trajectories` | `"none"` | `parquet`: bật `SimConfig.record_trajectories` và ghi `trajectories.parquet` (Sprint 02, docs/engine/02) |
+| `outputs.replay` | không có (= `"none"`) | `json`: bật ghi quỹ đạo và ghi thư mục phát lại `replay/` (`kami.replay` v1, Sprint 03, docs/engine/20). Không khai báo thì `to_dict` không có trường này |
 
 ### `ScenarioSpec` — thế giới ngoại sinh
 
@@ -69,7 +70,7 @@ Mọi trường có giá trị mặc định trừ các trường ghi **bắt bu
 | `synthetic` | `ScenarioBuilder.synthetic` | `t_start`, `t_end`, `demand_per_hour`, `profile` (`weekday`/`weekend`/24 số), `n_hotspots`, `hotspot_sigma_m`, `min_trip_m`, `weather` (`[[t, "rain"], …]`), `demand_weather_multiplier`, `incidents` (`[{"t_offset", "duration", "at": "hotspot0" \| node, "radius_m", "factor", "cancel_multiplier"}]`), `supply_multiplier`, `warmup_s` |
 | `fleetpy_demand` | `from_fleetpy_demand` | `file` (**bắt buộc**), `t_start`, `t_end`, `time_offset`, `capacity`. Cần `network.kind = "road"` |
 | `csv` | `from_csv` | `file` (**bắt buộc**), `time_col`, `origin`, `dest`, `coords` (`xy`/`node`/`lonlat`), `t_start`, `t_end` |
-| `zonal` (Sprint 02) | `ScenarioBuilder.zonal` | `t_start`, `t_end`, `demand_per_hour` (1000), `profile`, `weights` (file `zone_weights.csv`; bỏ trống = file cạnh file zone của `FileZoneSpec`, không có thì theo số node), `am_hours` ([6, 10]), `pm_hours` ([16, 20]), `gravity_lambda_m` (3000), `smoothing` (0,1), `min_trip_m`, `weather`, `demand_weather_multiplier`, `incidents` (`at`: node hoặc `{"lon", "lat"}` — không có hotspot), `supply_multiplier`, `warmup_s` |
+| `zonal` (Sprint 02) | `ScenarioBuilder.zonal` | `area` (Sprint 03, tuỳ chọn: `{"bbox": [lon0, lat0, lon1, lat1], "name"}` — chỉ zone trong khung sinh request và vị trí đầu ca, docs/engine/09), `t_start`, `t_end`, `demand_per_hour` (1000), `profile`, `weights` (file `zone_weights.csv`; bỏ trống = file cạnh file zone của `FileZoneSpec`, không có thì theo số node), `am_hours` ([6, 10]), `pm_hours` ([16, 20]), `gravity_lambda_m` (3000), `smoothing` (0,1), `min_trip_m`, `weather`, `demand_weather_multiplier`, `incidents` (`at`: node hoặc `{"lon", "lat"}` — không có hotspot), `supply_multiplier`, `warmup_s` |
 
 `incidents[].at` của `synthetic`/`preset` cũng nhận `{"lon": …, "lat": …}` (Sprint 02).
 
@@ -161,7 +162,7 @@ Lưu ý: như 0.1, `--registry` thay cả suite nên bỏ qua `--employed-driver
 
 | Nhóm | Cột |
 |---|---|
-| Cửa sổ `[m − Δ, m)` | `rider.requests`, `rider.booked`, `rider.completed`, `rider.cancelled`, `rider.wait_mean`, `rider.wait_p90` (phút, các lượt đón trong cửa sổ), `platform.gmv`, `platform.surge_mean` (trung bình surge của báo giá trong cửa sổ) |
+| Cửa sổ `[m − Δ, m)` | `rider.requests`, `rider.booked`, `rider.completed`, `rider.cancelled`, `rider.wait_mean`, `rider.wait_p90` (phút, các lượt đón trong cửa sổ), `rider.pickup_mean` (Sprint 03: phút từ lúc tài xế nhận chuyến `TRIP_ACCEPTED` tới lúc đón, các lượt đón trong cửa sổ), `platform.gmv`, `platform.surge_mean` (trung bình surge của báo giá trong cửa sổ) |
 | Tích luỹ | `rider.requests_cum`, `rider.booked_cum`, `rider.completed_cum`, `rider.cancelled_cum`, `platform.gmv_cum` |
 | Trạng thái tại `m` | `rider.waiting_now`, `driver.online`, `driver.idle` (đỗ), `driver.repositioning` (rảnh và đang chạy: tự đi hoặc platform điều), `driver.en_route`, `driver.on_trip`, `driver.utilization_now` (= on_trip / online) |
 
@@ -209,7 +210,7 @@ repo.get_run(result.run_id); repo.run_metrics(result.run_id); repo.run_timeserie
 | `run` | `status` (`queued`/`running`/`succeeded`/`failed`/`cancelled`), `run_spec_json` (snapshot đã giải tham chiếu), `source_spec_json` (bản gửi lên), `provenance_json`, `kami_version`, `schema_version`, `seed`, thời điểm, `wall_s`, `events`, `error` |
 | `run_metric_summary` | `(run_id, name)` → `value` (NaN lưu `NULL`) |
 | `run_metric_timeseries` | `(run_id, name, t)` → `value` (dạng dài) |
-| `run_artifact` | `kind` (`event_log`, `trajectories` — Sprint 02), `path`, `format`, `size_bytes`, `sha256`, `rows` |
+| `run_artifact` | `kind` (`event_log`, `trajectories` — Sprint 02, `replay` — Sprint 03: `path` là `manifest.json` của thư mục, `format` `kami.replay`), `path`, `format`, `size_bytes`, `sha256`, `rows` |
 
 ### Vòng đời một lần chạy (`kami.store.runs.execute`)
 

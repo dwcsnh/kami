@@ -39,9 +39,9 @@ trên Python 3.14 hệ thống (20 skip: thiếu pyosmium/h3/router C++). Test m
 | B02-6 | Chờ phụ thuộc | Cao | Khách chưa chọn loại dịch vụ (ô tô / xe máy): thời gian chuyến trực tiếp và cước tính theo ô tô; matching cho mọi nhóm xe phục vụ mọi khách (xe máy 1 chỗ chở được khách đặt ô tô) | Loại dịch vụ thuộc Sprint 05/06 | 05 | Mở |
 | B02-7 | Nợ kỹ thuật | Thấp | Travel time của một chặng tính theo trạng thái lúc xuất phát (không tích phân qua các chu kỳ tắc đường); chỉ tính lại ở `CONGESTION_UPDATE` khi lệch > `retime_threshold`. Chưa có hạn chế rẽ, thời gian chờ đèn | Đủ cho mô hình theo giờ; FleetPy cũng vậy | Chưa xếp | Mở |
 | B02-8 | Nợ kỹ thuật | Thấp | `network_dynamics_file` (travel time động theo thư mục của FleetPy) chỉ áp cho nhóm xe mặc định và không kết hợp với `congestion` (tắc đường nhân trên travel time của `edges.csv`) | Hà Nội dùng tắc đường sinh trong bộ nhớ; chưa có dữ liệu dynamics | Chưa xếp | Mở |
-| B02-9 | Nợ kỹ thuật | Cao | `trajectories.parquet` của `am_peak` 55 MB (32.963 chặng, polyline mở rộng theo hình học cạnh); cả ngày ước ~400 MB. Visualizer có thể cần lọc theo vùng/xe, giảm điểm, hoặc ghi dần | Sprint 03 quyết định định dạng fixture cho visualizer | 03 (fixture), 04 (ghi dần) | Mở |
+| B02-9 | Nợ kỹ thuật | Cao | `trajectories.parquet` của `am_peak` 55 MB (32.963 chặng, polyline mở rộng theo hình học cạnh); cả ngày ước ~400 MB. Visualizer có thể cần lọc theo vùng/xe, giảm điểm, hoặc ghi dần | Sprint 03 quyết định định dạng fixture cho visualizer | 03 (fixture), 04 (ghi dần) | **Một phần (Sprint 03)**: fixture visualizer dùng `kami.replay` v1 theo khu vực + giản lược điểm (1,14 MB); ghi dần / quy mô cả ngày chuyển B03-2 (Sprint 04) |
 | B02-10 | Nợ kỹ thuật | Thấp | Hệ zone phường bị cắt ở biên polygon: 60 zone gồm cả phần nhỏ của xã ngoài vùng (ví dụ "Xã Đông Anh", "Xã Bát Tràng") | Polygon xấp xỉ 12 quận cũ, không theo ranh giới phường mới | Khi mở rộng phạm vi (Q-A) | Mở |
-| B02-11 | Nợ kỹ thuật | Thấp | Mốc benchmark Sprint 02 đo trên working tree chưa commit (`git_dirty: true`, commit gốc `d100a3f`) | Sprint chưa được commit tại thời điểm đo | 03 (đo lại sau commit) | Mở |
+| B02-11 | Nợ kỹ thuật | Thấp | Mốc benchmark Sprint 02 đo trên working tree chưa commit (`git_dirty: true`, commit gốc `d100a3f`) | Sprint chưa được commit tại thời điểm đo | 03 (đo lại sau commit) | **Xong (Sprint 03)**: đo lại trên `0e4e0d0` sạch → [`2026-10-08-sprint02-clean.json`](../../benchmarks/results/2026-10-08-sprint02-clean.json), xem "Số liệu mốc" |
 | B02-12 | Nợ kỹ thuật | Thấp | Pipeline cần `pyosmium` (đã cài vào env `fleetpy`, Python 3.10); chưa kiểm tra wheel cho Python 3.14. Runtime không cần | Chỉ là công cụ build | Chưa xếp | Mở |
 
 ## Mock đang dùng
@@ -70,6 +70,13 @@ máy: 793 chuyến, hoàn thành 0,875, chờ TB 6,47 phút, utilization 0,616, 
 chưa build.
 
 Metric vận hành của 5 case cũ giống hệt mốc Sprint 01 (cờ `deterministic`).
+
+**Đo lại trên commit sạch (B02-11, 2026-10-08):** commit `0e4e0d0`, `git_dirty: false`, cùng môi trường, `--repeat 5`
+→ [`2026-10-08-sprint02-clean.json`](../../benchmarks/results/2026-10-08-sprint02-clean.json) — **mốc so sánh cho
+Sprint 03**. Sự kiện và metric giống hệt bảng trên; wall_s median: `grid_am_peak_baseline` 0,62 · `_nots` 0,60 ·
+`_surge` 0,60 · `grid_pm_peak_x5` 2,57 · `road_example_400` 0,70 · `hanoi_am_peak_small` 9,18 (−10,4%…+0,8% so với
+bảng trên). Ghi chú: chạy bench từ một bản checkout ở **thư mục khác** cho `road_example_400` 3.905 sự kiện (thay vì
+3.901) — tái hiện B02-4; mốc phải đo trong thư mục repo.
 
 **Preset nghiệm thu `scenarios/hanoi/am_peak.json`** (seed 0, chạy một lần qua CLI):
 
