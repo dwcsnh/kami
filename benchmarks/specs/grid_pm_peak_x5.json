@@ -1,0 +1,15 @@
+{
+  "name": "grid_pm_peak_x5",
+  "scenario": {
+    "name": "weekday_pm_peak",
+    "network": {"kind": "grid", "width_m": 12000, "height_m": 12000},
+    "zones": {"kind": "square", "cell_m": 1000},
+    "source": {"kind": "preset", "preset": "weekday_pm_peak", "demand_per_hour": 1000},
+    "n_drivers": 600,
+    "seed": 1
+  },
+  "policy_group": {
+    "name": "surge+reposition",
+    "members": [{"policy": {"plugin": "surge"}}, {"policy": {"plugin": "heatmap_reposition"}}]
+  }
+}

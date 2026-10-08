@@ -1,0 +1,104 @@
+{
+ "area": {
+  "bbox": [
+   0.0,
+   0.0,
+   3000.0,
+   3000.0
+  ],
+  "center": [
+   1500.0,
+   1500.0
+  ],
+  "name": "weekday_am_peak"
+ },
+ "bounds": [
+  0.0,
+  0.0,
+  3000.0,
+  3000.0
+ ],
+ "coords": "xy",
+ "counts": {
+  "events": 252,
+  "metric_rows": 41,
+  "points": 223,
+  "segments": 121,
+  "vehicles": 12
+ },
+ "files": {
+  "events": {
+   "bytes": 2216,
+   "path": "events.json.gz",
+   "raw_bytes": 13558,
+   "sha256": "6946cc0726e5bf2abd390a7f4c0dcdfb0b8b622a120a1e32de65faa396edcfed"
+  },
+  "metrics": {
+   "bytes": 1170,
+   "path": "metrics.json.gz",
+   "raw_bytes": 4548,
+   "sha256": "fc66bbcf7a533da1ef2e8083719910b233550a095c8380e883ac60c250c654cf"
+  },
+  "trips": {
+   "bytes": 1698,
+   "path": "trips.json.gz",
+   "raw_bytes": 9498,
+   "sha256": "1a90cd974e1d97e749c3604ce4d623d5310bb493cc24da29bac75af94506c34e"
+  },
+  "vehicles": {
+   "bytes": 180,
+   "path": "vehicles.json.gz",
+   "raw_bytes": 1095,
+   "sha256": "2522d4b69073b6ef9f673c9b07e887aaa3faba49b6bc2465ee0429f99cffc330"
+  }
+ },
+ "fleets": {
+  "default": 12
+ },
+ "kami_version": "0.1.0",
+ "kind": "kami.replay",
+ "run": {
+  "crn_seed": 4,
+  "network": "grid",
+  "policy": "baseline",
+  "scenario": "weekday_am_peak",
+  "seed": 4
+ },
+ "schema_version": 1,
+ "simplify": {
+  "dist_m": 1.0,
+  "dt_s": 0.5
+ },
+ "states": [
+  {
+   "color": "state.idle",
+   "id": "idle",
+   "label": "Rảnh – đứng yên"
+  },
+  {
+   "color": "state.cruising",
+   "id": "cruising",
+   "label": "Rảnh – đang chạy"
+  },
+  {
+   "color": "state.pickup",
+   "id": "pickup",
+   "label": "Đi đón khách"
+  },
+  {
+   "color": "state.on_trip",
+   "id": "on_trip",
+   "label": "Chở khách"
+  },
+  {
+   "color": "state.reposition",
+   "id": "reposition",
+   "label": "Điều xe"
+  }
+ ],
+ "time": {
+  "end": 27600.0,
+  "scenario_start": 25200.0,
+  "start": 25200.0
+ }
+}

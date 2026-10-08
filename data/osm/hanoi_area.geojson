@@ -1,0 +1,21 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Hà Nội — vùng đô thị trung tâm (12 quận nội thành cũ)",
+        "note": "Đa giác xấp xỉ bao Ba Đình, Hoàn Kiếm, Tây Hồ, Long Biên, Cầu Giấy, Đống Đa, Hai Bà Trưng, Hoàng Mai, Thanh Xuân, Nam Từ Liêm, Bắc Từ Liêm, Hà Đông (ranh giới trước sắp xếp 2025). Là tham số của pipeline: sửa file này để đổi phạm vi."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [105.7200, 21.0250], [105.7250, 21.0650], [105.7400, 21.0900], [105.7800, 21.1000],
+          [105.8300, 21.1000], [105.8800, 21.0900], [105.9350, 21.0600], [105.9450, 21.0200],
+          [105.9300, 20.9850], [105.8900, 20.9500], [105.8500, 20.9420], [105.7800, 20.9330],
+          [105.7400, 20.9400], [105.7230, 20.9700], [105.7200, 21.0250]
+        ]]
+      }
+    }
+  ]
+}

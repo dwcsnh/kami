@@ -1,0 +1,108 @@
+{
+ "area": {
+  "bbox": [
+   105.8,
+   20.995,
+   105.87,
+   21.05
+  ],
+  "center": [
+   105.835,
+   21.0225
+  ],
+  "name": "Hà Nội — Hoàn Kiếm, Ba Đình, Đống Đa, Hai Bà Trưng",
+  "zoom": 13.22
+ },
+ "bounds": [
+  105.792501,
+  20.99107,
+  105.895921,
+  21.053463
+ ],
+ "coords": "lonlat",
+ "counts": {
+  "events": 12017,
+  "metric_rows": 151,
+  "points": 136112,
+  "segments": 8361,
+  "vehicles": 300
+ },
+ "files": {
+  "events": {
+   "bytes": 138817,
+   "path": "events.json.gz",
+   "raw_bytes": 786961,
+   "sha256": "3204ba282519335bde073cbf86e4cff59202e1252e848f74c68c11b56500b06d"
+  },
+  "metrics": {
+   "bytes": 7761,
+   "path": "metrics.json.gz",
+   "raw_bytes": 21341,
+   "sha256": "54397f1d1a9dcbdd992b3902061208be56350475504c5ab628ae1f3605532597"
+  },
+  "trips": {
+   "bytes": 993413,
+   "path": "trips.json.gz",
+   "raw_bytes": 4275401,
+   "sha256": "ff28dc45d08fa520390642cafb11299fbd75fcdcddc7a6182f6ad22ad527721f"
+  },
+  "vehicles": {
+   "bytes": 2571,
+   "path": "vehicles.json.gz",
+   "raw_bytes": 32287,
+   "sha256": "68c5f56895ed63edd164778132cc8909c2cece49111b3cc9e7872c8712b5f61c"
+  }
+ },
+ "fleets": {
+  "greensm_bike": 100,
+  "greensm_car": 200
+ },
+ "kami_version": "0.1.0",
+ "kind": "kami.replay",
+ "run": {
+  "crn_seed": null,
+  "name": "hanoi_center_demo",
+  "network": "hanoi",
+  "policy": "baseline",
+  "scenario": "hanoi_center_demo",
+  "seed": 0,
+  "spec_sha256": "525f100fc6d2fefcc01577f28140994f64e6d8f06744e5d5942ac00fe7f51bc3"
+ },
+ "schema_version": 1,
+ "simplify": {
+  "dist_m": 1.0,
+  "dt_s": 0.5
+ },
+ "states": [
+  {
+   "color": "state.idle",
+   "id": "idle",
+   "label": "Rảnh – đứng yên"
+  },
+  {
+   "color": "state.cruising",
+   "id": "cruising",
+   "label": "Rảnh – đang chạy"
+  },
+  {
+   "color": "state.pickup",
+   "id": "pickup",
+   "label": "Đi đón khách"
+  },
+  {
+   "color": "state.on_trip",
+   "id": "on_trip",
+   "label": "Chở khách"
+  },
+  {
+   "color": "state.reposition",
+   "id": "reposition",
+   "label": "Điều xe"
+  }
+ ],
+ "time": {
+  "end": 33779.4,
+  "scenario_start": 25200.0,
+  "start": 25200.0
+ }
+}

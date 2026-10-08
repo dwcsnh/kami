@@ -1,28 +1,65 @@
-# 16 · Tái sử dụng FleetPy
+# 16 · Phần lấy từ FleetPy
 
 Design doc §12 đề xuất: *tự viết engine mỏng với interface policy/behavior/CRN, tái sử dụng thuật toán từ FleetPy
-và ý tưởng decision function từ MaaSSim.* Bảng dưới ghi rõ phần nào của FleetPy được dùng lại, dùng như thế nào,
-và phần nào phải viết lại.
+và ý tưởng decision function từ MaaSSim.* Bảng dưới ghi rõ phần nào của FleetPy đã được đưa vào kami, và phần nào
+phải viết lại.
 
-## Dùng trực tiếp (import FleetPy như thư viện, không copy code)
+Từ 2026-10, kami **không còn import FleetPy**: phần mạng đường được port vào `kami/network/road/` (giấy phép MIT của
+TUM-VT giữ ở [`kami/network/road/LICENSE-FleetPy`](../../kami/network/road/LICENSE-FleetPy)). Không cần checkout
+FleetPy, không cần `numpy`/`pandas`.
 
-| Thành phần FleetPy | Dùng trong kami | Cách dùng |
+## Port vào kami
+
+| Thành phần FleetPy gốc | Trong kami | Ghi chú |
 |---|---|---|
-| `src/routing/road/NetworkBasic.py` + `routing_imports/Router.py` | `FleetPyNetwork(backend="python")` | Dijkstra hai chiều, X→1, lộ trình; sự cố đi qua `customized_section_cost_function` |
-| `src/routing/road/NetworkBasicCpp.py` + `cpp_router/PyNetwork` | `FleetPyNetwork(backend="cpp")` (mặc định khi đã build) | Router C++; sự cố qua `updateEdgeTravelTimes` trên router "live" thứ hai |
-| Định dạng `data/networks/<name>/base/{nodes,edges}.csv`, `crs.info` | Mạng đường, chuyển lon/lat | Mọi mạng FleetPy đều dùng được, kể cả mạng tạo bằng `src/preprocessing` của FleetPy |
-| Thư mục travel time động của mạng (`network_dynamics_file`) | `FleetPyNetwork(network_dynamics_file=…)` + `TRAFFIC_UPDATE` | Gọi `NetworkBasic.update_network(t)` |
-| `data/zones/<name>/<network>/node_zone_info.csv` | `FleetPyZoneSystem` | Zone cho metric, surge, ma trận di chuyển |
-| `data/demand/.../*.csv` (`rq_time,start,end,request_id`) | `ScenarioBuilder.from_fleetpy_demand` | Replay demand mẫu, hoặc demand người dùng tạo bằng công cụ của FleetPy |
+| `src/routing/road/NetworkBasic.py` (đọc mạng, travel time động) | `kami/network/road/graph.py` — `RoadGraph` | Đọc CSV bằng thư viện chuẩn thay cho pandas |
+| `src/routing/road/routing_imports/Router.py` + `PriorityQueue_python3.py` | `kami/network/road/router.py` — `Router` | Chỉ giữ Dijkstra 1→1 hai chiều và 1→X / X→1 có bán kính; thứ tự duyệt, tie-break, điều kiện dừng giữ nguyên; trạng thái tìm kiếm để trong dict thay vì thuộc tính node |
+| `src/routing/road/NetworkBasicCpp.py` + `cpp_router/` (C++ + Cython) | `kami/network/road/cpp/` — `_router.pyx`, `Network/Node/Edge.cpp` | Wrapper Cython dùng `std::vector` thay cho numpy; bỏ log `cout`; lỗi mở file thành `RuntimeError`; thêm `setEdgeTravelTimes(from[], to[], tt[])` (Sprint 02) — như `updateEdgeTravelTimes` nhưng đọc từ bộ nhớ thay vì file CSV |
+| Lớp ghép các phần trên | `kami/network/road/network.py` — `RoadNetwork` | Thay cho `FleetPyNetwork` cũ (tên cũ vẫn dùng được) |
+| Định dạng `data/networks/<name>/base/{nodes,edges}.csv`, `crs.info` | Giữ nguyên định dạng | Mạng tạo bằng công cụ tiền xử lý của FleetPy vẫn dùng được: chép thư mục mạng vào `data/networks/` |
+| Thư mục travel time động / file `network_dynamics_file` | `RoadNetwork(network_dynamics_file=…)` + `TRAFFIC_UPDATE` | Hỗ trợ cả thư mục theo mốc thời gian và hệ số `travel_time_factor` |
+| `data/zones/<name>/<network>/node_zone_info.csv` | `FileZoneSystem` (tên cũ `FleetPyZoneSystem`) | |
+| `data/demand/.../*.csv` (`rq_time,start,end,request_id`) | `ScenarioBuilder.from_fleetpy_demand` | Chỉ là định dạng file |
 | Ý tưởng "plan vs. reality" (`VehiclePlan` vs. thực thi) | `TrafficLayer.estimate` vs `travel`, `rider.eta_promised` | Viết lại theo cùng ý tưởng |
 
-`FleetPyNetwork` tìm FleetPy theo thứ tự: tham số `fleetpy_root`, biến môi trường `KAMI_FLEETPY_ROOT`, rồi thư mục
-`../FleetPy` cạnh `kami/`.
+**Kiểm chứng khi port:** trên `example_network`, travel time, lộ trình, many-to-one và trạng thái sự cố (router
+"live") của bản port trùng khít bản FleetPy khi đọc số cùng cách; metric của các run replay demand và preset `accident`
+giống hệt ở cả backend C++ và Python. Khác biệt duy nhất: FleetPy đọc CSV bằng pandas (bộ parse nhanh, không luôn làm
+tròn đúng) nên một số travel time lệch ở chữ số cuối (ví dụ `1952.6080000000002` so với `1952.608`); kami dùng
+`float()` chuẩn, cùng giá trị mà router C++ đọc bằng `stod`.
+
+## Phần mở rộng định dạng mạng (Sprint 02)
+
+Mạng do pipeline OSM của kami tạo (docs/engine/19) vẫn là một thư mục FleetPy hợp lệ: FleetPy và router C++ đọc
+`nodes.csv`/`edges.csv` theo tên cột nên bỏ qua cột và file thêm. kami dùng các phần thêm sau khi có:
+
+| File / cột | Nội dung | Dùng cho |
+|---|---|---|
+| `base/nodes.csv`: cột `lon`, `lat`, `osm_id` | Toạ độ WGS84 (7 chữ số), id node OSM | `lonlat()` không cần `pyproj`; `node_at_lonlat` |
+| `base/edge_attributes.csv` | `from_node,to_node,road_class,allow_car,allow_bike,speed_kmh,maxspeed_tag` | Hệ số tắc theo loại đường; cạnh cấm theo nhóm xe; cột `allow_<nhóm>` bất kỳ được đọc |
+| `base/edge_geometry.csv` | `from_node,to_node,lons,lats` (polyline gồm cả hai node đầu mút, phân cách `;`) | Quỹ đạo vẽ theo đường cong thật |
+| `manifest.json` (thư mục mạng) | Phiên bản dữ liệu: file PBF nguồn, ngày, sha256, phiên bản pipeline, số liệu mạng/zone | Truy vết dữ liệu (AC02-1) |
+
+Travel time động theo zone × giờ không ghi ra `edges_td_att.csv`: kami sinh trong bộ nhớ và đặt thẳng vào router
+(`RoadNetwork.set_edge_factors`, docs/engine/08) — cùng cơ chế "đặt lại travel time cạnh theo mốc" của FleetPy, tránh
+ghi/đọc ~70k cạnh × 2 nhóm xe mỗi giờ.
+
+## Dữ liệu và build
+
+- Dữ liệu mặc định ở `data/` của repo (`networks/`, `zones/`, `demand/`); đổi bằng biến môi trường `KAMI_DATA_ROOT`
+  hoặc tham số `data_root=`. `RoadNetwork` nhận cả đường dẫn thư mục mạng. Tham số `fleetpy_root=` của 0.1 vẫn chạy
+  (nghĩa là `data_root=<fleetpy_root>/data`).
+- Router C++ là extension tuỳ chọn, build một lần cho mỗi môi trường Python:
 
 ```bash
-conda activate fleetpy                       # môi trường đi kèm FleetPy (numpy, pandas, pyproj…)
-cd FleetPy/src/routing/road/cpp_router && python setup.py build_ext --inplace   # nếu chưa build
+pip install cython                      # hoặc: pip install -e ".[cpp]"
+python -m kami.network.road.cpp.build   # cần trình biên dịch C++17
 ```
+
+Chưa build thì `RoadNetwork(backend="auto")` dùng router Python (chậm hơn khoảng 12–15 lần, cùng lộ trình). Travel
+time của hai backend có thể lệch khoảng 1e-9 s (cộng dồn theo thứ tự khác — FleetPy gốc cũng vậy), đủ để một run
+phân nhánh nhẹ: **mốc benchmark và các arm của một thí nghiệm phải dùng cùng backend** (`sim.network.backend`).
+`lonlat()` cần `pyproj` (`pip install -e ".[geo]"`).
 
 ## Viết lại theo ý tưởng của FleetPy (không import được)
 

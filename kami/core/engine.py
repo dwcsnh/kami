@@ -19,6 +19,7 @@ Mandatory techniques implemented here:
 from __future__ import annotations
 
 import heapq
+import math
 import time as _time
 from dataclasses import dataclass, field
 from typing import Any, Dict, Hashable, Iterable, List, Optional, Sequence, Tuple
@@ -48,8 +49,12 @@ class SimConfig:
     cancel_step_s: float = 20.0       # integration step of the cancellation hazard
     cancel_lookahead_s: float = 1800.0
     default_quote_eta: float = 900.0  # ETA shown when no driver is visible
-    traffic_update_s: float = 3600.0  # TRAFFIC_UPDATE period (FleetPy dynamic networks)
+    traffic_update_s: float = 3600.0  # TRAFFIC_UPDATE period (time-dependent road networks)
     record_events: bool = True
+    timeseries_interval_s: Optional[float] = None  # MetricSampler period (s of sim time); None = off
+    record_trajectories: bool = False  # keep every leg's route + node times (sim.trajectories), sprint 02
+    retime_threshold: float = 0.1     # CONGESTION_UPDATE re-times a leg whose remaining time changes by more
+    retime_min_s: float = 60.0        # ... than this share, unless less than retime_min_s seconds remain
     fare: FareModel = field(default_factory=FareModel)
     pooling: PoolingParams = field(default_factory=PoolingParams)
 
@@ -119,6 +124,8 @@ class Simulation:
         self.events_processed = 0
         self.wall_time = 0.0
         self._finished = False
+        self.timeseries = None                     # MetricSampler when config.timeseries_interval_s is set
+        self.trajectories = None                   # TrajectoryRecorder when config.record_trajectories
 
     # ===================================================================== scheduling
     def _push(self, t: float, kind: E, **payload) -> None:
@@ -140,9 +147,20 @@ class Simulation:
             raise RuntimeError("a Simulation object can only run once; build a new one")
         wall = _time.perf_counter()
         sc = self.scenario
+        ts = None
+        if self.config.timeseries_interval_s:
+            from kami.timeseries import MetricSampler
+
+            ts = self.timeseries = MetricSampler(self, self.config.timeseries_interval_s)
+        if self.config.record_trajectories:
+            from kami.trajectory import TrajectoryRecorder
+
+            self.trajectories = TrajectoryRecorder(self.network)
+        self.traffic.activate()
         for d in sc.drivers:
             drv = Driver(d.id, d.loc, d.shift_start, d.shift_end, dict(d.attrs), d.capacity)
             drv.home_zone = self.zones.zone_of(d.loc)
+            drv.group = self.traffic.group(d.attrs.get("vehicle_group"))
             drv._state_since = d.shift_start
             self.drivers[d.id] = drv
             self._push(max(d.shift_start, sc.t_start), E.DRIVER_ONLINE, driver_id=d.id)
@@ -158,21 +176,38 @@ class Simulation:
         while t < sc.t_end:
             self._push(t, E.TRAFFIC_UPDATE)
             t += self.config.traffic_update_s
+        if self.traffic.congestion is not None:
+            self._push(sc.t_start, E.CONGESTION_UPDATE)
         self._push(sc.t_start, E.DISPATCH_TICK)
         for kind, every in self.policy.tick_intervals.items():
             self._push(sc.t_start, E(kind), every=every)
         self.policy.on_start(self)
 
         q = self._q
-        while q:
-            ev = heapq.heappop(q)
-            if ev.time > self.t_stop:
-                break
-            self.t = ev.time
-            self.events_processed += 1
-            getattr(self, "_on_" + ev.kind.value.lower())(**ev.payload)
+        if ts is None:
+            while q:
+                ev = heapq.heappop(q)
+                if ev.time > self.t_stop:
+                    break
+                self.t = ev.time
+                self.events_processed += 1
+                getattr(self, "_on_" + ev.kind.value.lower())(**ev.payload)
+        else:
+            # snapshot at mark m = state after every event with time < m (no extra events, decision D7)
+            mark = ts.next_mark
+            while q:
+                ev = heapq.heappop(q)
+                if ev.time > self.t_stop:
+                    break
+                if ev.time >= mark:
+                    mark = ts.sample_until(ev.time)
+                self.t = ev.time
+                self.events_processed += 1
+                getattr(self, "_on_" + ev.kind.value.lower())(**ev.payload)
 
         self.t = min(max(self.t, sc.t_end), self.t_stop)
+        if ts is not None:
+            ts.finish(self.t)
         self._finalise()
         self.policy.on_end(self)
         self._finished = True
@@ -243,7 +278,7 @@ class Simulation:
             return False
         loc = self.current_loc(driver)
         origin = self.job_first_pickup(job)
-        eta, _ = self.traffic.estimate(loc, origin, self.t)
+        eta, _ = self.traffic.estimate(loc, origin, self.t, group=driver.group)
         fare = sum(self.riders[r].fare for r in job.rider_ids)
         trip_dist = sum(self.riders[r].direct_dist for r in job.rider_ids)
         dest_zone = self.zones.zone_of(self.riders[job.rider_ids[-1]].dest)
@@ -398,7 +433,8 @@ class Simulation:
         if not near:
             return self.config.default_quote_eta
         near.sort(key=lambda x: (x[0], x[1]))
-        best = min(self.traffic.estimate(self.current_loc(d), origin, self.t)[0] for _, _, d in near[:3])
+        best = min(self.traffic.estimate(self.current_loc(d), origin, self.t, group=d.group)[0]
+                   for _, _, d in near[:3])
         return best
 
     # --- cancellation as a survival process -----------------------------------
@@ -511,7 +547,7 @@ class Simulation:
     def _leg_position(self, leg: Leg) -> Tuple[int, float]:
         path = leg.path
         if path is None:
-            path = leg.path = self.traffic.path(leg.origin, leg.dest)
+            path = leg.path = self.traffic.path(leg.origin, leg.dest, group=leg.group)
         if self.t <= leg.t_depart:
             return leg.origin, 0.0
         frac = min(1.0, (self.t - leg.t_depart) / max(leg.t_arrive - leg.t_depart, 1e-9))
@@ -528,10 +564,15 @@ class Simulation:
         leg = d.leg
         if leg is None:
             return
-        if partial and self.t < leg.t_arrive:
+        cut = partial and self.t < leg.t_arrive
+        if cut:
             node, frac = self._leg_position(leg)
         else:
             node, frac = leg.dest, 1.0
+        if self.trajectories is not None:
+            if leg.path is None:
+                leg.path = self.traffic.path(leg.origin, leg.dest, group=leg.group)
+            self.trajectories.record(d.id, d.legs, leg, self.t, frac if cut else None)
         dist = leg.dist * frac
         d.dist_total += dist
         if not leg.occupied:
@@ -550,10 +591,11 @@ class Simulation:
             return
         t0 = self.t if depart_at is None else depart_at
         stop = d.plan[0]
-        tt, dist = self.traffic.travel(d.loc, stop.loc, t0)
-        est, _ = self.traffic.estimate(d.loc, stop.loc, t0)
+        tt, dist = self.traffic.travel(d.loc, stop.loc, t0, group=d.group)
+        est, _ = self.traffic.estimate(d.loc, stop.loc, t0, group=d.group)
+        d.legs += 1
         d.leg = Leg(d.loc, stop.loc, t0, t0 + tt, dist, occupied=bool(d.onboard), purpose="stop",
-                    promised_arrive=t0 + est)
+                    promised_arrive=t0 + est, group=d.group, rider_id=stop.rider_id)
         d.plan_version += 1
         self._set_driver_state(d, DriverState.ON_TRIP if d.onboard else DriverState.EN_ROUTE)
         self._push(t0 + tt, E.ARRIVE_STOP, driver_id=d.id, version=d.plan_version)
@@ -616,8 +658,9 @@ class Simulation:
             self._push(self.t + self.config.idle_decision_s, E.IDLE_MOVE, driver_id=d.id, version=d.plan_version)
 
     def _move_idle(self, d: Driver, node: int, purpose: str) -> None:
-        tt, dist = self.traffic.travel(d.loc, node, self.t)
-        d.leg = Leg(d.loc, node, self.t, self.t + tt, dist, occupied=False, purpose=purpose)
+        tt, dist = self.traffic.travel(d.loc, node, self.t, group=d.group)
+        d.legs += 1
+        d.leg = Leg(d.loc, node, self.t, self.t + tt, dist, occupied=False, purpose=purpose, group=d.group)
         d.plan_version += 1
         self.log.add(self.t, E.IDLE_MOVE, None, d.id, origin=d.loc, dest=node, purpose=purpose, tt=round(tt, 1))
         self._push(self.t + tt, E.IDLE_ARRIVE, driver_id=d.id, version=d.plan_version)
@@ -741,3 +784,42 @@ class Simulation:
         changed = bool(update(self.t)) if update else False
         self.log.add(self.t, E.TRAFFIC_UPDATE, multiplier=round(self.traffic.multiplier(self.t), 3),
                      network_changed=changed)
+
+    def _on_congestion_update(self) -> None:
+        """Zone × hour congestion period starts (decision D12): new edge travel times, re-time legs that changed."""
+        period = self.traffic.congestion.period_s
+        nxt = (math.floor(self.t / period + 1e-9) + 1) * period
+        if nxt <= self.t_stop:
+            self._push(nxt, E.CONGESTION_UPDATE)
+        moving = []
+        for d in self.drivers.values():
+            leg = d.leg
+            if leg is None or self.t >= leg.t_arrive:
+                continue
+            moving.append((d, self._leg_position(leg)[0]))     # route fixed under the old travel times
+        waiting = self._riders_in_wait()
+        for r in waiting:
+            self._accrue(r)
+        if not self.traffic.apply_period(self.t):
+            return
+        retimed = 0
+        threshold, min_s = self.config.retime_threshold, self.config.retime_min_s
+        for d, node in moving:
+            leg = d.leg
+            start = max(self.t, leg.t_depart)
+            remaining = leg.t_arrive - start
+            if remaining < min_s:
+                continue
+            new_tt, _ = self.traffic.travel(node, leg.dest, start, group=d.group)
+            if abs(new_tt - remaining) <= threshold * remaining:
+                continue
+            retimed += 1
+            purpose, dest, depart = leg.purpose, leg.dest, leg.t_depart
+            self._interrupt_leg(d)
+            if purpose == "stop":
+                self._start_next_leg(d, depart_at=depart if depart > self.t else None)
+            else:
+                self._move_idle(d, dest, purpose)
+        for r in waiting:
+            self._arm_cancel(r, r.hazard_phase)
+        self.log.add(self.t, E.CONGESTION_UPDATE, hour=self.traffic.hour, moving=len(moving), retimed=retimed)

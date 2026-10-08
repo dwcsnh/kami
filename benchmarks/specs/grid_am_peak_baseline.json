@@ -1,0 +1,12 @@
+{
+  "name": "grid_am_peak_baseline",
+  "scenario": {
+    "name": "weekday_am_peak",
+    "network": {"kind": "grid", "width_m": 8000, "height_m": 8000},
+    "zones": {"kind": "square", "cell_m": 1000},
+    "source": {"kind": "preset", "preset": "weekday_am_peak", "demand_per_hour": 200},
+    "n_drivers": 150,
+    "seed": 1
+  },
+  "policy_group": {"name": "baseline", "members": [{"policy": {"plugin": "baseline"}}]}
+}

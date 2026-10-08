@@ -7,13 +7,16 @@ sim = Simulation(scenario, policy=PoolAfterWait(), behavior=BehaviorSuite(), con
 sim.run()            # chỉ chạy được một lần; muốn chạy lại thì tạo Simulation mới
 sim.metrics()        # dict metric (docs/engine/11)
 sim.log              # EventLog (docs/engine/13)
+sim.timeseries       # MetricSampler nếu SimConfig.timeseries_interval_s được đặt, ngược lại None (docs/engine/18)
+sim.trajectories     # TrajectoryRecorder nếu SimConfig.record_trajectories, ngược lại None (mục "Quỹ đạo" bên dưới)
 sim.riders, sim.drivers, sim.jobs
 ```
 
 - `crn_seed` mặc định bằng `scenario.seed`. Hai `Simulation` cùng kịch bản và cùng `crn_seed` dùng chung mọi số
   ngẫu nhiên của agent (docs/engine/05).
-- `Simulation` tự tạo `TrafficLayer` mới từ `scenario.traffic`. Network được dùng chung giữa các lần chạy và chỉ
-  có cache.
+- `Simulation` tự tạo `TrafficLayer` mới từ `scenario.traffic`. Network được dùng chung giữa các lần chạy. Từ Sprint
+  02 network có thể giữ trạng thái (travel time theo nhóm xe / tắc đường, router sự cố), nên `run()` gọi
+  `traffic.activate()` trước sự kiện đầu tiên để đưa network về trạng thái của run này.
 
 ### `SimConfig`
 
@@ -27,8 +30,12 @@ sim.riders, sim.drivers, sim.jobs
 | `cancel_step_s` | 20 s | Bước tích phân hazard hủy chuyến |
 | `cancel_lookahead_s` | 1800 s | Tầm nhìn khi gài sự kiện hủy; quá tầm thì gài sự kiện kiểm tra lại |
 | `default_quote_eta` | 900 s | ETA hiển thị khi không thấy xe rảnh nào |
-| `traffic_update_s` | 3600 s | Chu kỳ `TRAFFIC_UPDATE` (nạp file travel time động của FleetPy nếu có) |
+| `traffic_update_s` | 3600 s | Chu kỳ `TRAFFIC_UPDATE` (nạp travel time động của `RoadNetwork` nếu có) |
 | `record_events` | True | Tắt để chạy nhanh hơn khi chỉ cần metric |
+| `timeseries_interval_s` | None | Bật `MetricSampler` với chu kỳ này (s thời gian mô phỏng); kết quả ở `sim.timeseries` (docs/engine/18). Không đổi kết quả mô phỏng |
+| `record_trajectories` | False | Ghi lộ trình + thời điểm qua node của mọi chặng (`sim.trajectories`). Không đổi kết quả mô phỏng (Sprint 02) |
+| `retime_threshold` | 0,1 | `CONGESTION_UPDATE` tính lại chặng khi thời gian còn lại lệch quá tỷ lệ này (Sprint 02) |
+| `retime_min_s` | 60 s | … trừ khi chặng còn ít hơn số giây này |
 | `fare` | `FareModel()` | Docs/10 |
 | `pooling` | `PoolingParams()` | Docs/10 |
 
@@ -50,6 +57,8 @@ while q:
 - `REQUEST_CREATED` cho từng request;
 - `WEATHER_CHANGE`, `INCIDENT_START`/`INCIDENT_END`;
 - `TRAFFIC_UPDATE` mỗi giờ;
+- `CONGESTION_UPDATE` đầu tiên lúc `t_start`, **chỉ khi** kịch bản có `traffic.congestion` (kịch bản cũ không đổi thứ
+  tự sự kiện); mỗi lần xử lý tự hẹn lần kế tiếp ở bội số `period_s` sau đó, tới hết `drain_s`;
 - `DISPATCH_TICK` đầu tiên;
 - các tick khai báo trong `policy.tick_intervals`.
 
@@ -94,14 +103,45 @@ survival có hazard thay đổi theo thời gian.
   1. `_accrue` hazard đến hiện tại với điều kiện **cũ**;
   2. đổi môi trường;
   3. gài lại thời điểm hủy với điều kiện mới.
+- **Chu kỳ tắc đường mới** (`_on_congestion_update`, quyết định D12):
+  1. lấy vị trí hiện tại của mọi xe đang chạy theo lộ trình **cũ** (`_leg_position` — cố định lộ trình đã đi);
+  2. `_accrue` hazard của khách đang chờ;
+  3. `traffic.apply_period(t)` đặt travel time mới (không đổi thì dừng);
+  4. với mỗi chặng còn ≥ `retime_min_s`: thời gian còn lại mới = `travel(node hiện tại, đích)`. Lệch quá
+     `retime_threshold` thì cắt chặng tại node hiện tại và chạy tiếp theo đường mới (chặng chưa xuất phát — đang
+     cho khách lên xe — giữ giờ xuất phát);
+  5. gài lại thời điểm hủy; ghi `CONGESTION_UPDATE` (`hour`, `moving`, `retimed`).
 - Khách hủy khi tài xế đang tới đón: các stop của khách bị xoá khỏi plan. Nếu tài xế đang chạy tới đúng khách đó,
   chặng hiện tại bị ngắt và tài xế chuyển sang stop kế tiếp (hoặc về trạng thái rảnh).
 
 ## Vị trí của xe đang chạy
 
-`current_loc(driver)` nội suy dọc lộ trình thật: `TrafficLayer.path()` được tính một lần cho mỗi chặng rồi cache
-trong `leg.path`, và vị trí là node đã qua cuối cùng theo tỷ lệ thời gian. Khi ngắt chặng (`_interrupt_leg`),
+`current_loc(driver)` nội suy dọc lộ trình thật: `TrafficLayer.path(…, group=leg.group)` được tính một lần cho mỗi
+chặng rồi cache trong `leg.path`, và vị trí là node đã qua cuối cùng theo tỷ lệ thời gian. Khi ngắt chặng (`_interrupt_leg`),
 tài xế đứng tại node đó và quãng đường cộng theo đúng tỷ lệ đã chạy.
+
+Mỗi tài xế có `Driver.group` (nhóm xe trên mạng, docs/engine/08): mọi truy vấn traffic cho chặng của tài xế (ETA
+báo giá, ETA nhận cuốc, matching, `travel` của chặng, `path`) dùng nhóm này; `Leg.group` lưu nhóm của chặng.
+
+## Quỹ đạo (Sprint 02, S02-6, `kami/trajectory.py`)
+
+Khi `SimConfig.record_trajectories` bật, mỗi chặng kết thúc (tới nơi, hoặc bị cắt do đổi plan / sự cố / tắc đường /
+hết ca) được ghi thành một `LegTrace(driver_id, leg_seq, purpose, occupied, rider_id, group, t_depart, t_end, cut,
+nodes, times)`:
+
+- `nodes` là lộ trình engine dùng để định vị xe (`leg.path`, chưa tính thì tính lúc chặng kết thúc), cắt theo đúng
+  quy tắc của `_leg_position` khi chặng bị ngắt — node cuối là nơi xe chạy tiếp;
+- `times` nội suy theo travel time tích luỹ của lộ trình giữa giờ xuất phát và giờ tới; chặng đủ kết thúc **đúng** lúc
+  `ARRIVE_STOP` (= `PICKUP`/`DROPOFF`);
+- ghi quỹ đạo chỉ **đọc** trạng thái engine: cùng kịch bản cho cùng kết quả khi bật hay tắt (có test).
+
+API: `sim.trajectories.of(driver_id) → [(lon, lat, t)]` (nội suy theo `edge_geometry` khi mạng có; lưới trả `(x, y,
+t)`), `legs_of(driver_id)`, `save(path)` → `trajectories.parquet` (một dòng mỗi chặng: `nodes`, `times`, `lon`, `lat`
+và polyline mở rộng `path_lon`, `path_lat`, `path_t` cho deck.gl `TripsLayer`; metadata `kami.coords`), `kami.trajectory.load(path)`.
+
+Sprint 03: `kami.replay` dựng từ các chặng này **dòng thời gian trạng thái** của từng xe (chặng = đoạn chạy, khoảng hở
+giữa hai chặng = đoạn đứng yên) và ghi thư mục phát lại cho web — xem [20-visualizer.md](20-visualizer.md). Chặng
+độ dài 0 (xe đã ở điểm đón) hoặc bị cắt trước giờ xuất phát không có chuyển động, chỉ kết thúc khoảng hở trước nó.
 
 ## API dành cho policy
 
@@ -113,11 +153,11 @@ Policy **chỉ** tác động vào thế giới qua các hàm sau (design doc §
 | `sim.default_dispatch(jobs, drivers, matching_params)` | Matching mặc định (docs/engine/10) |
 | `sim.offer_trip(driver, job) -> bool` | Gửi cuốc. `DriverAcceptModel` quyết định; nếu nhận thì gọi `assign` |
 | `sim.assign(driver, job)` | Gán cứng, bỏ qua bước nhận cuốc (tài xế là nhân viên, hoặc ép dispatch) |
-| `sim.merge_jobs(r, partner, surcharge, partner_surcharge=None) -> bool` | Ghép hai khách: cả hai đang WAITING, hoặc một WAITING và một MATCHED (chèn vào plan của tài xế) |
+| `sim.merge_jobs(r, partner, surcharge, partner_surcharge=None) -> bool` | *(pooling — ngoài phạm vi 0.2, giữ cho tương thích, xem [requirements §5](../requirements.md#5-ngoài-phạm-vi-hiện-tại))* Ghép hai khách: cả hai đang WAITING, hoặc một WAITING và một MATCHED (chèn vào plan của tài xế) |
 | `sim.reposition(driver, node) -> bool` | Điều một xe đang rảnh tới `node` |
 | `sim.set_surge(zone, multiplier)` | Hệ số surge cho các báo giá sau đó trong zone |
-| `sim.behavior.pool_accept(rider, offer_or_surcharge) -> bool` | Hỏi khách có nhận ghép không (dùng CRN) |
-| `sim.pooling.find_partner(r, max_o_km, max_d_km, include_matched)` | Tìm người ghép khả thi (docs/engine/10) |
+| `sim.behavior.pool_accept(rider, offer_or_surcharge) -> bool` | *(pooling — ngoài phạm vi 0.2, giữ cho tương thích, xem [requirements §5](../requirements.md#5-ngoài-phạm-vi-hiện-tại))* Hỏi khách có nhận ghép không (dùng CRN) |
+| `sim.pooling.find_partner(r, max_o_km, max_d_km, include_matched)` | *(pooling — ngoài phạm vi 0.2, giữ cho tương thích, xem [requirements §5](../requirements.md#5-ngoài-phạm-vi-hiện-tại))* Tìm người ghép khả thi (docs/engine/10) |
 
 Hàm đọc (không đổi trạng thái): `sim.t`, `sim.riders`, `sim.drivers`, `sim.jobs`, `sim.open_jobs`,
 `sim.idle_drivers()`, `sim.current_loc(d)`, `sim.zone_stats(window_s)`, `sim.context(node)`, `sim.traffic`,

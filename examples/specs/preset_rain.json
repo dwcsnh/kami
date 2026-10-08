@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "name": "rain-baseline-s1",
+  "scenario": {
+    "schema_version": 1,
+    "name": "rain",
+    "network": {
+      "kind": "grid",
+      "width_m": 8000.0,
+      "height_m": 8000.0,
+      "spacing_m": 250.0,
+      "speed_kmh": 25.0
+    },
+    "zones": {
+      "kind": "square",
+      "cell_m": 1000.0
+    },
+    "traffic": {
+      "hour_profile": null,
+      "weather_factor": null,
+      "platform_sees_incidents": false
+    },
+    "source": {
+      "kind": "preset",
+      "preset": "rain",
+      "demand_per_hour": 200.0,
+      "overrides": {}
+    },
+    "n_drivers": 150,
+    "seed": 1
+  },
+  "vehicle_types": [],
+  "fleets": [],
+  "charging_stations": [],
+  "policy_group": {
+    "name": "baseline",
+    "members": [
+      {
+        "policy": {
+          "plugin": "baseline",
+          "params": {}
+        },
+        "params": {},
+        "enabled": true
+      }
+    ]
+  },
+  "behavior": {
+    "preset": "default",
+    "registry": null,
+    "slots": {},
+    "models": {}
+  },
+  "sim_config": {},
+  "seed": null,
+  "crn_seed": null,
+  "outputs": {
+    "event_log": "parquet"
+  }
+}

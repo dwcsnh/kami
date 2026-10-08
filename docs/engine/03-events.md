@@ -10,7 +10,8 @@
 | Môi trường | `WEATHER_CHANGE` | `weather` | Đổi hệ số thời tiết, tính lại các chặng đang chạy, gài lại thời điểm hủy | 0 |
 | | `INCIDENT_START` | `incident_id` | Bật sự cố trên các zone trong bán kính, tính lại chặng, gài lại hủy | 0 |
 | | `INCIDENT_END` | `incident_id` | Tắt sự cố | 0 |
-| | `TRAFFIC_UPDATE` | — | Ghi hệ số giờ vào log; nạp file travel time động của FleetPy nếu tới mốc | 0 |
+| | `TRAFFIC_UPDATE` | — | Ghi hệ số giờ vào log; nạp travel time động của `RoadNetwork` nếu tới mốc | 0 |
+| | `CONGESTION_UPDATE` | — | Chỉ có khi kịch bản bật tắc đường zone × giờ (Sprint 02): đặt travel time của chu kỳ mới cho mọi nhóm xe, tính lại các chặng lệch quá `retime_threshold`, gài lại hủy; hẹn lần kế tiếp. Log: `hour`, `moving`, `retimed` | 0 |
 | Tài xế | `DRIVER_ONLINE` | `driver_id` | Bắt đầu ca, chuyển IDLE | 1 |
 | | `DRIVER_OFFLINE` | `driver_id` | Hết ca: nghỉ ngay nếu đang rảnh, xong cuốc rồi nghỉ nếu đang bận | 1 |
 | | `ARRIVE_STOP` | `driver_id`, `version` | Tới stop kế tiếp trong plan, xử lý đón hoặc trả khách | 2 |
@@ -38,8 +39,8 @@ Một số hành động của engine được ghi vào `EventLog` nhưng không
 | `OFFER_ACCEPTED` / `OFFER_REJECTED` | Khách đặt / không đặt | `job` |
 | `TRIP_OFFERED` / `TRIP_ACCEPTED` / `TRIP_REJECTED` | Gửi cuốc, tài xế nhận, tài xế từ chối | `job`, `eta`, `p`, `pooled` |
 | `PICKUP` / `DROPOFF` | Đón / trả khách | `eta_error`, `wait` / `fare`, `surcharge`, `ivt`, `pooled` |
-| `POOL_OFFER` | `sim.behavior.pool_accept` | `surcharge`, `detour`, `p`, `accepted`, `partner` |
-| `POOL_MERGE` | `sim.merge_jobs` thành công | `partner`, `job`, `surcharge` |
+| `POOL_OFFER` *(pooling — ngoài phạm vi 0.2, giữ cho tương thích, xem [requirements §5](../requirements.md#5-ngoài-phạm-vi-hiện-tại))* | `sim.behavior.pool_accept` | `surcharge`, `detour`, `p`, `accepted`, `partner` |
+| `POOL_MERGE` *(pooling, như trên)* | `sim.merge_jobs` thành công | `partner`, `job`, `surcharge` |
 | `IDLE_MOVE` | Xe rảnh bắt đầu chạy | `origin`, `dest`, `purpose` (`idle` hoặc `reposition`), `tt` |
 
 ## Thêm sự kiện mới

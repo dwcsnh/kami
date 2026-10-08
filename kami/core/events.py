@@ -37,6 +37,7 @@ class EventType(str, Enum):
     INCIDENT_END = "INCIDENT_END"
     WEATHER_CHANGE = "WEATHER_CHANGE"
     TRAFFIC_UPDATE = "TRAFFIC_UPDATE"
+    CONGESTION_UPDATE = "CONGESTION_UPDATE"   # zone × hour congestion period starts (sprint 02)
 
 
 # Same-timestamp ordering. Lower runs first. Rationale:
@@ -50,6 +51,7 @@ EVENT_PRIORITY: Dict[EventType, int] = {
     EventType.INCIDENT_START: 0,
     EventType.INCIDENT_END: 0,
     EventType.TRAFFIC_UPDATE: 0,
+    EventType.CONGESTION_UPDATE: 0,
     EventType.DRIVER_OFFLINE: 1,
     EventType.DRIVER_ONLINE: 1,
     EventType.ARRIVE_STOP: 2,

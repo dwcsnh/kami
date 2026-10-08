@@ -1,0 +1,12 @@
+{
+  "name": "road_example_400",
+  "scenario": {
+    "name": "example_400",
+    "network": {"kind": "road", "name": "example_network"},
+    "zones": {"kind": "file", "name": "example_zones"},
+    "source": {"kind": "fleetpy_demand", "file": "demand/example_demand/matched/example_network/example_400.csv"},
+    "n_drivers": 25,
+    "seed": 0
+  },
+  "policy_group": {"name": "baseline", "members": [{"policy": {"plugin": "baseline"}}]}
+}

@@ -5,7 +5,7 @@
 ```
  ┌───────────────┐   ┌──────────────────────────┐
  │ Network/Zones │──▶│ ScenarioBuilder          │  demand + supply + thời tiết + sự cố + thuộc tính agent
- │ (grid|FleetPy)│   │  synthetic / preset /    │  (phần NGOẠI SINH, replay y hệt cho mọi arm)
+ │ (grid|road)   │   │  synthetic / preset /    │  (phần NGOẠI SINH, replay y hệt cho mọi arm)
  └───────────────┘   │  replay FleetPy / CSV    │
                      └────────────┬─────────────┘
                                   ▼ Scenario
@@ -13,7 +13,7 @@
  │ Policy       │◀─▶│ Simulation (kami.core.engine) │◀─▶│ BehaviorSuite     │
  │ (hooks)      │   │  heap (t, priority, seq)      │   │  (model registry) │
  └──────────────┘   │  Rider / Driver / Job         │   └─────────┬─────────┘
-                    │  matching · pooling · pricing │             │ xác suất
+                    │  matching · pricing (·pooling)│             │ xác suất
                     └──────┬─────────────────┬──────┘             ▼
                            │                 │              CRN(seed).u(key)  → quyết định = u < p
                     ┌──────▼──────┐   ┌──────▼──────┐
@@ -21,15 +21,20 @@
                     └─────────────┘   └─────────────┘
 ```
 
+`(·pooling)`: code ghép chuyến của 0.1, giữ cho tương thích; phạm vi 0.2 chỉ matching 1 tài xế – 1 khách
+(requirements §5).
+
 | Thành phần (design doc §3) | Module kami | Docs |
 |---|---|---|
-| Data layer | `kami.network` (FleetPy `data/networks`, `data/zones`, `data/demand`) | 08, 09, 16 |
+| Data layer | `kami.network` (`data/networks`, `data/zones`, `data/demand`, định dạng FleetPy) | 08, 09, 16 |
 | Scenario builder | `kami.scenario` | 09 |
 | Simulation engine | `kami.core.engine`, `kami.core.events`, `kami.core.agents` | 02–04 |
 | Policy plugins | `kami.policy` | 07 |
 | Behavior models | `kami.behavior`, `kami.training` | 06, 14 |
 | Traffic layer | `kami.traffic`, `kami.network` | 08 |
 | Event log | `kami.eventlog` | 13 |
+| Cấu hình khai báo, chuỗi thời gian metric (0.2) | `kami.config`, `kami.timeseries` | 18 |
+| Lưu trữ DB, benchmark (0.2) | `kami.store`, `kami.bench` | 18 |
 | Evaluator (CRN) | `kami.core.crn`, `kami.metrics`, `kami.evaluation` | 05, 11, 12 |
 
 ## Luồng một chuyến đi
@@ -73,5 +78,8 @@ gài lại thời điểm hủy của khách đang chờ.
 - Lõi chỉ dùng thư viện chuẩn: chạy được trên Python 3.9 trở lên mà không cần cài thêm.
 - `scipy` (tuỳ chọn): Hungarian matching và t-quantile chính xác. Nếu thiếu, engine tự chuyển sang greedy và
   khai triển Cornish–Fisher.
-- FleetPy (tuỳ chọn): mạng OSM thật, router C++, zone, demand. Cần `numpy`, `pandas`, `pyproj`.
-- `h3`, `pandas`, `pyarrow` (tuỳ chọn): zone H3, DataFrame, Parquet.
+- Mạng đường thật (`kami/network/road/`, port từ FleetPy): chỉ cần thư viện chuẩn. Router C++ tuỳ chọn (build bằng
+  Cython), `pyproj` tuỳ chọn cho lon/lat.
+- `h3`, `pandas`, `pyarrow` (tuỳ chọn): zone H3, DataFrame, Parquet. `pyarrow` (extra `kami[store]`) cần cho event
+  log Parquet của run lưu trữ (định dạng mặc định, docs/engine/18); thiếu thì chọn `csv.gz`.
+- `kami.store` dùng `sqlite3` của thư viện chuẩn; lõi engine và `import kami` không nạp nó (NFR-5).

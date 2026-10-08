@@ -32,6 +32,7 @@ def candidate_pairs(sim: "Simulation", jobs: Sequence["Job"], drivers: Sequence[
     locs = {d.id: sim.current_loc(d) for d in drivers}
     xy = {d.id: sim.network.coords(locs[d.id]) for d in drivers}
     radius2 = (p.max_pickup_eta * p.max_speed_mps) ** 2
+    grouped = len({d.group for d in drivers}) > 1     # vehicle groups route separately (sprint 02)
     out = []
     for job in jobs:
         origin = sim.job_first_pickup(job)
@@ -49,11 +50,17 @@ def candidate_pairs(sim: "Simulation", jobs: Sequence["Job"], drivers: Sequence[
         near = [d for _, d in near[: p.candidates_per_job]]
         if not near:
             continue
-        etas = sim.traffic.many_to_one([locs[d.id] for d in near], origin, sim.t, max_tt=p.max_pickup_eta,
-                                       aware=sim.traffic.platform_sees_incidents)
+        aware = sim.traffic.platform_sees_incidents
+        if grouped:
+            by_group = {g: sim.traffic.many_to_one([locs[d.id] for d in near if d.group == g], origin, sim.t,
+                                                   max_tt=p.max_pickup_eta, aware=aware, group=g)
+                        for g in sorted({d.group for d in near})}
+        else:
+            etas = sim.traffic.many_to_one([locs[d.id] for d in near], origin, sim.t, max_tt=p.max_pickup_eta,
+                                           aware=aware)
         waited = sim.t - min(sim.riders[r].t_booked or sim.t for r in job.rider_ids)
         for d in near:
-            hit = etas.get(locs[d.id])
+            hit = (by_group[d.group] if grouped else etas).get(locs[d.id])
             if hit is None:
                 continue
             eta = hit[0]

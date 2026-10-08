@@ -4,14 +4,14 @@
 |---|---|
 | Trạng thái | Chưa bắt đầu |
 | Yêu cầu | POL-6, NFR-3 |
-| Phụ thuộc | Sprint 06 (plugin tuỳ biến, kiểm tra, sandbox), Sprint 08 (trang policy) |
+| Phụ thuộc | Sprint 07 (plugin tuỳ biến, kiểm tra, sandbox), Sprint 09 (trang policy) |
 | Backlog đầu vào | [sprint-09-backlog.md](../backlog/sprint-09-backlog.md) |
 | Implementation plan | [sprint-10-plan.md](../implementation-plan/sprint-10-plan.md) (chưa có) |
 
 ## Mục tiêu
 
-Người dùng mô tả một policy bằng **ngôn ngữ tự nhiên** (ví dụ: "khách chờ quá 5 phút thì đề nghị ghép chuyến, giảm
-15.000đ, chỉ áp dụng giờ cao điểm chiều ở quận Cầu Giấy"), **policy agent** hỏi lại chỗ mơ hồ, sinh ra plugin
+Người dùng mô tả một policy bằng **ngôn ngữ tự nhiên** (ví dụ: "khách chờ quá 5 phút thì giảm 15.000đ và mở rộng
+bán kính tìm xe, chỉ áp dụng giờ cao điểm chiều ở quận Cầu Giấy"), **policy agent** hỏi lại chỗ mơ hồ, sinh ra plugin
 tuỳ biến (mã + manifest + tham số), tự kiểm tra và chạy thử, rồi đưa cho người dùng **duyệt trước khi lưu**.
 
 ## Phạm vi
@@ -33,13 +33,13 @@ tuỳ biến (mã + manifest + tham số), tự kiểm tra và chạy thử, r�
 | S10-1 | Gói ngữ cảnh cho agent: danh sách hook, API engine được phép gọi, quy tắc (không `random`, dùng CRN, không sửa trạng thái agent trực tiếp), manifest/`params_schema`, các plugin mẫu theo nhóm. Sinh tự động từ code/tài liệu để không lệch phiên bản |
 | S10-2 | Hội thoại: agent hỏi lại khi thiếu thông tin quan trọng (điều kiện kích hoạt, phạm vi zone/giờ, tham số, metric kỳ vọng); tóm tắt lại policy bằng ngôn ngữ tự nhiên trước khi sinh mã |
 | S10-3 | Sinh plugin: mã nguồn + manifest (tên, nhóm, hook, `params_schema` với mặc định hợp lý) + mô tả; ưu tiên **tái sử dụng plugin có sẵn bằng tham số** khi yêu cầu đã được plugin built-in đáp ứng |
-| S10-4 | Vòng tự kiểm tra: chạy bước kiểm tra tĩnh và chạy thử của Sprint 06; nếu lỗi, agent tự sửa tối đa N lần; báo cáo kết quả cuối cùng |
+| S10-4 | Vòng tự kiểm tra: chạy bước kiểm tra tĩnh và chạy thử của Sprint 07; nếu lỗi, agent tự sửa tối đa N lần; báo cáo kết quả cuối cùng |
 | S10-5 | Chạy thử so sánh nhanh: trên kịch bản nhỏ cấu hình được, so plugin mới với baseline (cùng seed) và đưa ra vài metric chính để người dùng thấy policy có tác dụng đúng chiều mô tả |
 | S10-6 | Duyệt: UI hiển thị tóm tắt, mã, tham số, kết quả kiểm tra và chạy thử; người dùng chấp nhận (lưu phiên bản mới), yêu cầu sửa (tiếp tục hội thoại) hoặc bỏ |
 | S10-7 | Lưu vết: lưu hội thoại, các phiên bản nháp, mô hình LLM đã dùng kèm plugin được tạo |
-| S10-8 | Giới hạn & an toàn: mã sinh ra luôn đi qua sandbox Sprint 06; giới hạn số lượt gọi LLM/chi phí mỗi phiên; không gửi dữ liệu nhạy cảm ngoài ngữ cảnh cần thiết |
-| S10-9 | Bộ đánh giá agent: ≥ 10 mô tả policy mẫu (từ dễ đến khó, gồm cả yêu cầu mơ hồ và yêu cầu không làm được) với kết quả mong đợi |
-| S10-10 | Tài liệu: thêm `docs/engine/22-policy-agent.md` (kiến trúc, ngữ cảnh, vòng kiểm tra, giới hạn) |
+| S10-8 | Giới hạn & an toàn: mã sinh ra luôn đi qua sandbox Sprint 07; giới hạn số lượt gọi LLM/chi phí mỗi phiên; không gửi dữ liệu nhạy cảm ngoài ngữ cảnh cần thiết |
+| S10-9 | Bộ đánh giá agent: ≥ 10 mô tả policy mẫu (từ dễ đến khó, gồm cả yêu cầu mơ hồ và yêu cầu không làm được — ví dụ yêu cầu ghép chuyến, đang ngoài phạm vi sản phẩm 1 tài xế – 1 khách) với kết quả mong đợi |
+| S10-10 | Tài liệu: thêm `docs/engine/23-policy-agent.md` (kiến trúc, ngữ cảnh, vòng kiểm tra, giới hạn) |
 
 ## Acceptance criteria
 
@@ -55,4 +55,4 @@ tuỳ biến (mã + manifest + tham số), tự kiểm tra và chạy thử, r�
 ## Rủi ro & câu hỏi mở
 
 - Chọn mô hình LLM, nơi chạy và chi phí (requirements Q6).
-- Chất lượng mã sinh ra phụ thuộc chất lượng tài liệu hook/API: Sprint 06 cần tài liệu tốt.
+- Chất lượng mã sinh ra phụ thuộc chất lượng tài liệu hook/API: Sprint 07 cần tài liệu tốt.

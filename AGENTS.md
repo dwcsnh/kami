@@ -9,6 +9,10 @@ File này dành cho mọi coding agent (và người) phát triển kami. Đọc
 - Hướng phát triển hiện tại là **kami 0.2 — mô phỏng vận hành GreenSM tại Hà Nội**. Yêu cầu nằm ở
   [docs/requirements.md](docs/requirements.md), chuẩn hoá từ bản nháp [draft/draft.md](draft/draft.md).
 - Công việc được chia thành sprint ở [docs/sprint/](docs/sprint/README.md).
+- **Phạm vi sản phẩm hiện tại: matching 1 tài xế – 1 khách, chưa có ghép chuyến (shared ride).** Code pooling của 0.1
+  (`kami/pooling.py`, `PoolAfterWait`, slot `pool_accept`/`LogitPoolAccept`, metric `pool_*`…) chỉ được giữ cho tương
+  thích; không dùng nó trong tính năng mới, không phát triển thêm (danh sách đầy đủ ở
+  [requirements §5](docs/requirements.md#5-ngoài-phạm-vi-hiện-tại)).
 
 ## 2. Bản đồ tài liệu
 
@@ -109,8 +113,10 @@ python examples/01_quickstart.py               # chạy thử nhanh trên lướ
 python -m kami presets                         # danh sách preset kịch bản
 ```
 
-Mạng FleetPy cần môi trường có `numpy`, `pandas`, `pyproj` (ví dụ `conda activate fleetpy`) và checkout FleetPy ở
-`../FleetPy` (hoặc biến `KAMI_FLEETPY_ROOT`); xem [docs/engine/16-fleetpy-integration.md](docs/engine/16-fleetpy-integration.md).
+Mạng đường thật (`RoadNetwork`, dữ liệu ở `data/`) chạy bằng thư viện chuẩn; FleetPy **không** còn là phụ thuộc
+(phần cần thiết đã port vào `kami/network/road/`). Router C++ tuỳ chọn: `pip install cython && python -m
+kami.network.road.cpp.build` (build lại cho mỗi môi trường Python); `lonlat()` cần `pyproj`. Xem
+[docs/engine/16-fleetpy-integration.md](docs/engine/16-fleetpy-integration.md).
 
 ## 6. Khi nào phải hỏi người dùng
 

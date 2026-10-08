@@ -29,6 +29,10 @@
 | `pooled_travel_time_p90` | p90 từ lúc đặt tới lúc tới nơi của khách ghép | |
 | `pooled_cancel_rate` | Tỷ lệ hủy trong số khách đã được ghép | |
 
+> **Phạm vi hiện tại (kami 0.2):** sản phẩm chỉ matching **1 tài xế – 1 khách**, chưa có ghép chuyến
+> (shared ride). Các metric `pool_*`, `pooled_*`, `detour_ratio` (và `platform.pooled_jobs`, `platform.surcharge_total`) là của kami 0.1, được giữ để tương thích (NFR-2); giá trị luôn 0/`nan` khi không bật pooling, và **tạm thời không
+> dùng** trong báo cáo, UI và benchmark của 0.2 — xem [requirements §5](../requirements.md#5-ngoài-phạm-vi-hiện-tại).
+
 ## Tài xế (`driver.*`)
 
 | Metric | Định nghĩa | Chiều |
@@ -78,7 +82,7 @@
 | Cửa sổ batch | `rider.wait_mean` | `rider.wait_p95`, `rider.cancel_rate` | `rider.eta_error_abs`, `driver.empty_km_share` |
 | Surge | `platform.contribution_margin`, `platform.trips` | `rider.no_driver_rate`, `rider.fare_mean`, `fair.*` | `rider.conversion` |
 | Repositioning | `fair.zone_completion_min` | `ops.empty_km`, `driver.earnings_per_hour` | `by_zone` |
-| Ghép sau 5' +20k | `rider.cancel_rate`, `rider.completion_rate` | `rider.detour_ratio`, `rider.pooled_travel_time_p90`, `rider.pooled_cancel_rate`, `rider.fare_mean` | `rider.pool_offer_accept_rate`, `platform.pooled_jobs` |
+| Ghép sau 5' +20k *(0.1, ngoài phạm vi 0.2)* | `rider.cancel_rate`, `rider.completion_rate` | `rider.detour_ratio`, `rider.pooled_travel_time_p90`, `rider.pooled_cancel_rate`, `rider.fare_mean` | `rider.pool_offer_accept_rate`, `platform.pooled_jobs` |
 
 ## Thêm metric
 

@@ -2,3 +2,23 @@ __pycache__/
 *.pyc
 examples/output/
 *.egg-info/
+build/
+kami/network/road/cpp/_router*.so
+kami/network/road/cpp/_router*.pyd
+kami/network/road/cpp/_router.cpp
+/runs/
+*.db
+*.db-wal
+*.db-shm
+# sprint 02: OSM source cache and generated Hà Nội network (rebuild: python -m kami.osm build hanoi)
+data/osm/cache/
+data/networks/hanoi/
+data/zones/hanoi_h3_r8/
+data/zones/hanoi_wards/
+/out/
+.env.local
+# sprint 03: web app (also in web/.gitignore)
+web/node_modules/
+web/.next/
+web/out/
+web/.env.local

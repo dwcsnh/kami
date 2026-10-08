@@ -12,12 +12,19 @@ dependencies = []   # the core runs on the standard library only
 
 [project.optional-dependencies]
 fast = ["numpy", "scipy"]                  # Hungarian matching, exact t-quantiles
-fleetpy = ["numpy", "pandas", "pyproj"]    # FleetPy road networks (plus a FleetPy checkout)
+geo = ["pyproj"]                           # lon/lat of road networks (H3 zones, lon/lat CSV replay)
+cpp = ["cython", "setuptools"]             # build the C++ road router: python -m kami.network.road.cpp.build
 h3 = ["h3"]
 data = ["pandas", "pyarrow"]               # DataFrame / Parquet export of the event log
+store = ["pyarrow"]                        # Parquet event logs of stored runs (kami.store, run --spec)
+osm = ["osmium", "pyproj", "h3"]           # build road networks from OSM: python -m kami.osm build hanoi
 
 [project.scripts]
 kami = "kami.cli:main"
 
 [tool.setuptools.packages.find]
 include = ["kami*"]
+
+[tool.setuptools.package-data]
+"kami.network.road" = ["LICENSE-FleetPy"]
+"kami.network.road.cpp" = ["*.cpp", "*.h", "*.pyx", "*.pxd"]
