@@ -2,11 +2,11 @@
 
 | | |
 |---|---|
-| Trạng thái | Chưa bắt đầu |
+| Trạng thái | Đang lập plan |
 | Yêu cầu | PERF-1, PERF-2, PERF-3; UI-1 (hiển thị quy mô thành phố) |
 | Phụ thuộc | Sprint 01, Sprint 02, Sprint 03 (visualizer) |
 | Backlog đầu vào | [sprint-03-backlog.md](../backlog/sprint-03-backlog.md): B03-2 (định dạng replay nhị phân / tải theo khung giờ cho 8k xe), B03-3 (độ ổn định của benchmark), B03-10 (phương án routing cho S04-4: A\*, ALT, cache, CCH); các mục `B02-k` có "Sprint dự kiến xử lý" là 04; từ [sprint-01-backlog.md](../backlog/sprint-01-backlog.md): B01-5, B01-6, B01-7, B01-8 |
-| Implementation plan | [sprint-04-plan.md](../implementation-plan/sprint-04-plan.md) (chưa có) |
+| Implementation plan | [sprint-04-plan.md](../implementation-plan/sprint-04-plan.md) (chờ duyệt) |
 
 ## Mục tiêu
 
