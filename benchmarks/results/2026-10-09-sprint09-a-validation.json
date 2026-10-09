@@ -1,0 +1,227 @@
+{
+  "date": "2026-10-09",
+  "sprint": "09",
+  "stage": "A",
+  "sprint_complete": false,
+  "git": {
+    "head": "002c62c",
+    "dirty": true,
+    "note": "Working tree includes existing Sprint 08 and user changes; benchmark tool could not read Git metadata under current ownership permissions."
+  },
+  "environment": {
+    "python": "3.12.1",
+    "node": "22.14.0",
+    "next": "16.4.0",
+    "os": "Windows 11",
+    "benchmark_numpy": "2.4.3",
+    "benchmark_scipy": "1.14.1",
+    "test_numpy": "1.26.4",
+    "test_pyarrow": "25.0.1",
+    "router": "Python"
+  },
+  "web": {
+    "unit_tests": {
+      "passed": 71,
+      "total": 71,
+      "files": 7,
+      "new_manager_tests": 15
+    },
+    "typecheck": true,
+    "production_build": true,
+    "production_build_backend_origin": "http://127.0.0.1:8000",
+    "dependencies_changed": false,
+    "production_e2e": {
+      "ok": true,
+      "checks": [
+        "same-origin proxy health",
+        "vehicle CRUD persisted after reload",
+        "conflict preserves draft",
+        "fleet CRUD through UI",
+        "scenario form saves fleet ref without charging configuration",
+        "real worker completes; summary UI and CSV equal API",
+        "fleet update preserves previous run snapshot",
+        "saved template edit leaves previous run snapshot immutable",
+        "comparison delta, verdict and seed warning equal API",
+        "service restart retains SQLite entities and results; offline start blocked",
+        "SSE metric arrives through production proxy while real run is running",
+        "global banner across four pages, busy start lock and UI cancellation",
+        "delete confirmation cancellation sends no deletion",
+        "in-use vehicle deletion reports conflict",
+        "vehicle update keeps run snapshot immutable",
+        "successful vehicle and fleet deletion through UI",
+        "scenario deletion leaves run history intact",
+        "failed worker run shows no complete result export",
+        "missing run renders a recoverable error",
+        "1280/1440 layouts and fixture wrapper preserve navigation"
+      ],
+      "check_count": 20,
+      "consoleErrors": [],
+      "mapIdle": true,
+      "sqlite_file": true,
+      "real_spawned_workers": true,
+      "isolated_user_data": true,
+      "viewports": [
+        {
+          "width": 1280,
+          "height": 800
+        },
+        {
+          "width": 1440,
+          "height": 900
+        }
+      ],
+      "screenshots": "docs/engine/img/manager"
+    },
+    "development_smoke": {
+      "ok": true,
+      "mode": "development",
+      "isolated_dist": true,
+      "proxy_health": true,
+      "sse_metric_before_terminal": true,
+      "route_navigation": 4,
+      "form_full_page_screenshot": true,
+      "consoleErrors": [],
+      "latency": {
+        "samples": 20,
+        "operation": "GET /api/v1/health",
+        "mode": "development",
+        "no_perf4_claim": true,
+        "direct": {
+          "median_ms": 2.3745499999999993,
+          "min_ms": 1.7618000000002212,
+          "max_ms": 5.548299999999472
+        },
+        "next_proxy": {
+          "median_ms": 4.7988500000001295,
+          "min_ms": 4.226999999999862,
+          "max_ms": 10.02559999999994
+        }
+      }
+    }
+  },
+  "python_full_suite": {
+    "tests": 182,
+    "passed": 152,
+    "skipped": 25,
+    "failures": 1,
+    "errors": 4,
+    "wall_s": 70.491,
+    "utf8": true,
+    "existing_issues": [
+      "ERROR: test_suite_json_and_compare (tests.test_bench.TestBench.test_suite_json_and_compare)",
+      "ERROR: test_run_spec_with_db (tests.test_cli_spec.TestCliSpec.test_run_spec_with_db)",
+      "ERROR: test_hanoi_network_and_zones (tests.test_osm_pipeline.TestHanoiNetwork.test_hanoi_network_and_zones)",
+      "ERROR: test_cli_out_and_store (tests.test_zonal.TestTrajectoryOutputs.test_cli_out_and_store)",
+      "FAIL: test_presets_command_lists_them (tests.test_zonal.TestHanoiPresets.test_presets_command_lists_them)"
+    ],
+    "issues_match_sprint08_baseline": true,
+    "new_issue_types": 0
+  },
+  "smoke": {
+    "quickstart": true,
+    "presets": true
+  },
+  "audit": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 5,
+      "high": 8,
+      "critical": 0,
+      "total": 13
+    },
+    "compatible_fix_dry_run": {
+      "changed": 0,
+      "removed": 0,
+      "dependencies_modified": false
+    },
+    "suggested_out_of_range_downgrade": "@deck.gl/geo-layers 9.0.6 (current ^9.4.0)",
+    "backlog": "B03-5 remains open"
+  },
+  "benchmark": {
+    "baseline": "2026-10-08-sprint08-a-windows-after.json",
+    "full_run": "2026-10-09-sprint09-a-windows.json",
+    "confirmation": "2026-10-09-sprint09-a-grid-confirmation.json",
+    "cases": 5,
+    "repeat": 5,
+    "all_events_and_metrics_equal": true,
+    "all_deterministic": true,
+    "initial_over_10_percent": [
+      "grid_am_peak_baseline"
+    ],
+    "confirmation_over_10_percent": [],
+    "timing_note": "Initial grid baseline +18.58%; repeated separately at +7.87%. Both raw measurements retained; timing variation is not an engine optimization claim.",
+    "ram_measured": false,
+    "hanoi_measured": false,
+    "perf4_measured": false,
+    "comparisons": [
+      {
+        "case": "grid_am_peak_baseline",
+        "events": 8375,
+        "events_equal": true,
+        "metrics_equal": true,
+        "wall_old": 1.196408000017982,
+        "wall_new": 1.4187532999785617,
+        "delta_percent": 18.58440431334778,
+        "confirmation_wall": 1.2905255000223406,
+        "confirmation_delta_percent": 7.866672573481948
+      },
+      {
+        "case": "grid_am_peak_baseline_nots",
+        "events": 8375,
+        "events_equal": true,
+        "metrics_equal": true,
+        "wall_old": 1.1125793000101112,
+        "wall_new": 1.1504237999906763,
+        "delta_percent": 3.401510344496006
+      },
+      {
+        "case": "grid_am_peak_surge",
+        "events": 8456,
+        "events_equal": true,
+        "metrics_equal": true,
+        "wall_old": 1.146224899974186,
+        "wall_new": 1.1584670000011101,
+        "delta_percent": 1.0680364758434369
+      },
+      {
+        "case": "grid_pm_peak_x5",
+        "events": 26170,
+        "events_equal": true,
+        "metrics_equal": true,
+        "wall_old": 3.618207600025926,
+        "wall_new": 3.198231200047303,
+        "delta_percent": -11.607305229683707
+      },
+      {
+        "case": "road_example_400",
+        "events": 3894,
+        "events_equal": true,
+        "metrics_equal": true,
+        "wall_old": 13.373975300055463,
+        "wall_new": 9.068628399982117,
+        "delta_percent": -32.191975859679445
+      }
+    ]
+  },
+  "ac": {
+    "AC09-1": "partial: charging UI deferred; EV/pricing capability pending",
+    "AC09-2": "A verified; repeat against B schema",
+    "AC09-5": "A manager verified",
+    "AC09-6": "A aggregate metrics verified",
+    "AC09-7": "A screens verified",
+    "AC09-8": "partial: metric/progress SSE only",
+    "AC09-9": "pending replay API",
+    "AC09-10": "pending map attribution/filter data",
+    "AC09-11": "pending live renderer and Q1"
+  },
+  "pending": [
+    "Charging station UI deferred by user; existing data preserved",
+    "Engine/backend schemas for EV, products, shifts, matching/pricing",
+    "Live vehicles/replay API/filter/waiting customer layer",
+    "Metric attribution by zone/fleet/type/product",
+    "PERF-4 and Q1 approval",
+    "Five pre-existing Python test issues",
+    "B03-5 audit; B03-9 live/replay interaction E2E"
+  ]
+}

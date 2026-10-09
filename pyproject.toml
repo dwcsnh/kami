@@ -19,6 +19,9 @@ data = ["pandas", "pyarrow"]               # DataFrame / Parquet export of the e
 store = ["pyarrow"]                        # Parquet event logs of stored runs (kami.store, run --spec)
 osm = ["osmium", "pyproj", "h3"]           # build road networks from OSM: python -m kami.osm build hanoi
 
+service = ["fastapi>=0.115,<0.129", "uvicorn>=0.30,<0.35; python_version < '3.10'", "uvicorn>=0.30,<0.41; python_version >= '3.10'"]
+service-test = ["fastapi>=0.115,<0.129", "uvicorn>=0.30,<0.35; python_version < '3.10'", "uvicorn>=0.30,<0.41; python_version >= '3.10'", "httpx>=0.27,<0.29"]
+
 [project.scripts]
 kami = "kami.cli:main"
 
@@ -28,3 +31,5 @@ include = ["kami*"]
 [tool.setuptools.package-data]
 "kami.network.road" = ["LICENSE-FleetPy"]
 "kami.network.road.cpp" = ["*.cpp", "*.h", "*.pyx", "*.pxd"]
+
+"kami.store" = ["migrations/*.sql"]

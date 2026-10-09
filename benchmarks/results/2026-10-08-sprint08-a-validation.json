@@ -1,0 +1,71 @@
+{
+  "date": "2026-10-08",
+  "stage": "A",
+  "sprint_complete": false,
+  "python": "3.12.1",
+  "platform": "Windows 11",
+  "test_dependencies": {
+    "numpy": "1.26.4",
+    "pyarrow": "25.0.1",
+    "fastapi": "0.128.0",
+    "uvicorn": "0.40.0",
+    "httpx": "0.28.1",
+    "location": ".runtime/sprint08/deps (numpy/pyarrow only)"
+  },
+  "focused_tests": {
+    "tests": 24,
+    "service_tests": 14,
+    "isolation_tests": 9,
+    "migration_cli_tests": 1,
+    "passed": 24,
+    "wall_s": 18.668
+  },
+  "full_suite": {
+    "tests": 181,
+    "passed": 151,
+    "skipped": 25,
+    "failures": 1,
+    "errors": 4,
+    "wall_s": 88.986,
+    "note": "Executed before addition of the final rollback regression test; that additional test passes independently and in focused_tests"
+  },
+  "existing_issues": [
+    "ERROR: test_suite_json_and_compare (tests.test_bench.TestBench.test_suite_json_and_compare)",
+    "ERROR: test_run_spec_with_db (tests.test_cli_spec.TestCliSpec.test_run_spec_with_db)",
+    "ERROR: test_hanoi_network_and_zones (tests.test_osm_pipeline.TestHanoiNetwork.test_hanoi_network_and_zones)",
+    "ERROR: test_cli_out_and_store (tests.test_zonal.TestTrajectoryOutputs.test_cli_out_and_store)",
+    "FAIL: test_presets_command_lists_them (tests.test_zonal.TestHanoiPresets.test_presets_command_lists_them)"
+  ],
+  "baseline_reproduction": {
+    "commit": "002c62c",
+    "method": "git archive HEAD; same UTF-8, isolated deps and KAMI_DATA_ROOT",
+    "tests": 5,
+    "failures": 1,
+    "errors": 4,
+    "issues_match": true
+  },
+  "benchmark": {
+    "cases": 5,
+    "repeat": 5,
+    "all_events_and_metrics_equal": true,
+    "all_wall_regressions_below_10_percent": true,
+    "max_wall_regression_percent": 9.742203608760835,
+    "ram_measured": false,
+    "hanoi_case_excluded": "Local Hanoi dataset incomplete; no C++ router"
+  },
+  "smoke": {
+    "quickstart": true,
+    "presets": true,
+    "wheel_build": true,
+    "wheel_installed_app_health": true,
+    "wheel_contains_sql_migrations": true,
+    "python39_syntax": true,
+    "python39_runtime": false
+  },
+  "pending": [
+    "EV/fleet and pricing integration from sprints 05/06",
+    "Replay/snapshot/streaming integration from sprint 04",
+    "Metric attribution by fleet/type/product",
+    "Five baseline Windows/dataset test failures"
+  ]
+}

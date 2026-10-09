@@ -17,7 +17,7 @@ không đổi hành vi: một spec cho **metric giống hệt** đoạn code Pyt
 | `kami.store` | SQLite (`sqlite3` của thư viện chuẩn), migration, `Repository`, ghi một lần chạy | `kami.config`; `pyarrow` cho event log Parquet |
 | `kami.bench` | Benchmark harness | `kami.config` |
 
-**NFR-5:** `import kami` không nạp `kami.store` hay `sqlite3`; chỉ `kami.store`, `kami/cli.py` (lệnh `run --db`,
+**NFR-5:** `import kami` không nạp `kami.store` hay `sqlite3`; chỉ `kami.store`, lớp ngoài `kami.service` (Sprint 08), `kami/cli.py` (lệnh `run --db`,
 `db`) và `kami/bench.py` được import chúng. Có test kiểm tra tĩnh và trong tiến trình con (`tests/test_isolation.py`).
 
 ## 1. Spec
@@ -259,3 +259,14 @@ python -m kami bench --cases grid_pm_peak_x5,road_example_400 --repeat 3
 - **Môi trường mốc:** env conda `fleetpy` (Python 3.10, router C++ đã build, có `scipy`). Số liệu của interpreter
   khác (ví dụ Python hệ thống không có `scipy` → matching greedy) không so sánh được với mốc. Kết quả mốc được commit
   trong `benchmarks/results/` và chép vào backlog sprint.
+
+## 5. Backend service (Sprint 08, giai đoạn A)
+
+`kami.service` dùng `ServiceRepository` trong `kami/store/service.py`, không thay `execute` hoặc engine.
+Migration 0002 bổ sung `service_scenario` (mẫu RunSpec gắn scenario.id) và `service_run`
+(ownership, progress, error_code của run do API quản lý). Snapshot được giải tham chiếu khi tạo queued,
+start không đọc lại cấu hình nguồn. SQLite connection thuộc riêng request/thread/worker; claim dùng
+transaction ngắn và khoá OS bảo đảm một supervisor/worker. Khoá nhả sau khi tiến trình đã dừng.
+
+API dùng parser spec hiện tại, không nhận policy hoặc pooling; `Repository` và CLI 0.1 giữ hành vi cũ.
+Chi tiết endpoint, SSE, huỷ và phục hồi: [21-service-api.md](21-service-api.md).

@@ -1,0 +1,55 @@
+{
+  "date": "2026-10-09",
+  "scope": "Sprint 09 A — cải thiện UI theo Green SM",
+  "skill": "ui-ux-pro-max",
+  "web_unit": {
+    "passed": 71,
+    "files": 7
+  },
+  "typescript": "passed",
+  "production_build": "passed",
+  "browser": {
+    "passed": 23,
+    "checks": [
+      "same-origin proxy health",
+      "keyboard skip link moves focus to workspace content",
+      "vehicle CRUD persisted after reload",
+      "conflict preserves draft",
+      "fleet CRUD through UI",
+      "fleet search filters actual saved entities",
+      "scenario form saves fleet ref without charging configuration",
+      "scenario search filters names and recovers from no results",
+      "real worker completes; summary UI and CSV equal API",
+      "fleet update preserves previous run snapshot",
+      "saved template edit leaves previous run snapshot immutable",
+      "comparison delta, verdict and seed warning equal API",
+      "service restart retains SQLite entities and results; offline start blocked",
+      "SSE metric arrives through production proxy while real run is running",
+      "global banner across four pages, busy start lock and UI cancellation",
+      "delete confirmation cancellation sends no deletion",
+      "in-use vehicle deletion reports conflict",
+      "vehicle update keeps run snapshot immutable",
+      "successful vehicle and fleet deletion through UI",
+      "scenario deletion leaves run history intact",
+      "failed worker run shows no complete result export",
+      "missing run renders a recoverable error",
+      "375/768/1280/1440 layouts and fixture wrapper preserve navigation"
+    ],
+    "page_errors": [],
+    "map_idle": true,
+    "mode": "production",
+    "viewports": [
+      375,
+      768,
+      1280,
+      1440
+    ]
+  },
+  "screenshots": "docs/engine/img/manager/redesign",
+  "runtime_evidence": "web/.ui-validation/result.json",
+  "backend": "SQLite và worker thật trên DB kiểm thử riêng",
+  "benchmark": "Không chạy lại engine benchmark trong lượt chỉnh UI; không đổi engine/service/API",
+  "limits": [
+    "Bản đồ live/replay API, EV đầy đủ và phân rã metric vẫn chờ phụ thuộc trong plan 09; chưa kết thúc toàn sprint"
+  ]
+}

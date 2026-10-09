@@ -17,8 +17,8 @@ có phiên bản:
 ```
 
 `kami.replay` không thuộc lõi engine: `import kami` không nạp nó, nó không import thư viện web/DB nào (NFR-5, có test
-trong `tests/test_isolation.py`). Web chỉ đọc file — Sprint 08 trả đúng các file này qua API, Sprint 09 ghép trang vào
-ứng dụng quản lý.
+trong `tests/test_isolation.py`). Bộ đọc bản đồ hiện vẫn đọc fixture; Sprint 09 A đã ghép trang vào ứng dụng quản lý,
+backend 08 B sẽ cung cấp API replay sau khi hợp đồng Sprint 04 ổn định.
 
 ## 1. Hợp đồng dữ liệu `kami.replay` v1
 
@@ -118,7 +118,8 @@ cp .env.example .env.local          # điền token public Mapbox (pk.…), xem 
 npm ci
 npm run dev                         # http://localhost:3000
 npm test                            # Vitest (dữ liệu, layer, tương phản màu)
-npm run build                       # bản tĩnh trong web/out/ (phục vụ bằng bất kỳ web server tĩnh nào)
+npm run build                       # bản production cho Next.js server
+npm start                           # cần server để proxy API (Sprint 09 A)
 ```
 
 Node ≥ 20 (`web/.nvmrc`: 24). Phiên bản thư viện khoá trong `package-lock.json`.
@@ -273,3 +274,10 @@ nghiêng 60° trên GPU tích hợp chỉ 48,8 / 29,0 fps (không đạt).
 - Không có lớp khách đang chờ, trạm sạc, surge (Sprint 05/06/09); dark mode chưa làm.
 - KPI thời gian đón/chờ là trung bình trong cửa sổ metric (60 s ở fixture) nên dao động; phút không có lượt đón hiện
   "—".
+
+## 7. Ghép vào ứng dụng quản lý (Sprint 09 A)
+
+Visualizer demo mở ở / và /visualizer, dùng chung điều hướng/chỉ báo run của [Simulation manager](22-ui-guide.md).
+Các query fixture của Sprint 03 giữ nguyên. Frontend từ Sprint 09 chạy bằng Next server (npm run build → npm start),
+không dùng serve out. Bản đồ fixture có nhãn demo; /visualizer?run=<id> xem trạng thái/metric đúng run, chưa có xe
+live hoặc replay qua API. Bộ đọc replay/renderer của Sprint 03 giữ nguyên để tích hợp tiếp Sprint 04.

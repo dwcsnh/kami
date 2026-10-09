@@ -1,7 +1,8 @@
 // kami 0.2 base components (sprint 03, S03-4) — reused by the Simulation manager (sprint 09).
 "use client";
 
-import { type ButtonHTMLAttributes, type KeyboardEvent, type PointerEvent, type ReactNode, useCallback, useRef } from "react";
+import { type ButtonHTMLAttributes, type KeyboardEvent, type PointerEvent, type ReactNode, useCallback, useRef, useId } from "react";
+import { Switch } from "@/components/ui/switch";
 import s from "./ui.module.css";
 
 const cx = (...c: (string | false | undefined | null)[]) => c.filter(Boolean).join(" ");
@@ -56,13 +57,9 @@ export function Tooltip({ text, side = "top", children }: { text: string; side?:
 }
 
 // ---------------------------------------------------------------------------- Toggle
-export function Toggle({ checked, onChange, label, id }: { checked: boolean; onChange: (v: boolean) => void; label: ReactNode; id?: string }) {
-  return (
-    <button type="button" role="switch" id={id} aria-checked={checked} className={s.toggle} onClick={() => onChange(!checked)}>
-      <span className={s.track}><span className={s.thumb} /></span>
-      <span>{label}</span>
-    </button>
-  );
+export function Toggle({ checked, onChange, label, id, disabled }: { checked: boolean; onChange: (v: boolean) => void; label: ReactNode; id?: string; disabled?: boolean }) {
+  const generatedId=useId(),controlId=id??generatedId;
+  return <div className={s.switchRow}><Switch id={controlId} checked={checked} onCheckedChange={onChange} disabled={disabled} className={s.switchControl}/><label htmlFor={controlId}>{label}</label></div>;
 }
 
 // ---------------------------------------------------------------------------- Segmented
