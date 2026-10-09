@@ -1,0 +1,85 @@
+{
+  "date": "2026-10-09",
+  "scope": "Sprint 09 A — loading, skeleton, modal, dropdown và switch",
+  "authorization": "Yêu cầu rõ ràng của người dùng: implement và cài toàn bộ shadcn",
+  "skills": [
+    "ui-ux-pro-max",
+    "ui-styling"
+  ],
+  "components": {
+    "cli": "shadcn 4.21.4 add --all --yes",
+    "style": "radix-nova",
+    "ui_files": 61,
+    "hooks": [
+      "use-mobile"
+    ],
+    "tailwind": "4.3.3",
+    "cli_retained_as_dependency": false
+  },
+  "web_unit": {
+    "passed": 71,
+    "files": 7
+  },
+  "typescript": "passed",
+  "production_build": "passed",
+  "browser": {
+    "passed": 27,
+    "checks": [
+      "same-origin proxy health",
+      "shared skeleton waits for actual API and respects reduced motion",
+      "modal keeps page position; dropdown supports keyboard; Escape restores focus",
+      "keyboard skip link moves focus to workspace content",
+      "vehicle CRUD persisted after reload",
+      "conflict preserves draft",
+      "fleet CRUD through UI",
+      "fleet search filters actual saved entities",
+      "shadcn switch controls metric collection",
+      "scenario form saves fleet ref without charging configuration",
+      "scenario search filters names and recovers from no results",
+      "real worker completes; summary UI and CSV equal API",
+      "fleet update preserves previous run snapshot",
+      "saved template edit leaves previous run snapshot immutable",
+      "comparison delta, verdict and seed warning equal API",
+      "service restart retains SQLite entities and results; offline start blocked",
+      "SSE metric arrives through production proxy while real run is running",
+      "global banner across four pages, busy start lock and UI cancellation",
+      "delete confirmation cancellation sends no deletion",
+      "in-use vehicle deletion reports conflict",
+      "vehicle update keeps run snapshot immutable",
+      "successful vehicle and fleet deletion through UI",
+      "scenario deletion leaves run history intact",
+      "failed worker run shows no complete result export",
+      "missing run renders a recoverable error",
+      "responsive modal and portalled dropdown remain inside viewport",
+      "375/768/1280/1440 layouts and fixture wrapper preserve navigation"
+    ],
+    "page_errors": [],
+    "map_idle": true,
+    "mode": "production",
+    "page_viewports": [
+      375,
+      768,
+      1280,
+      1440
+    ],
+    "modal_viewports": [
+      375,
+      768,
+      1440
+    ]
+  },
+  "backend": "SQLite và worker thật; DB/artifacts kiểm thử riêng",
+  "screenshots": "docs/engine/img/manager/redesign",
+  "audit": {
+    "info": 0,
+    "low": 0,
+    "moderate": 5,
+    "high": 8,
+    "critical": 0,
+    "total": 13
+  },
+  "audit_comparison": "13 cảnh báo, bằng mốc trước cài. Không giữ dependency CLI gây thêm 7 cảnh báo high; không force fix hoặc thay major renderer.",
+  "handoff_service_url": "http://127.0.0.1:8000",
+  "benchmark": "Không chạy lại engine benchmark/Python full suite; engine/service/API không đổi",
+  "sprint_status": "Đang làm; phụ thuộc B của plan 09 vẫn mở"
+}

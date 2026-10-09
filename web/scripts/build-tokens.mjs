@@ -1,5 +1,5 @@
 // Design tokens → CSS custom properties (src/design/tokens.css) and a typed module (src/design/tokens.ts).
-// Run by `npm run dev` / `npm run build` (pre-scripts) or `npm run tokens`. Output is committed.
+// Run by `npm run dev` / `npm run build` (pre-scripts) or `npm run tokens`. Output is ignored by Git.
 import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";

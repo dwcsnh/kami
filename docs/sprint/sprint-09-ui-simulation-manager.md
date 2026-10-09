@@ -2,11 +2,11 @@
 
 | | |
 |---|---|
-| Trạng thái | Chưa bắt đầu |
+| Trạng thái | Đang làm |
 | Yêu cầu | UI-1 (chế độ live, tích hợp), UI-2, UI-3, UI-5, FLEET-3, PERF-4 |
 | Phụ thuộc | Sprint 03 (visualizer), Sprint 08 |
-| Backlog đầu vào | [sprint-08-backlog.md](../backlog/sprint-08-backlog.md) |
-| Implementation plan | [sprint-09-plan.md](../implementation-plan/sprint-09-plan.md) (chưa có) |
+| Backlog đầu vào | [sprint-08-backlog.md](../backlog/sprint-08-backlog.md) — chưa có, 08 mới hoàn thành giai đoạn A; tạm đối chiếu [plan 08](../implementation-plan/sprint-08-plan.md). Từ [backlog 03](../backlog/sprint-03-backlog.md): B03-5, B03-9 |
+| Implementation plan | [sprint-09-plan.md](../implementation-plan/sprint-09-plan.md) (đã duyệt giai đoạn A, 2026-10-08) |
 
 ## Mục tiêu
 

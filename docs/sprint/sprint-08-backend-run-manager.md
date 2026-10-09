@@ -2,11 +2,11 @@
 
 | | |
 |---|---|
-| Trạng thái | Chưa bắt đầu |
+| Trạng thái | Đang làm |
 | Yêu cầu | RUN-1, RUN-2, RUN-3, RUN-4; API cho FLEET-3 |
 | Phụ thuộc | Sprint 01, Sprint 05 (fleet, loại xe, trạm sạc), Sprint 06 (bảng giá, chiến lược pricing) |
 | Backlog đầu vào | [sprint-06-backlog.md](../backlog/sprint-06-backlog.md); từ [sprint-01-backlog.md](../backlog/sprint-01-backlog.md): B01-4 |
-| Implementation plan | [sprint-08-plan.md](../implementation-plan/sprint-08-plan.md) (chưa có) |
+| Implementation plan | [sprint-08-plan.md](../implementation-plan/sprint-08-plan.md) (đã duyệt giai đoạn A, 2026-10-08) |
 
 ## Mục tiêu
 

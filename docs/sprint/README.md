@@ -14,8 +14,8 @@ xong** (phạm vi, hạng mục, acceptance criteria). **Cách làm** nằm tron
 | [04](sprint-04-scale-performance.md) | Hiệu năng quy mô GreenSM | PERF-1, PERF-2, PERF-3, UI-1 (quy mô thành phố) | 01, 02, 03 | Đang lập plan |
 | [05](sprint-05-fleet-ev-charging.md) | Loại xe, fleet & sạc xe điện | EV-1…EV-4, FLEET-1, FLEET-2, FLEET-4 | 01, 02, 03 | Chưa bắt đầu |
 | [06](sprint-06-dynamic-pricing.md) | Dynamic pricing & phản ứng của khách | PRICE-1…PRICE-4 | 05 | Chưa bắt đầu |
-| [08](sprint-08-backend-run-manager.md) | Backend service & quản lý lần chạy | RUN-1…RUN-4, FLEET-3 (API) | 01, 05, 06 | Chưa bắt đầu |
-| [09](sprint-09-ui-simulation-manager.md) | Giao diện Simulation manager & visualizer live | UI-1 (live), UI-2, UI-3, UI-5, FLEET-3, PERF-4 | 03, 08 | Chưa bắt đầu |
+| [08](sprint-08-backend-run-manager.md) | Backend service & quản lý lần chạy | RUN-1…RUN-4, FLEET-3 (API) | 01, 05, 06 | Đang làm |
+| [09](sprint-09-ui-simulation-manager.md) | Giao diện Simulation manager & visualizer live | UI-1 (live), UI-2, UI-3, UI-5, FLEET-3, PERF-4 | 03, 08 | Đang làm |
 | [11](sprint-11-integration-acceptance.md) | Tích hợp & nghiệm thu end-to-end | Toàn bộ | 01–09 | Chưa bắt đầu |
 
 ```

@@ -5,3 +5,14 @@ out/
 .env*.local
 next-env.d.ts
 *.tsbuildinfo
+
+# Sinh từ src/design/tokens.json bởi npm run tokens
+/src/design/tokens.css
+/src/design/tokens.ts
+
+# Replay xuất cục bộ; giữ bộ demo mặc định trong repo
+/public/fixtures/*
+!/public/fixtures/hanoi_center_demo/
+
+# Bằng chứng browser khi thư mục .runtime cũ không ghi được
+/.ui-validation/

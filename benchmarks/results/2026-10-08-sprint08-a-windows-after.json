@@ -1,0 +1,134 @@
+{
+  "created_at": "2026-10-08T12:49:42+00:00",
+  "suite": "D:\\.AIIA\\Build Phase\\kami\\benchmarks\\specs",
+  "repeat": 5,
+  "env": {
+    "python": "3.12.1",
+    "implementation": "CPython",
+    "executable": "C:\\Python312\\python.exe",
+    "os": "Windows-11-10.0.26200-SP0",
+    "cpu": "",
+    "cpu_count": 12,
+    "git_commit": null,
+    "git_dirty": false,
+    "kami_version": "0.1.0",
+    "cpp_router_built": false
+  },
+  "cases": {
+    "grid_am_peak_baseline": {
+      "wall_s": {
+        "median": 1.196408000017982,
+        "min": 1.0788950000423938,
+        "max": 1.3727092000190169
+      },
+      "build_s": 0.018447100010234863,
+      "events": 8375,
+      "events_per_s": 7000.120360173222,
+      "peak_rss_mb": null,
+      "network_backend": "grid",
+      "requests": 1011,
+      "drivers": 150,
+      "metrics": {
+        "platform.trips": 859,
+        "rider.completion_rate": 0.9460352422907489,
+        "rider.wait_mean": 4.545525805199848,
+        "driver.utilization": 0.5882184282059962,
+        "platform.gmv": 55032300
+      },
+      "deterministic": true
+    },
+    "grid_am_peak_baseline_nots": {
+      "wall_s": {
+        "median": 1.1125793000101112,
+        "min": 1.0559836000320502,
+        "max": 1.2340991999953985
+      },
+      "build_s": 0.016851099964696914,
+      "events": 8375,
+      "events_per_s": 7527.553316805272,
+      "peak_rss_mb": null,
+      "network_backend": "grid",
+      "requests": 1011,
+      "drivers": 150,
+      "metrics": {
+        "platform.trips": 859,
+        "rider.completion_rate": 0.9460352422907489,
+        "rider.wait_mean": 4.545525805199848,
+        "driver.utilization": 0.5882184282059962,
+        "platform.gmv": 55032300
+      },
+      "deterministic": true
+    },
+    "grid_am_peak_surge": {
+      "wall_s": {
+        "median": 1.146224899974186,
+        "min": 1.071253300004173,
+        "max": 1.3500513000180945
+      },
+      "build_s": 0.016529900021851063,
+      "events": 8456,
+      "events_per_s": 7377.260780314959,
+      "peak_rss_mb": null,
+      "network_backend": "grid",
+      "requests": 1011,
+      "drivers": 150,
+      "metrics": {
+        "platform.trips": 839,
+        "rider.completion_rate": 0.9512471655328798,
+        "rider.wait_mean": 4.309537147397696,
+        "driver.utilization": 0.5788570745272612,
+        "platform.gmv": 60075000
+      },
+      "deterministic": true
+    },
+    "grid_pm_peak_x5": {
+      "wall_s": {
+        "median": 3.618207600025926,
+        "min": 3.422668000042904,
+        "max": 3.8172016999451444
+      },
+      "build_s": 0.07014569995226339,
+      "events": 26170,
+      "events_per_s": 7232.8630341201215,
+      "peak_rss_mb": null,
+      "network_backend": "grid",
+      "requests": 5438,
+      "drivers": 600,
+      "metrics": {
+        "platform.trips": 3042,
+        "rider.completion_rate": 0.9316998468606432,
+        "rider.wait_mean": 5.8081483913328915,
+        "driver.utilization": 0.736304647492981,
+        "platform.gmv": 360655000
+      },
+      "deterministic": true
+    },
+    "road_example_400": {
+      "wall_s": {
+        "median": 13.373975300055463,
+        "min": 13.191594499978237,
+        "max": 14.009076000016648
+      },
+      "build_s": 0.35014390002470464,
+      "events": 3894,
+      "events_per_s": 291.16249377130606,
+      "peak_rss_mb": null,
+      "network_backend": "python",
+      "requests": 400,
+      "drivers": 25,
+      "metrics": {
+        "platform.trips": 379,
+        "rider.completion_rate": 0.9921465968586387,
+        "rider.wait_mean": 0.7692294992926351,
+        "driver.utilization": 0.28620327166933335,
+        "platform.gmv": 11432700
+      },
+      "deterministic": true
+    }
+  },
+  "source": {
+    "commit": "002c62c",
+    "working_tree": "stage A modifications",
+    "note": "bench environment git metadata unavailable under ownership check; git status confirmed modified workspace"
+  }
+}

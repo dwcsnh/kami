@@ -29,6 +29,8 @@
 | 18 | [Cấu hình, lưu trữ & benchmark](18-config-persistence.md) | Spec JSON, bộ dựng, chuỗi thời gian metric, DB SQLite, lưu run, benchmark (0.2) |
 | 19 | [Pipeline OSM → mạng Hà Nội](19-osm-pipeline.md) | Dữ liệu nguồn, một lệnh tạo lại mạng, đơn giản hoá đồ thị, zone, giả định tốc độ, số liệu mạng (0.2) |
 | 20 | [Bản đồ vận hành (visualizer)](20-visualizer.md) | Định dạng phát lại `kami.replay`, fixture demo, ứng dụng web Next.js + Mapbox + deck.gl, design tokens (0.2) |
+| 21 | [Backend service & quản lý lần chạy](21-service-api.md) | HTTP CRUD, worker riêng, lifecycle/recovery, SSE tiến độ/metric; Sprint 08 giai đoạn A |
+| 22 | [Giao diện quản lý mô phỏng](22-ui-guide.md) | Simulation manager: cấu hình, chạy, metric và visualizer demo (Sprint 09 A) |
 
 **Quy ước đơn vị trong code:** thời gian là giây, khoảng cách là mét, tiền là VND. Riêng metric báo cáo
 thời gian theo phút và khoảng cách theo km (xem [11-metrics.md](11-metrics.md)). Thời điểm mô phỏng tính bằng giây

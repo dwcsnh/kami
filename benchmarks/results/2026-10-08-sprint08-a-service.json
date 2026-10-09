@@ -1,0 +1,51 @@
+{
+  "python": "3.12.1",
+  "os": "Windows-11-10.0.26200-SP0",
+  "runs": [
+    {
+      "sse": false,
+      "engine_wall_s": 0.9638781999819912,
+      "end_to_end_s": 1.9896064000204206,
+      "events": 6871
+    },
+    {
+      "sse": false,
+      "engine_wall_s": 0.8860489999642596,
+      "end_to_end_s": 2.082835300010629,
+      "events": 6871
+    },
+    {
+      "sse": false,
+      "engine_wall_s": 0.8315731000038795,
+      "end_to_end_s": 2.013938899966888,
+      "events": 6871
+    },
+    {
+      "sse": true,
+      "engine_wall_s": 0.8391040000133216,
+      "end_to_end_s": 2.0349890000070445,
+      "events": 6871
+    },
+    {
+      "sse": true,
+      "engine_wall_s": 0.8395449999952689,
+      "end_to_end_s": 1.9142620000056922,
+      "events": 6871
+    },
+    {
+      "sse": true,
+      "engine_wall_s": 0.8760660999687389,
+      "end_to_end_s": 1.9720329000265338,
+      "events": 6871
+    }
+  ],
+  "metrics_identical": true,
+  "without_sse": {
+    "engine_wall_s_median": 0.8860489999642596,
+    "end_to_end_s_median": 2.013938899966888
+  },
+  "with_sse": {
+    "engine_wall_s_median": 0.8395449999952689,
+    "end_to_end_s_median": 1.9720329000265338
+  }
+}

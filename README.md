@@ -17,6 +17,69 @@ Scenario (ngoại sinh, replay) ──▶ Simulation engine ◀──▶ Policy 
                                Event log ──▶ Metrics ──▶ Evaluator (CRN, bootstrap CI, decision rule)
 ```
 
+## Chạy ứng dụng hằng ngày (Windows / VS Code)
+
+Repo dùng môi trường Python riêng ở `.venv/`. Mở thư mục gốc repo trong VS Code rồi tạo terminal mới:
+`.vscode/settings.json` đặt interpreter và PATH tới `.venv`, đồng thời bật UTF-8 cho Python.
+Terminal đã mở trước khi cấu hình cần đóng và mở lại.
+
+**Terminal 1 — backend**, tại thư mục gốc:
+
+```powershell
+python -m kami.service
+```
+
+Nếu terminal chưa dùng `.venv` (chưa hiện `(.venv)` và chưa có PATH từ VS Code), kích hoạt trước:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+python -m kami.service
+```
+
+Backend chạy ở http://127.0.0.1:8000; tài liệu API ở http://127.0.0.1:8000/docs.
+
+**Terminal 2 — Next.js**, cũng bắt đầu tại thư mục gốc:
+
+```powershell
+cd web
+npm run dev
+```
+
+Mở http://localhost:3000/scenarios. Backend dùng SQLite `kami.db` và thư mục kết quả `runs/`;
+không cần chạy server database riêng. Next.js đọc `KAMI_SERVICE_URL=http://127.0.0.1:8000`
+từ `web/.env.local`. Mapbox token chỉ cần cho bản đồ, không cần cho quản lý kịch bản và metric.
+Cổng mặc định của kami là **8000 cho backend** và **3000 cho Next.js**.
+Giữ cả hai terminal mở khi dùng ứng dụng. Khi muốn dừng, nhấn **Ctrl+C ở từng terminal**;
+đóng trang trình duyệt không dừng server.
+
+Nếu backend báo `đang có tiến trình giữ khoá ...kami.db.service.lock`, hoặc Next.js báo
+`Another next dev server is already running`, một server kami khác vẫn đang chạy.
+Dùng server đang chạy hoặc dừng nó bằng Ctrl+C ở terminal cũ trước khi khởi động lại.
+Nếu ứng dụng khác chiếm cổng 8000/3000, dừng ứng dụng đó để kami dùng đúng cổng mặc định.
+Không xoá database hoặc file `.lock` để xử lý lỗi trùng tiến trình.
+
+### Cài đặt lần đầu
+
+Cần Python ≥ 3.9 và Node.js theo `web/.nvmrc` (24). Từ thư mục gốc repo:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -e ".[service,store,osm,cpp,fast]"
+cd web
+npm ci
+if (!(Test-Path .env.local)) { Copy-Item .env.example .env.local }
+```
+
+Cài đặt này chỉ cần thực hiện một lần. Khi dependencies thay đổi, chạy lại lệnh cài Python
+hoặc `npm ci` tương ứng; không cần tạo lại `.venv` mỗi lần khởi động.
+Trong `web/.env.local`, giữ `KAMI_SERVICE_URL=http://127.0.0.1:8000`.
+Nếu cần xem bản đồ, điền thêm `NEXT_PUBLIC_MAPBOX_TOKEN=pk.…` rồi khởi động lại Next.js.
+
+Ngoài VS Code, kích hoạt `.venv` một lần cho mỗi terminal backend như hướng dẫn ở trên.
+Nếu PowerShell chặn script activation, có thể dùng trực tiếp
+`.\.venv\Scripts\python.exe -m kami.service`.
+Mạng synthetic dùng được ngay; mạng đường Hà Nội cần dựng dữ liệu theo phần dưới.
+
 ## Hướng dẫn chạy kịch bản Hà Nội
 
 Phần này đi từ lúc vừa `git clone` tới lúc chạy được kịch bản Hà Nội và xem nó trên bản đồ. Các lệnh khác của CLI

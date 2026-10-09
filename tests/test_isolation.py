@@ -36,7 +36,7 @@ class TestIsolation(unittest.TestCase):
     def test_no_static_db_import_outside_store(self):
         offenders = []
         for path in (ROOT / "kami").rglob("*.py"):
-            if (ROOT / "kami" / "store") in path.parents or path in ALLOWED:
+            if any((ROOT / "kami" / package) in path.parents for package in ("store", "service")) or path in ALLOWED:
                 continue
             for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
                 names = [a.name for a in node.names] if isinstance(node, ast.Import) else \
@@ -62,7 +62,7 @@ class TestReplayIsolation(unittest.TestCase):
         offenders = []
         for path in (ROOT / "kami").rglob("*.py"):
             rel = path.relative_to(ROOT / "kami")
-            if rel.parts[0] in ("replay", "store") or path in ALLOWED:
+            if rel.parts[0] in ("replay", "store", "service") or path in ALLOWED:
                 continue
             for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
                 names = [a.name for a in node.names] if isinstance(node, ast.Import) else \
@@ -74,12 +74,30 @@ class TestReplayIsolation(unittest.TestCase):
     def test_no_web_library_imports(self):
         offenders = []
         for path in (ROOT / "kami").rglob("*.py"):
+            if (ROOT / "kami" / "service") in path.parents:
+                continue
             for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
                 names = [a.name for a in node.names] if isinstance(node, ast.Import) else \
                     [node.module or ""] if isinstance(node, ast.ImportFrom) else []
                 if any(n.split(".")[0] in WEB_MODULES for n in names):
                     offenders.append(str(path.relative_to(ROOT)))
         self.assertEqual(offenders, [])
+
+    def test_core_does_not_import_service(self):
+        for path in (ROOT / "kami").rglob("*.py"):
+            if (ROOT / "kami" / "service") in path.parents:
+                continue
+            for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
+                names = [a.name for a in node.names] if isinstance(node, ast.Import) else \
+                    [node.module or ""] if isinstance(node, ast.ImportFrom) else []
+                self.assertFalse(any(n.startswith("kami.service") for n in names), str(path))
+        self.assertEqual(_run("import sys, kami, kami.config; print(any(n.startswith('kami.service') for n in sys.modules))").strip(), "False")
+
+    def test_service_package_import_has_no_process_or_web_side_effect(self):
+        code = ("import sys, multiprocessing, kami.service; "
+                "print(multiprocessing.active_children()); "
+                "print([n for n in ('fastapi', 'sqlite3', 'uvicorn') if n in sys.modules])")
+        self.assertEqual(_run(code).strip(), "[]\n[]")
 
     def test_replay_runs_without_db(self):
         out = _run("import sys\nfrom kami.replay import export, validate\n"

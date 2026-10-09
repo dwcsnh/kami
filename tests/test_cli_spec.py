@@ -1,5 +1,7 @@
 """Sprint 01 — CLI: ``run --spec``, ``spec``, ``db init`` (S01-3); 0.1 commands unchanged."""
 import json
+import subprocess
+import sys
 import tempfile
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
@@ -74,12 +76,18 @@ class TestCliSpec(unittest.TestCase):
         self.assertIn("Repository.resolve", err)
 
     def test_db_init(self):
+        # Exercise the real CLI process, including OS release of SQLite file handles on Windows.
+        from kami.store.db import migrations
         db = self.d / "x.db"
-        code, out, _ = quiet(["db", "init", "--db", str(db)])
-        self.assertEqual(code, 0)
-        self.assertIn("schema version 1", out)
-        code, out, _ = quiet(["db", "init", "--db", str(db)])
-        self.assertIn("up to date", out)
+        def invoke():
+            return subprocess.run([sys.executable, "-m", "kami", "db", "init", "--db", str(db)],
+                                  capture_output=True, text=True, timeout=20)
+        first = invoke()
+        self.assertEqual(first.returncode, 0, first.stderr)
+        self.assertIn(f"schema version {max(v for v, _, _ in migrations())}", first.stdout)
+        second = invoke()
+        self.assertEqual(second.returncode, 0, second.stderr)
+        self.assertIn("up to date", second.stdout)
 
     def test_presets_command_unchanged(self):
         code, out, _ = quiet(["presets"])

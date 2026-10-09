@@ -1,6 +1,7 @@
 "use client";
 import { Panel } from "@/ui";
 import s from "./panels.module.css";
+import { LoadingState } from "@/manager/LoadingState";
 
 export function TokenMissing() {
   return (
@@ -18,7 +19,7 @@ export function TokenMissing() {
 export function Loading({ message }: { message: string }) {
   return (
     <div className={s.centerMessage}>
-      <Panel className={s.messageCard}><p style={{ margin: 0 }} role="status">{message}</p></Panel>
+      <div className={s.messageCard}><LoadingState variant="map" label={message}/></div>
     </div>
   );
 }

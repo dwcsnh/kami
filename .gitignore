@@ -22,3 +22,18 @@ web/node_modules/
 web/.next/
 web/out/
 web/.env.local
+
+.runtime/
+
+# Nhật ký chạy pipeline OSM và mô phỏng cục bộ
+/data/osm/*.log
+
+# Môi trường Python cục bộ
+/.venv/
+
+# Khoá tiến trình của SQLite service
+*.db.execution.lock
+*.db.service.lock
+
+# Agent Skills
+.agents/skills/
