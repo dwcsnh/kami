@@ -6,6 +6,8 @@ import { changeSource, PRESETS, scenarioPayload, secondsToTime, selectFleet, sou
 import type { Entity, Fleet, RunSpec } from "./types";
 import s from "./manager.module.css";
 import { Dropdown } from "./Dropdown";
+import { SharedRideFields } from "./SharedRideFields";
+import { sharedDraft, validateShared } from "./sharedDraft";
 export default function ScenarioForm({ base, fleets, busy, error, onSave, onCancel }: { base:RunSpec; fleets:Entity<Fleet>[]; busy:boolean; error:unknown; onSave:(v:RunSpec)=>void; onCancel:()=>void }) {
   const [spec,setSpec]=useState(()=>structuredClone(base));
   const source=spec.scenario.source,p=sourceParameters(source);
@@ -40,11 +42,12 @@ export default function ScenarioForm({ base, fleets, busy, error, onSave, onCanc
       if(supported){const a=timeToSeconds(start),b=timeToSeconds(end);if(b<=a)throw new Error("Giờ kết thúc phải sau giờ bắt đầu.");next={...spec,scenario:{...spec.scenario,source:withSourceParameters(source,{t_start:a,t_end:b})}};}
       if(!next.scenario.name.trim())throw new Error("Tên kịch bản không được để trống.");
       if(!next.fleets?.length)throw new Error("Chọn ít nhất một fleet cho kịch bản.");
+      if(next.sim_config?.shared_ride && sharedDraft(next.sim_config.shared_ride).enabled)validateShared(sharedDraft(next.sim_config.shared_ride));
       onSave(scenarioPayload(next));
     }catch(e){setLocalError(e instanceof Error?e.message:String(e));}
   }}>
     <h2>{base.scenario.name?"Chỉnh sửa kịch bản":"Kịch bản mới"}</h2>
-    <nav className={s.formNav} aria-label="Các phần cấu hình">{[["identity","Thông tin chung"],["network","Bản đồ"],["demand","Nhu cầu"],["fleet","Đội xe"],["collection","Kết quả"]].map(([id,label],i)=><a key={id} href={"#scenario-"+id}><span>{i+1}</span>{label}</a>)}</nav>
+    <nav className={s.formNav} aria-label="Các phần cấu hình">{[["identity","Thông tin chung"],["network","Bản đồ"],["demand","Nhu cầu"],["fleet","Đội xe"],["shared","Shared V1"],["collection","Kết quả"]].map(([id,label],i)=><a key={id} href={"#scenario-"+id}><span>{i+1}</span>{label}</a>)}</nav>
     {localError&&<p role="alert" className={s.error}>{localError}</p>}
     <div id="scenario-identity" className={s.formGrid}>
       <Field label="Tên kịch bản" error={error} path="scenario.name"><input required value={spec.scenario.name} onChange={e=>scenario({name:e.target.value})}/></Field>
@@ -100,7 +103,8 @@ export default function ScenarioForm({ base, fleets, busy, error, onSave, onCanc
       </div><Button onClick={()=>params({incidents:incidents.filter((_,j)=>j!==i)})}>Bỏ sự cố {i+1}</Button></div>)}
       <Button onClick={()=>params({incidents:[...incidents,{t_offset:0,duration:600,at:"hotspot0",radius_m:500,factor:2}]})}>+ Thêm sự cố</Button>
     </fieldset></details>}
-    <fieldset id="scenario-collection"><legend>04 · Thu thập kết quả</legend><Toggle label="Thu thập chuỗi thời gian" checked={spec.sim_config?.timeseries_interval_s!==null} onChange={checked=>setSpec(v=>({...v,sim_config:{...v.sim_config,timeseries_interval_s:checked?60:null}}))}/><div className={s.formGrid}>
+    <SharedRideFields value={spec.sim_config?.shared_ride} error={error} onChange={shared_ride=>setSpec(v=>({...v,sim_config:{...v.sim_config,shared_ride}}))}/>
+    <fieldset id="scenario-collection"><legend>05 · Thu thập kết quả</legend><Toggle label="Thu thập chuỗi thời gian" checked={spec.sim_config?.timeseries_interval_s!==null} onChange={checked=>setSpec(v=>({...v,sim_config:{...v.sim_config,timeseries_interval_s:checked?60:null}}))}/><div className={s.formGrid}>
       <Field label="Khoảng lấy metric (giây)" error={error} path="sim_config.timeseries_interval_s"><input type="number" min="0.1" step="any" disabled={spec.sim_config?.timeseries_interval_s===null} required value={spec.sim_config?.timeseries_interval_s===null?"":String(spec.sim_config?.timeseries_interval_s??60)} onChange={e=>setSpec(v=>({...v,sim_config:{...v.sim_config,timeseries_interval_s:numeric(e.target.value)}}))}/></Field>
       <Field label="Thời gian hoàn tất chuyến sau demand (giây)" hint="Để trống dùng mặc định engine (3.600 giây)."><input type="number" min="0" step="any" value={String(spec.sim_config?.drain_s??"")} onChange={e=>setSpec(v=>{const config={...v.sim_config};if(e.target.value==="")delete config.drain_s;else config.drain_s=Number(e.target.value);return {...v,sim_config:config};})}/></Field>
     </div></fieldset>

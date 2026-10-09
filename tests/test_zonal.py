@@ -164,6 +164,7 @@ class TestTrajectoryOutputs(unittest.TestCase):
             self.assertEqual(res.status, "succeeded")
             kinds = {a["kind"] for a in repo.run_artifacts(res.run_id)}
             self.assertIn("trajectories", kinds)
+            repo.close()
 
 
 if __name__ == "__main__":

@@ -49,3 +49,14 @@ Một số hành động của engine được ghi vào `EventLog` nhưng không
 2. Viết handler `Simulation._on_<tên_viết_thường>(**payload)`.
 3. Lên lịch bằng `self._push(t, EventType.X, **payload)` bên trong engine. Policy không được tự đẩy sự kiện; nếu
    cần, hãy dùng `POLICY_TIMER`.
+
+## Deadline và log Shared V1
+
+`PICKUP_DEADLINE` có priority 3, sau `ARRIVE_STOP`, trước dispatch. Booking đã
+nhận mới lên lịch deadline; WAITING/MATCHED chưa đón hết hạn thành CANCELLED,
+lý do `pickup_timeout`. ONBOARD và event stale không bị timeout đón.
+
+Log thêm SHARED_PAIR_CREATED, SHARED_PAIR_DISSOLVED, SHARED_REQUEUED,
+SHARED_PARTNER_LOST và SHARED_PAIR_FINISHED. Lifecycle payload có preference,
+pair_id, deadline và cước tham chiếu khi bật V1; tắt không thêm payload.
+Xem [Shared V1](23-shared-rides-v1.md).

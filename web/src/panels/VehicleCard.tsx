@@ -23,6 +23,8 @@ export function VehicleCard({ replay, colors }: { replay: Replay; colors: string
   const st = seg >= 0 ? replay.segState[seg] : -1;
   const riderId = seg >= 0 ? replay.segRider[seg] : -1;
   const trip = riderId >= 0 ? replay.rider(riderId) : undefined;
+  const pair = replay.sharedPairAt(v.id,t);
+  const onboard = pair ? replay.sharedOnboardAt(pair.id,t) : [];
   const km = replay.distanceAt(vi, t) / 1000;
   const clock = (x?: number) => (x === undefined ? "—" : formatClock(x));
   return (
@@ -40,6 +42,16 @@ export function VehicleCard({ replay, colors }: { replay: Replay; colors: string
         <dt>Quãng đường đã chạy</dt><dd data-testid="vehicle-km">{nf1.format(km)} km</dd>
       </dl>
       <p className={s.sectionLabel}>Chuyến hiện tại</p>
+      {pair&&<details open><summary>Cặp #{pair.id} · {onboard.length}/2 khách trên xe</summary>
+        <p style={{fontSize:12}}>Khách {pair.rider_ids.map(id=>"#"+id).join(" và ")} · {onboard.length===2?"Đang đi chung":pair.overlap_end!==null&&t>=pair.overlap_end?"Đã kết thúc đi chung":"Chưa có hai khách trên xe"}</p>
+        <ol style={{fontSize:12,paddingLeft:18}}>{pair.stops.map((stop,i)=>{
+          const predicted=stop.kind==="pickup"?pair.predicted_pickup[stop.rider_id]:pair.predicted_dropoff[stop.rider_id];
+          const actual=stop.kind==="pickup"?pair.pickups[stop.rider_id]:pair.dropoffs[stop.rider_id];
+          return <li key={i}>{stop.kind==="pickup"?"Đón":"Trả"} #{stop.rider_id} · {actual!==undefined&&actual<=t?formatClock(actual):"dự kiến "+formatClock(predicted)}</li>;
+        })}</ol>
+        <p style={{fontSize:12}}>Đi chung thực tế: {nf1.format(Math.max(0,Math.min(t,pair.overlap_end??t)-(pair.overlap_start??t))/60)} phút · Dự kiến {nf1.format(pair.predicted_overlap_s/60)} phút</p>
+        {pair.reason&&<p style={{fontSize:12}}>Lý do: {pair.reason}</p>}
+      </details>}
       {trip ? (
         <dl className={s.dl}>
           <dt>Khách</dt><dd>#{trip.rider}</dd>

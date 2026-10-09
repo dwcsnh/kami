@@ -13,6 +13,8 @@ next-env.d.ts
 # Replay xuất cục bộ; giữ bộ demo mặc định trong repo
 /public/fixtures/*
 !/public/fixtures/hanoi_center_demo/
+!/public/fixtures/shared_v1_demo/
+!/public/fixtures/shared_v1_walkthrough/
 
 # Bằng chứng browser khi thư mục .runtime cũ không ghi được
 /.ui-validation/

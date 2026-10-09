@@ -13,7 +13,9 @@ export interface PlaybackState {
   mode: Mode;
   hidden: Record<string, boolean>;   // state id → trail and vehicles hidden
   showOD: boolean;
+  showRequests: { shared_only: boolean; exclusive_only: boolean };
   selected: number | null;           // vehicle index
+  focusedPair: number | null;
   follow: boolean;
   panelOpen: boolean;
   chromeHidden: boolean;
@@ -26,7 +28,9 @@ export interface PlaybackState {
   setMode(m: Mode): void;
   toggleState(id: string): void;
   setShowOD(v: boolean): void;
+  toggleRequests(preference: "shared_only" | "exclusive_only"): void;
   select(vi: number | null): void;
+  focusPair(id: number | null): void;
   setFollow(v: boolean): void;
   setPanelOpen(v: boolean): void;
   toggleChrome(): void;
@@ -43,7 +47,9 @@ export const usePlayback = create<PlaybackState>((set, get) => ({
   mode: "vehicles",
   hidden: {},
   showOD: false,
+  showRequests: { shared_only: false, exclusive_only: false },
   selected: null,
+  focusedPair: null,
   follow: false,
   panelOpen: true,
   chromeHidden: false,
@@ -60,7 +66,9 @@ export const usePlayback = create<PlaybackState>((set, get) => ({
   setMode: (mode) => set({ mode }),
   toggleState: (id) => set((s) => ({ hidden: { ...s.hidden, [id]: !s.hidden[id] } })),
   setShowOD: (showOD) => set({ showOD }),
+  toggleRequests: (preference) => set(s => ({ showRequests: { ...s.showRequests, [preference]: !s.showRequests[preference] } })),
   select: (selected) => set({ selected, follow: selected === null ? false : get().follow }),
+  focusPair: (focusedPair) => set({ focusedPair }),
   setFollow: (follow) => set({ follow }),
   setPanelOpen: (panelOpen) => set({ panelOpen }),
   toggleChrome: () => set((s) => ({ chromeHidden: !s.chromeHidden })),

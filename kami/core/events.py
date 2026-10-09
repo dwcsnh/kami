@@ -13,6 +13,7 @@ class EventType(str, Enum):
     OFFER_ACCEPTED = "OFFER_ACCEPTED"
     OFFER_REJECTED = "OFFER_REJECTED"
     RIDER_CANCEL = "RIDER_CANCEL"
+    PICKUP_DEADLINE = "PICKUP_DEADLINE"
     PICKUP = "PICKUP"
     DROPOFF = "DROPOFF"
     # Driver
@@ -57,6 +58,7 @@ EVENT_PRIORITY: Dict[EventType, int] = {
     EventType.ARRIVE_STOP: 2,
     EventType.IDLE_ARRIVE: 2,
     EventType.RIDER_CANCEL: 3,
+    EventType.PICKUP_DEADLINE: 3,
     EventType.REQUEST_CREATED: 4,
     EventType.IDLE_MOVE: 5,
     EventType.PRICE_UPDATE: 6,

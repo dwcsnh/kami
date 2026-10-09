@@ -11,6 +11,7 @@ import unittest
 from pathlib import Path
 
 from kami.network import FileZoneSystem, FleetPyNetwork, RoadNetwork
+from kami.network.road import default_data_root
 from kami.osm.geo import Polygon, assemble_rings, haversine, in_ring
 from kami.osm.graph import _largest_scc, direction, parse_maxspeed
 from kami.osm.extract import motor_access
@@ -142,7 +143,8 @@ class TestFixtureBuild(unittest.TestCase):
         self.assertEqual(res["python_vs_cpp_same_route_or_cost"], "50/50")
 
 
-@unittest.skipUnless(hanoi_built(), "Hà Nội network not built (python -m kami.osm build hanoi)")
+@unittest.skipUnless(hanoi_built() and (default_data_root()/"networks/hanoi/manifest.json").exists(),
+                     "Hà Nội graph has no OSM manifest (python -m kami.osm build hanoi)")
 class TestHanoiNetwork(unittest.TestCase):
     def test_hanoi_network_and_zones(self):
         net = RoadNetwork("hanoi", backend="python")

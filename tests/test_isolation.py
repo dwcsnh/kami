@@ -18,6 +18,14 @@ def _run(code: str) -> str:
 
 
 class TestIsolation(unittest.TestCase):
+    def test_shared_engine_runs_without_db_web_or_global_rng(self):
+        code = ("import sys, random, numpy.random\n"
+                "def forbidden(*a, **kw): raise AssertionError('global RNG')\n"
+                "random.random = forbidden; numpy.random.random = forbidden\n"
+                "from tests.shared_helpers import world\nworld().run()\n"
+                f"print([m for m in sys.modules if m.split('.')[0] in {DB_MODULES + WEB_MODULES!r} or m.startswith('kami.store')])")
+        self.assertEqual(_run(code).strip(), '[]')
+
     def test_import_kami_loads_no_db_library(self):
         out = _run("import sys, kami, kami.config, kami.timeseries\n"
                    f"print([m for m in sys.modules if m.split('.')[0] in {DB_MODULES!r} or m.startswith('kami.store')])")

@@ -1,0 +1,43 @@
+{
+  "ok": true,
+  "source_commit": "57f1a531c0c040e3e3353d3ba112b3dcd48a2df3",
+  "description": "Pristine pre-task HEAD engine vs absent shared config vs enabled=false; SHA256 events, metrics, every replay file match.",
+  "results": {
+    "before": {
+      "metrics": "d9d04834b591e53e9dab22cf82908823613a967b0de51c582bf66ded3a50b397",
+      "events": "c2abbc0a8f84542205a5044f173cbaf3ad3d8945342ee31ae9cf0323c51d2341",
+      "replay": {
+        "events.json.gz": "61f5f2bb1d821f2299b1fc7b3b612120afe092fa6e7783e55e236de0a8945cf6",
+        "manifest.json": "8a0c342afe65ad8029de936fe8ed7832b375cb69c0b039e33a1568be977c300d",
+        "metrics.json.gz": "facb602588a0cc1304def0f1023d2793910bcf0cd852c3e8017d6c234103dbb6",
+        "trips.json.gz": "640a3e479212f28c281b11edd493cd1afe5bec1827fbcf3e346659971bb2b90b",
+        "vehicles.json.gz": "ba62da1ed3b7a7878e642b6844e92a0e6855f5de10d435776ea29acba55d218d"
+      },
+      "events_processed": 267
+    },
+    "after": {
+      "metrics": "d9d04834b591e53e9dab22cf82908823613a967b0de51c582bf66ded3a50b397",
+      "events": "c2abbc0a8f84542205a5044f173cbaf3ad3d8945342ee31ae9cf0323c51d2341",
+      "replay": {
+        "events.json.gz": "61f5f2bb1d821f2299b1fc7b3b612120afe092fa6e7783e55e236de0a8945cf6",
+        "manifest.json": "8a0c342afe65ad8029de936fe8ed7832b375cb69c0b039e33a1568be977c300d",
+        "metrics.json.gz": "facb602588a0cc1304def0f1023d2793910bcf0cd852c3e8017d6c234103dbb6",
+        "trips.json.gz": "640a3e479212f28c281b11edd493cd1afe5bec1827fbcf3e346659971bb2b90b",
+        "vehicles.json.gz": "ba62da1ed3b7a7878e642b6844e92a0e6855f5de10d435776ea29acba55d218d"
+      },
+      "events_processed": 267
+    },
+    "disabled": {
+      "metrics": "d9d04834b591e53e9dab22cf82908823613a967b0de51c582bf66ded3a50b397",
+      "events": "c2abbc0a8f84542205a5044f173cbaf3ad3d8945342ee31ae9cf0323c51d2341",
+      "replay": {
+        "events.json.gz": "61f5f2bb1d821f2299b1fc7b3b612120afe092fa6e7783e55e236de0a8945cf6",
+        "manifest.json": "8a0c342afe65ad8029de936fe8ed7832b375cb69c0b039e33a1568be977c300d",
+        "metrics.json.gz": "facb602588a0cc1304def0f1023d2793910bcf0cd852c3e8017d6c234103dbb6",
+        "trips.json.gz": "640a3e479212f28c281b11edd493cd1afe5bec1827fbcf3e346659971bb2b90b",
+        "vehicles.json.gz": "ba62da1ed3b7a7878e642b6844e92a0e6855f5de10d435776ea29acba55d218d"
+      },
+      "events_processed": 267
+    }
+  }
+}

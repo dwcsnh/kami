@@ -3,7 +3,7 @@
 > Tài liệu từng module của engine. Mục lục chung, yêu cầu 0.2 và lộ trình sprint ở [../README.md](../README.md).
 > Design doc gốc: [../design/policy_simulator_design_v0.md](../design/policy_simulator_design_v0.md).
 >
-> **Phạm vi hiện tại (kami 0.2):** matching 1 tài xế – 1 khách, chưa có ghép chuyến. Các phần về pooling trong tài
+> **Phạm vi hiện tại (kami 0.2):** Exclusive và [Shared ride V1](23-shared-rides-v1.md). Các phần về pooling trong tài
 > liệu engine (docs 02–07, 10–15) mô tả code 0.1 được giữ để tương thích, tạm thời không dùng — xem
 > [requirements §5](../requirements.md#5-ngoài-phạm-vi-hiện-tại).
 
@@ -31,6 +31,7 @@
 | 20 | [Bản đồ vận hành (visualizer)](20-visualizer.md) | Định dạng phát lại `kami.replay`, fixture demo, ứng dụng web Next.js + Mapbox + deck.gl, design tokens (0.2) |
 | 21 | [Backend service & quản lý lần chạy](21-service-api.md) | HTTP CRUD, worker riêng, lifecycle/recovery, SSE tiến độ/metric; Sprint 08 giai đoạn A |
 | 22 | [Giao diện quản lý mô phỏng](22-ui-guide.md) | Simulation manager: cấu hình, chạy, metric và visualizer demo (Sprint 09 A) |
+| 23 | [Shared ride V1](23-shared-rides-v1.md) | Hai lựa chọn, evaluator/dispatch, deadline/hủy, cước 70%, metric và replay |
 
 **Quy ước đơn vị trong code:** thời gian là giây, khoảng cách là mét, tiền là VND. Riêng metric báo cáo
 thời gian theo phút và khoảng cách theo km (xem [11-metrics.md](11-metrics.md)). Thời điểm mô phỏng tính bằng giây

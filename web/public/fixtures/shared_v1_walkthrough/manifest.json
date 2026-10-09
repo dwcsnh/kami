@@ -1,0 +1,206 @@
+{
+ "area": {
+  "bbox": [
+   105.848056,
+   21.02399,
+   105.862038,
+   21.032422
+  ],
+  "center": [
+   105.855047,
+   21.028206
+  ],
+  "name": "shared-v1-walkthrough",
+  "zoom": 15.93
+ },
+ "bounds": [
+  105.848056,
+  21.02399,
+  105.862038,
+  21.032422
+ ],
+ "coords": "lonlat",
+ "counts": {
+  "events": 10,
+  "metric_rows": 91,
+  "points": 68,
+  "segments": 9,
+  "vehicles": 1
+ },
+ "files": {
+  "events": {
+   "bytes": 251,
+   "path": "events.json.gz",
+   "raw_bytes": 688,
+   "sha256": "72fbc29bafee13de4872cff387bf37909bb3550c4b6bf7338b1fb663647ea0fb"
+  },
+  "metrics": {
+   "bytes": 1434,
+   "path": "metrics.json.gz",
+   "raw_bytes": 36234,
+   "sha256": "bbf95f3b79fc6fd0cdef1a96abf9a8749b657c9b8c376723eff3b91672a9d979"
+  },
+  "trips": {
+   "bytes": 791,
+   "path": "trips.json.gz",
+   "raw_bytes": 2378,
+   "sha256": "486b27a4443834f7e797e21e400927652c4a913619af3c31d5601c4c02a28ee6"
+  },
+  "vehicles": {
+   "bytes": 95,
+   "path": "vehicles.json.gz",
+   "raw_bytes": 88,
+   "sha256": "78ad303493e4668f8fec9bacfc03b70f0ba5c6a10eb8c2a9db3bfc83aa42351c"
+  }
+ },
+ "fleets": {
+  "default": 1
+ },
+ "kami_version": "0.1.0",
+ "kind": "kami.replay",
+ "run": {
+  "crn_seed": 7,
+  "name": "Shared V1 — từ đặt xe đến trả khách (minh họa)",
+  "network": "hanoi",
+  "policy": "baseline",
+  "scenario": "shared-v1-walkthrough",
+  "seed": 7
+ },
+ "schema_version": 1,
+ "shared": {
+  "fare_factor": 0.7,
+  "pairs": [
+   {
+    "actual_overlap_s": 226.6107000000011,
+    "actual_shared": true,
+    "closed_t": 25770.0092,
+    "created_t": 25260,
+    "direct_baseline_s": {
+     "1": 274.8817,
+     "2": 179.1951
+    },
+    "driver_id": 1,
+    "dropoffs": {
+     "1": 25770.0092,
+     "2": 25654.6166
+    },
+    "id": 1,
+    "overlap_end": 25654.6166,
+    "overlap_start": 25428.0059,
+    "pickups": {
+     "1": 25428.0059,
+     "2": 25345.2237
+    },
+    "predicted_dropoff": {
+     "1": 25770.0092,
+     "2": 25654.6166
+    },
+    "predicted_extra_s": {
+     "1": 67.12160000000029,
+     "2": 130.19780000000256
+    },
+    "predicted_overlap_s": 226.6107000000011,
+    "predicted_pickup": {
+     "1": 25428.0059,
+     "2": 25345.2237
+    },
+    "reason": null,
+    "rider_ids": [
+     1,
+     2
+    ],
+    "stops": [
+     {
+      "kind": "pickup",
+      "loc": 389,
+      "rider_id": 2
+     },
+     {
+      "kind": "pickup",
+      "loc": 313,
+      "rider_id": 1
+     },
+     {
+      "kind": "dropoff",
+      "loc": 85,
+      "rider_id": 2
+     },
+     {
+      "kind": "dropoff",
+      "loc": 12616,
+      "rider_id": 1
+     }
+    ]
+   }
+  ],
+  "riders": [
+   {
+    "booked_t": 25210,
+    "cancel_t": null,
+    "dropoff_t": 25770.0092,
+    "exclusive_reference_fare": 32000.0,
+    "fare": 22400.0,
+    "id": 1,
+    "pair_history": [
+     1
+    ],
+    "pickup_deadline": 25810.0,
+    "pickup_t": 25428.0059,
+    "reason": null,
+    "service_preference": "shared_only"
+   },
+   {
+    "booked_t": 25230,
+    "cancel_t": null,
+    "dropoff_t": 25654.6166,
+    "exclusive_reference_fare": 25600.0,
+    "fare": 17920.0,
+    "id": 2,
+    "pair_history": [
+     1
+    ],
+    "pickup_deadline": 25830.0,
+    "pickup_t": 25345.2237,
+    "reason": null,
+    "service_preference": "shared_only"
+   }
+  ],
+  "version": 1
+ },
+ "simplify": {
+  "dist_m": 1.0,
+  "dt_s": 0.5
+ },
+ "states": [
+  {
+   "color": "state.idle",
+   "id": "idle",
+   "label": "Rảnh – đứng yên"
+  },
+  {
+   "color": "state.cruising",
+   "id": "cruising",
+   "label": "Rảnh – đang chạy"
+  },
+  {
+   "color": "state.pickup",
+   "id": "pickup",
+   "label": "Đi đón khách"
+  },
+  {
+   "color": "state.on_trip",
+   "id": "on_trip",
+   "label": "Chở khách"
+  },
+  {
+   "color": "state.reposition",
+   "id": "reposition",
+   "label": "Điều xe"
+  }
+ ],
+ "time": {
+  "end": 26100,
+  "scenario_start": 25200,
+  "start": 25200
+ }
+}

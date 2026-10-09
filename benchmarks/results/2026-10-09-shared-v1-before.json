@@ -1,0 +1,181 @@
+{
+  "created_at": "2026-10-09T16:13:31+00:00",
+  "suite": "D:\\.AIIA\\Build Phase\\kami\\.runtime\\shared-v1-pristine\\benchmarks\\specs",
+  "repeat": 5,
+  "env": {
+    "python": "3.12.1",
+    "implementation": "CPython",
+    "executable": "D:\\.AIIA\\Build Phase\\kami\\.runtime\\sprint08\\venv\\Scripts\\python.exe",
+    "os": "Windows-11-10.0.26200-SP0",
+    "cpu": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+    "cpu_count": 12,
+    "git_commit": "57f1a531",
+    "git_dirty": false,
+    "kami_version": "0.1.0",
+    "cpp_router_built": false
+  },
+  "cases": {
+    "grid_am_peak_baseline": {
+      "wall_s": {
+        "median": 1.0853127000154927,
+        "min": 1.0784317000070587,
+        "max": 1.1103510000393726
+      },
+      "build_s": 0.012827200000174344,
+      "events": 8375,
+      "events_per_s": 7716.670043463462,
+      "peak_rss_mb": 79.83984375,
+      "network_backend": "grid",
+      "requests": 1011,
+      "drivers": 150,
+      "metrics": {
+        "rider.completion_rate": 0.9460352422907489,
+        "rider.wait_mean": 4.545525805199848,
+        "driver.utilization": 0.5882184282059962,
+        "platform.trips": 859,
+        "platform.gmv": 55032300.0,
+        "ops.vehicle_km": 6040.99767730247,
+        "ops.empty_km": 1731.24767730247
+      },
+      "solver": "hungarian",
+      "cohorts": null,
+      "deterministic": true
+    },
+    "grid_am_peak_baseline_nots": {
+      "wall_s": {
+        "median": 1.055677399970591,
+        "min": 1.0121083999983966,
+        "max": 1.1100391000509262
+      },
+      "build_s": 0.014255499991122633,
+      "events": 8375,
+      "events_per_s": 7933.294773794826,
+      "peak_rss_mb": 79.62109375,
+      "network_backend": "grid",
+      "requests": 1011,
+      "drivers": 150,
+      "metrics": {
+        "rider.completion_rate": 0.9460352422907489,
+        "rider.wait_mean": 4.545525805199848,
+        "driver.utilization": 0.5882184282059962,
+        "platform.trips": 859,
+        "platform.gmv": 55032300.0,
+        "ops.vehicle_km": 6040.99767730247,
+        "ops.empty_km": 1731.24767730247
+      },
+      "solver": "hungarian",
+      "cohorts": null,
+      "deterministic": true
+    },
+    "grid_am_peak_surge": {
+      "wall_s": {
+        "median": 1.0971713000326417,
+        "min": 1.041318500007037,
+        "max": 1.1225245000096038
+      },
+      "build_s": 0.012829800019972026,
+      "events": 8456,
+      "events_per_s": 7707.091864094902,
+      "peak_rss_mb": 79.625,
+      "network_backend": "grid",
+      "requests": 1011,
+      "drivers": 150,
+      "metrics": {
+        "rider.completion_rate": 0.9512471655328798,
+        "rider.wait_mean": 4.309537147397696,
+        "driver.utilization": 0.5788570745272612,
+        "platform.trips": 839,
+        "platform.gmv": 60075000.0,
+        "ops.vehicle_km": 5950.339763952823,
+        "ops.empty_km": 1712.5897639528232
+      },
+      "solver": "hungarian",
+      "cohorts": null,
+      "deterministic": true
+    },
+    "grid_pm_peak_x5": {
+      "wall_s": {
+        "median": 2.956165699986741,
+        "min": 2.93353500001831,
+        "max": 3.0569937999825925
+      },
+      "build_s": 0.06313079997198656,
+      "events": 26170,
+      "events_per_s": 8852.683731536896,
+      "peak_rss_mb": 104.10546875,
+      "network_backend": "grid",
+      "requests": 5438,
+      "drivers": 600,
+      "metrics": {
+        "rider.completion_rate": 0.9316998468606432,
+        "rider.wait_mean": 5.8081483913328915,
+        "driver.utilization": 0.736304647492981,
+        "platform.trips": 3042,
+        "platform.gmv": 360655000.0,
+        "ops.vehicle_km": 27651.78447921337,
+        "ops.empty_km": 5908.389637943528
+      },
+      "solver": "hungarian",
+      "cohorts": null,
+      "deterministic": true
+    },
+    "hanoi_am_peak_small": {
+      "wall_s": {
+        "median": 156.40665610000724,
+        "min": 151.21620730002178,
+        "max": 158.33529369998723
+      },
+      "build_s": 0.9119951999746263,
+      "events": 7493,
+      "events_per_s": 47.907168319032,
+      "peak_rss_mb": 195.3828125,
+      "network_backend": "python",
+      "requests": 1141,
+      "drivers": 300,
+      "metrics": {
+        "rider.completion_rate": 0.8676957001102535,
+        "rider.wait_mean": 6.531939665418608,
+        "driver.utilization": 0.6156246756845182,
+        "platform.trips": 787,
+        "platform.gmv": 61141600.0,
+        "ops.vehicle_km": 7230.597889286457,
+        "ops.empty_km": 2095.031349422243
+      },
+      "solver": "hungarian",
+      "cohorts": null,
+      "deterministic": true
+    },
+    "road_example_400": {
+      "wall_s": {
+        "median": 10.040450899978168,
+        "min": 9.633918399980757,
+        "max": 10.516237500007264
+      },
+      "build_s": 0.2846289000008255,
+      "events": 3894,
+      "events_per_s": 387.8311879408192,
+      "peak_rss_mb": 89.82421875,
+      "network_backend": "python",
+      "requests": 400,
+      "drivers": 25,
+      "metrics": {
+        "rider.completion_rate": 0.9921465968586387,
+        "rider.wait_mean": 0.7692294992926351,
+        "driver.utilization": 0.28620327166933335,
+        "platform.trips": 379,
+        "platform.gmv": 11432700.0,
+        "ops.vehicle_km": 1193.0226186501056,
+        "ops.empty_km": 561.0352615303887
+      },
+      "solver": "hungarian",
+      "cohorts": null,
+      "deterministic": true
+    }
+  },
+  "source_provenance": {
+    "variant": "pristine HEAD engine",
+    "commit": "57f1a531c0c040e3e3353d3ba112b3dcd48a2df3",
+    "harness": "same final bench.py Windows RSS/metric output only",
+    "data_root": "D:\\.AIIA\\Build Phase\\kami\\data"
+  }
+}

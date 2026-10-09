@@ -50,7 +50,8 @@ def create_app(db="kami.db", artifacts="runs", interval_s=0.25, history_size=256
     @app.get("/api/v1/health")
     def health():
         return {"status": "ok", "capabilities": {"stage": "A", "max_running": 1,
-                "live_metrics": True, "live_vehicle_snapshots": False, "ev": False, "pricing_v2": False}}
+                "live_metrics": True, "live_vehicle_snapshots": False, "ev": False, "pricing_v2": False,
+                "shared_ride_versions": [1]}}
 
     entities.register(app, supervisor, "/api/v1")
     runs.register(app, supervisor, "/api/v1")

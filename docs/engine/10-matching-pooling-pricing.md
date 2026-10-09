@@ -28,9 +28,10 @@ Engine gửi từng cặp qua `offer_trip`. Tài xế từ chối thì job quay 
 
 ## Pooling (`kami/pooling.py`)
 
-> **Phạm vi hiện tại (kami 0.2):** sản phẩm chỉ matching **1 tài xế – 1 khách**, chưa có ghép chuyến
-> (shared ride). Phần pooling ở đây là của kami 0.1, được giữ để tương thích (NFR-2) nhưng **tạm thời không
-> dùng** trong kịch bản, policy group, UI và benchmark của 0.2 — xem [requirements §5](../requirements.md#5-ngoài-phạm-vi-hiện-tại).
+> **Pooling legacy 0.1:** giữ để tương thích (NFR-2), không dùng làm cơ chế shared mới hoặc đưa lên API/UI 0.2;
+> xem [requirements §5](../requirements.md#5-ngoài-phạm-vi-hiện-tại). Shared V1 với Shared Only / Exclusive Only
+> đang ở [plan Sprint 12 Chờ duyệt](../implementation-plan/sprint-12-plan.md), **chưa hiện thực**.
+> Thuật toán/API bên dưới mô tả legacy, không mô tả semantics shared V1.
 
 
 Thuật toán là **insertion heuristic** giống FleetPy (`src/fleetctrl/pooling/immediate/insertion.py`), viết lại
@@ -74,3 +75,16 @@ platform_revenue = fare + surcharge − driver_payout          (surcharge âm = 
 
 Đổi qua `SimConfig(fare=FareModel(...))`. `fare` tính theo `direct_dist` và `direct_tt` lúc đặt, tức là giá trả
 trước (upfront). Policy có thể ghi đè trong `price()`.
+
+## Shared ride V1 (`kami/shared/`)
+
+Shared V1 dùng evaluator/dispatcher riêng, không dùng pooling, PoolAfterWait,
+pool_accept hoặc surcharge. Greedy shared-first thử bốn thứ tự; giới hạn điểm đón
+và điểm đến gần nhau, cutoff xe theo MatchingParams, cost và tie-break được công
+bố tại [Shared V1](23-shared-rides-v1.md). Đường cấm/no-route theo nhóm xe bị loại,
+kể cả khi router legacy trả ước lượng đường chim bay cho cặp không nối được.
+
+Giá tham chiếu đi riêng dùng FareModel (surge, minimum, làm tròn trước); Shared
+trả 70% giá đó, không áp minimum lần nữa. Báo giá trước booking, giữ sau ghép/hủy
+đối tác/traffic đổi. Payout chỉ cộng một lần tại DONE trên cước thực thu. Shared
+Only không chủ động đi riêng; mất đối tác sau pickup tiếp tục chở khách còn lại.

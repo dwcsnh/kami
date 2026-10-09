@@ -133,7 +133,7 @@ token → trang hiện hướng dẫn cấu hình thay vì lỗi trắng (panel 
 
 | Tham số | Ví dụ | Ý nghĩa |
 |---|---|---|
-| `replay` | `/fixtures/hanoi_center_demo` | Thư mục replay (mặc định fixture demo) |
+| `replay` | `/fixtures/shared_v1_walkthrough` | Thư mục replay (mặc định demo toàn bộ vòng đời Shared); `/fixtures/hanoi_center_demo` giữ demo 300 xe cũ |
 | `t` | `28800` | Thời điểm mô phỏng ban đầu (giây từ 0h) |
 | `view` | `105.8455,21.0245,16,55,-20` | `lon,lat,zoom[,pitch[,bearing]]` thay cho căn khung khu vực |
 | `mode` | `trajectories` | Chế độ quỹ đạo |
@@ -271,7 +271,7 @@ nghiêng 60° trên GPU tích hợp chỉ 48,8 / 29,0 fps (không đạt).
 - Chỉ phát lại từ file; chưa có chế độ live, lọc theo fleet/loại xe (Sprint 08/09).
 - Định dạng JSON đủ cho vài trăm xe; 8.000 xe toàn thành phố (Sprint 04) có thể cần định dạng nhị phân và tải theo
   khung thời gian.
-- Không có lớp khách đang chờ, trạm sạc, surge (Sprint 05/06/09); dark mode chưa làm.
+- Có lớp người đặt đang chờ theo Shared/Exclusive; chưa có trạm sạc, surge (Sprint 05/06/09), dark mode.
 - KPI thời gian đón/chờ là trung bình trong cửa sổ metric (60 s ở fixture) nên dao động; phút không có lượt đón hiện
   "—".
 
@@ -281,3 +281,49 @@ Visualizer demo mở ở / và /visualizer, dùng chung điều hướng/chỉ b
 Các query fixture của Sprint 03 giữ nguyên. Frontend từ Sprint 09 chạy bằng Next server (npm run build → npm start),
 không dùng serve out. Bản đồ fixture có nhãn demo; /visualizer?run=<id> xem trạng thái/metric đúng run, chưa có xe
 live hoặc replay qua API. Bộ đọc replay/renderer của Sprint 03 giữ nguyên để tích hợp tiếp Sprint 04.
+
+## Replay Shared V1
+
+Manifest v1 thêm block shared tùy chọn: pairs, riders, bốn stops, prediction và
+khoảng overlap actual. Loader vẫn đọc fixture legacy thiếu block. Bộ chọn cặp
+và bảng xe cho thấy hai khách, từng stop, số onboard tại t và trạng thái đi chung.
+Mở `/visualizer?replay=/fixtures/shared_v1_demo`; đây là replay engine thật với
+demand minh họa, không phải run live trong DB. Export từ thư mục CLI giữ metadata
+qua shared.json. Ảnh 1280/1440 và hướng dẫn tại [Shared V1](23-shared-rides-v1.md).
+
+### Lọc xe ghép và người đặt (2026-10-10)
+
+Trong **Trạng thái xe**, bật/tắt **Xe share** như các dòng Rảnh, Đi đón khách, Chở khách.
+Xe thuộc mục này trong khoảng `[created_t, closed_t)` của cặp, kể cả chặng đi đón và
+sau khi trả khách đầu tiên. Xe chỉ tính ở một dòng chú giải tại mỗi thời điểm; KPI/biểu đồ
+giữ các trạng thái vận hành của engine. Muốn chỉ theo dõi cặp ghép, tắt các dòng xe khác.
+Màu xanh đậm và vệt đường ghép được lọc độc lập trong cả Xe di chuyển và Quỹ đạo; đường
+được cắt tại mốc tạo/kết thúc cặp. Xe được chọn nhưng đang bị ẩn không vẽ halo/đường chọn.
+Replay thiếu metadata Shared hiển thị Xe share = 0 và liên kết sang demo.
+
+Phần **Người đặt đang chờ** có hai công tắc độc lập: **Đặt Shared (S)** và **Đặt Exclusive (E)**,
+mặc định tắt. Marker vòng tròn có chữ S/E tại điểm đón, xuất hiện từ lúc BOOKED, biến mất
+đúng lúc pickup/cancel. Người từ chối đặt không có marker; khách đã onboard không đứng
+lại ở điểm đón. Rê chuột xem mã khách và lựa chọn. Số bên cạnh công tắc là số đang chờ,
+kể cả khi lớp đang ẩn; tua ngược tính lại theo đồng hồ replay. Replay cũ chưa có service
+preference dùng nhóm Exclusive cho lượt BOOKED. Cung OD nhu cầu vẫn là lớp riêng.
+
+Cột điều khiển bên trái cuộn khi không đủ chiều cao để các công tắc/bộ chọn cặp không
+tràn khỏi màn hình. Kiểm chứng bằng `npm test`, `npm run typecheck`,
+`npm run test:shared-v1-e2e`; E2E kiểm cả data/glyph của lớp deck.gl đang vẽ và bàn phím.
+
+### Xem toàn bộ quy trình Shared
+
+Mặc định `/visualizer` mở `shared_v1_walkthrough`, một xe và hai khách trên mạng Hà Nội.
+Bảng cặp đặt trước chú giải: nhấn **Xem từ đầu · 10×** để bắt đầu trước booking đầu tiên,
+tự bật lớp khách Shared và chọn xe. Bộ chọn cặp cũng tua về trước booking, không nhảy
+thẳng tới lúc ghép. **Các mốc đặt, ghép, đón và trả** cho tua từng bước; dòng trạng thái
+nêu chờ ghép, đi đón từng người, hai người onboard, trả từng người và hoàn tất. Các điểm
+đón/trả cố định được ghi `Đón #id`, `Trả #id`; hậu tố `xong` chỉ xuất hiện sau mốc thực tế.
+
+Hai khách đặt 07:00:10/07:00:30; batch ghép 07:01:00. Xe đi từ vị trí khác tới đón #2
+07:02:25, đón #1 07:03:48, trả #2 07:07:34 rồi trả #1 07:09:30. Bốn điểm khác nhau,
+mọi đường xe chạy/mốc thời gian từ engine; không dựng chuyển động hay ETA bằng UI.
+Giả định minh họa khách chắc chắn đặt và không hủy để quy trình hoàn tất dễ quan sát.
+Sinh lại bằng `python examples/10_shared_ride_walkthrough.py`. Các fixture cũ và hợp đồng
+replay v1 vẫn giữ; số benchmark Sprint 03 ở trên thuộc demo 300 xe cũ.

@@ -207,3 +207,21 @@ không có viền/nền; tab chuyển chế độ cũng được bỏ viền bao
 Kiểm thử browser bổ sung: giữ phản hồi API để kiểm loading thực, reduced motion, vị trí trang
 khi mở modal, keyboard dropdown, Escape/focus, switch thu metric và modal/menu tại 375/768/1440.
 Kết quả lượt cải thiện này ghi tại plan Sprint 09 và file validation riêng.
+
+## Cấu hình và quan sát Shared V1
+
+Trong form kịch bản bật Shared ride V1, nhập hai trọng số Shared Only/Exclusive
+Only, hạn đón và extra ride bằng phút, bán kính bằng mét. Defaults là 10 phút,
+7,5 phút và 500 m; form đổi thành 600/450 giây khi lưu. Tắt/bật giữ cấu hình đã
+nhập. Cước Shared bằng 70% đi riêng; không có fallback trong V1.
+
+Kết quả có bảng hai cohort và planned/actual overlap, lấy metric từ run thật.
+Bản đồ demo riêng có bộ chọn cặp, hai khách và bốn stops; số onboard thay đổi
+0/1/2 theo timeline. Xem [Shared V1](23-shared-rides-v1.md),
+[ảnh form](img/shared-v1/form-1440.png), [kết quả](img/shared-v1/results-1440.png).
+
+Trong chú giải bản đồ bật **Xe share**, tắt các trạng thái xe khác để chỉ theo dõi
+cặp ghép. Hai mục **Đặt Shared (S)** và **Đặt Exclusive (E)** cho hiển thị độc lập
+người đặt đang chờ tại điểm đón; mặc định tắt và biến mất khi pickup/cancel.
+Replay cũ có Xe share = 0 và liên kết sang demo. Cột trái cuộn khi cần;
+xem [chi tiết bộ lọc](20-visualizer.md#lọc-xe-ghép-và-người-đặt-2026-10-10).

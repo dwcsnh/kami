@@ -32,6 +32,8 @@ class TripOffer:
     trip_dist: float       # metres
     dest_zone: Hashable = None
     pooled: bool = False
+    shared: bool = False
+    rider_ids: Tuple[int, ...] = ()
 
 
 @runtime_checkable

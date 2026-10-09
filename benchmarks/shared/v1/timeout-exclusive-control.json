@@ -1,0 +1,74 @@
+{
+  "name": "shared-v1-timeout-control",
+  "scenario": {
+    "name": "shared-bench",
+    "network": {
+      "kind": "grid",
+      "width_m": 2000,
+      "height_m": 2000,
+      "spacing_m": 100,
+      "speed_kmh": 25
+    },
+    "zones": {
+      "kind": "square",
+      "cell_m": 500
+    },
+    "traffic": {
+      "hour_profile": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "source": {
+      "kind": "synthetic",
+      "t_start": 25200,
+      "t_end": 26400,
+      "demand_per_hour": 240,
+      "warmup_s": 0,
+      "min_trip_m": 500
+    },
+    "n_drivers": 12,
+    "seed": 7
+  },
+  "behavior": {
+    "preset": "employed_drivers"
+  },
+  "sim_config": {
+    "timeseries_interval_s": 60,
+    "drain_s": 900,
+    "shared_ride": {
+      "enabled": false,
+      "preference_weights": {
+        "shared_only": 1,
+        "exclusive_only": 0
+      },
+      "max_pickup_wait_s": 30,
+      "candidate_radius_m": 100
+    }
+  },
+  "outputs": {
+    "event_log": "none"
+  }
+}

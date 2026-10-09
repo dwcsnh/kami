@@ -52,6 +52,7 @@ class ReplayInput:
     t_start: float
     t_end: float                                      # end of the run (sim.t)
     run: Dict[str, Any] = field(default_factory=dict)
+    shared: Optional[Dict[str, Any]] = None
 
 
 # ---------------------------------------------------------------------------- input from a run
@@ -77,8 +78,26 @@ def from_simulation(sim, run: Optional[Dict[str, Any]] = None) -> ReplayInput:
             type(net).__name__, "policy": getattr(sim.policy, "name", type(sim.policy).__name__),
             "crn_seed": getattr(sim.crn, "seed", None)}
     meta.update(run or {})
+    shared = shared_metadata(sim)
     return ReplayInput(rows, coords, list(sim.log.rows), list(ts.rows) if ts else [],
-                       ts.interval if ts else None, vehicles, riders, sim.scenario.t_start, sim.t, meta)
+                       ts.interval if ts else None, vehicles, riders, sim.scenario.t_start, sim.t, meta, shared)
+
+
+def shared_metadata(sim) -> Optional[Dict[str, Any]]:
+    """Optional final observations, also persisted for run-folder replay exports."""
+    shared = None
+    if sim.shared_enabled:
+        from kami.shared.metrics import pair_actual
+        shared = {"version": 1, "fare_factor": 0.7,
+                  "pairs": [dict(p, **pair_actual(p, sim.t)) for p in sim.shared_pairs.values()],
+                  "riders": [{"id": r.id, "service_preference": r.service_preference,
+                              "pair_history": list(r.pair_history), "fare": r.fare,
+                              "exclusive_reference_fare": r.exclusive_reference_fare,
+                              "booked_t": r.t_booked, "pickup_deadline": r.pickup_deadline,
+                              "pickup_t": r.t_pickup, "dropoff_t": r.t_dropoff,
+                              "cancel_t": r.t_cancel, "reason": r.cancellation_reason}
+                             for r in sorted(sim.riders.values(), key=lambda r: r.id)]}
+    return shared
 
 
 def _positions(net, nodes: Sequence[int], coords: str) -> List[Tuple[float, float]]:
@@ -255,6 +274,8 @@ def tables(inp: ReplayInput, params: SimplifyParams = SimplifyParams(),
                    "events": len(events["t"]), "metric_rows": len(metrics["t"])},
         "simplify": {"dist_m": params.dist_m, "dt_s": params.dt_s},
     }
+    if inp.shared is not None:
+        manifest["shared"] = inp.shared
     return {"manifest": manifest, "vehicles": vehicles, "trips": trips, "events": events, "metrics": metrics}
 
 

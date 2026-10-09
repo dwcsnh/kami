@@ -3,82 +3,81 @@
 | | |
 |---|---|
 | Ngày khảo sát | 2026-10-09 |
-| Trạng thái | Đề xuất nghiên cứu, chưa phải yêu cầu hoặc implementation plan được duyệt |
+| Trạng thái | Nghiên cứu lịch sử; V1 đã chuyển sang yêu cầu/sprint và plan Chờ duyệt ngày 2026-10-09 |
 | Mã nguồn khảo sát | HEAD `002c62c` và working tree hiện tại; có thay đổi Sprint 08/09 chưa commit |
-| Phạm vi nghiên cứu | Khách chủ động chọn đi ghép; ghép hai booking còn chờ; xuất phát một mình khi hết cửa sổ chờ; chèn booking mới vào xe đang đón/chở khách |
-| Ràng buộc hiện hành | [requirements §5](../requirements.md#5-ngoài-phạm-vi-hiện-tại) và [AGENTS.md](../../AGENTS.md) đang để shared ride ngoài phạm vi 0.2 |
+| Phạm vi nghiên cứu | Ba kiểu Shared Only / Shared Fallback Exclusive / Exclusive Only; ghép hai chuyến, mỗi chuyến một người; ghép dọc tuyến; nhận khách mới khi ONBOARD là bản cuối tùy chọn |
+| Phạm vi hiện hành | [requirements §3.8](../requirements.md#38-ghép-chuyến--sr): chỉ Shared Only / Exclusive Only; fallback tạm hoãn; pooling/policy legacy vẫn ngoài phạm vi tính năng mới |
 | Tài liệu liên quan | [Agent](../engine/04-agents.md), [matching/pooling](../engine/10-matching-pooling-pricing.md), [network/traffic](../engine/08-network-traffic.md), [giới hạn](../engine/17-limitations-roadmap.md) |
 
-Tài liệu này nghiên cứu hướng mở rộng theo yêu cầu người dùng. Chưa thay đổi requirements, phạm vi/AC sprint,
-plan Sprint 09 hoặc code engine. Các kiểu dữ liệu, tham số và tên module mới dưới đây đều là đề xuất.
+> **Chỉ đạo mới nhất ngày 2026-10-09:** chỉ triển khai **Shared Only** và **Exclusive Only**; người dùng nghiên cứu
+> thêm Shared Fallback Exclusive. Mọi đề xuất ba kiểu, timer 300 s và giá fallback bên dưới là lịch sử nghiên cứu,
+> không có hiệu lực triển khai hiện tại. Bản cập nhật ở [lộ trình phiên bản](shared-rides-versions.md),
+> [Sprint 12](../sprint/sprint-12-shared-rides-v1.md) và [plan V1 Chờ duyệt](../implementation-plan/sprint-12-plan.md).
+
+Tài liệu này giữ kết quả nghiên cứu ban đầu. Yêu cầu/sprint V1 đã được lập theo chỉ đạo mới nhất; chưa sửa code
+engine hoặc phạm vi/AC Sprint 09. Các kiểu dữ liệu, tham số và tên module bên dưới là đề xuất lịch sử,
+phải đối chiếu plan V1 và lộ trình phiên bản hiện hành trước khi dùng.
 
 ## 1. Kết luận và hướng đề xuất
 
-Có thể mô phỏng cả hai trường hợp bằng **một bộ lập lộ trình có danh sách điểm đón/trả**.
-Booking mới được thử chèn vào phần lộ trình còn lại của xe; nếu không có xe thích hợp thì thử ghép hai booking
-còn chờ và gán cho một xe rảnh. Không có phương án ghép sau cửa sổ chờ thì cho phép điều xe phục vụ một mình.
+Hướng phát triển mới nhất được chia thành [bốn phiên bản để review](shared-rides-versions.md):
+V1 ghép hai khách WAITING; V2 ghép dọc hành trình; V3 nhận khách mới khi xe đang tới đón;
+V4 nhận khách mới khi ONBOARD, là bản cuối tùy chọn và mặc định tắt.
 
-Nên bắt đầu với:
+Các xác nhận mới của người dùng thay thế giả định cũ trong nghiên cứu:
 
-- Ô tô; chỉ ghép **hai chuyến**, mỗi chuyến được coi là **một người** theo xác nhận của người dùng ngày 2026-10-09. Chưa mô hình hóa nhóm nhiều người trong một chuyến.
-- Khách chọn sản phẩm đi ghép ngay lúc đặt; khách chọn đi riêng không được đưa vào tìm kiếm.
-- Điểm đến gần nhau là bộ lọc cấu hình được, ví dụ 500 m; mọi phương án vẫn phải qua kiểm tra tuyến đường.
-- Đón/trả tại điểm riêng của từng booking. Đi bộ tới điểm chung là một biến thể khác, chưa cần ở bản đầu.
-- Cửa sổ chờ ghép hữu hạn; sau đó xe có thể xuất phát với một booking nhưng vẫn nhận thêm khách đã chọn đi ghép.
-- Dùng thuật toán **chèn điểm đón/trả có kiểm tra ràng buộc** làm bản nền; so sánh với tối ưu batch sau khi có số liệu.
+- Ba kiểu: **Shared Only**, **Shared Fallback Exclusive**, **Exclusive Only**.
+- Chỉ ghép hai chuyến, mỗi chuyến coi là một người; đón/trả tại địa chỉ riêng.
+- Shared Fallback Exclusive hết cửa sổ tìm ghép thì đổi thành Exclusive và **khóa ghép**, cả trước và sau pickup.
+- Điểm đến B có thể nằm gần một đoạn hành trình A; không bắt buộc gần điểm cuối A.
+- Nhận B mới sau khi A đã ONBOARD phát triển cuối cùng, optional.
+- Shared Only chỉ tìm ghép; quá hạn thì coi như khách hủy chuyến, đã được người dùng xác nhận.
+- Mặc định demo do người dùng chốt: tìm ghép trước fallback 300 s; tổng chờ đón 600 s;
+  tăng thời gian trên xe tối đa 450 s mỗi khách. Admin chỉnh được khi tạo kịch bản.
 
-Thứ tự làm hợp lý: ghép trước khi lên xe → xử lý chuyển sang phục vụ một mình → ghép trên đường →
-đo hiệu năng và chất lượng → cân nhắc tối ưu batch. Đây là các giai đoạn đề xuất, chưa tự gán vào sprint hiện có.
+Thuật toán nền vẫn là thử chèn điểm đón/trả, tính tuyến thật và kiểm tra giới hạn cho từng khách.
+Hướng phiên bản và giá còn để review; semantics Shared Only và quyền chọn mặc định thời gian đã được xác nhận.
+Chưa tự gán sprint hoặc duyệt implement.
 
 ## 2. Làm rõ sản phẩm để mô phỏng đúng
 
-### 2.1. “Đi một mình” sau timeout vẫn có thể là sản phẩm đi ghép
+### 2.1. Ba kiểu lựa chọn và fallback sang Exclusive
 
-Cần tách ba thuộc tính:
+| Kiểu lựa chọn | Tìm ghép | Hết cửa sổ mà chưa có cặp |
+|---|---|---|
+| Shared Only | Có | Tiếp tục tìm trong hạn đón, quá hạn khách hủy (CANCELLED), không tự chuyển đi riêng |
+| Shared Fallback Exclusive | Có | Chuyển Exclusive, phục vụ riêng và không nhận ghép nữa |
+| Exclusive Only | Không | Chờ điều xe riêng theo hạn thông thường |
 
-| Thuộc tính | Ví dụ |
-|---|---|
-| Sản phẩm/đồng ý của khách | `exclusive` hoặc `shared` |
-| Trạng thái phục vụ | WAITING, MATCHED, ONBOARD, DONE… |
-| Thực tế đã đi chung chưa | Có khoảng thời gian trên xe chồng lấn với booking khác hay chưa |
+Tách `service_preference` ban đầu, `effective_service_mode` đang áp dụng, lifecycle và kết quả overlap thực tế.
+Không ghi đè lựa chọn ban đầu khi fallback; không dùng `pooled=True` thay cho đồng ý của khách.
 
-Nếu A chọn shared, chờ hết cửa sổ và được xe đón một mình, A vẫn có thể đồng ý cho B lên sau.
-Đó là **booking đi ghép đang được phục vụ một mình**, chưa phải chuyển sang dịch vụ độc quyền.
-Nếu thực sự chuyển A sang exclusive thì không được chèn B nữa.
-
-`pooled=True` hiện tại không đủ biểu diễn ba ý này. Cũng không nên dùng `pool_willingness` làm thay thế
-cho lựa chọn sản phẩm: mức sẵn lòng và sự đồng ý ở một booking là hai thông tin khác nhau.
-
-Đề xuất mặc định nghiên cứu: đồng ý đi ghép có hiệu lực suốt booking, trong giới hạn đã báo trước;
-không hỏi lại và rút ngẫu nhiên lại ở mỗi lần thử một đối tác. Nếu cần mô phỏng khách từ chối đề xuất cụ thể,
-đó phải là một điểm quyết định riêng có điều kiện và khóa CRN ổn định.
+Theo lựa chọn mới, không dùng hành vi cũ “xuất phát một mình sau timeout nhưng vẫn cho ghép”.
+Nếu sau này muốn hành vi đó phải định nghĩa thêm rõ; không ngầm gắn vào một trong ba kiểu hiện tại.
+Một cặp đã nhận có thể mất đối tác do hủy: tiếp tục chở người đã onboard an toàn, ghi ngoại lệ và actual overlap;
+đó không phải quy tắc dispatch riêng có chủ đích của Shared Only.
 
 ### 2.2. Ba đồng hồ khác nhau
 
 | Đồng hồ | Mục đích | Hành vi khi hết hạn |
 |---|---|---|
-| Cửa sổ chờ tìm bạn ghép `pool_hold_s` | Chủ động chờ thêm để tăng cơ hội ghép | Bắt đầu cho phép dispatch một booking |
-| Hạn đón `max_pickup_wait_s` | Giới hạn tổng thời gian từ đặt tới được đón | Không nhận phương án dự kiến đón quá hạn |
-| Hạn đến nơi/độ vòng | Bảo vệ khách đã được nhận và khách trên xe | Không chèn thêm nếu làm vi phạm cam kết |
+| Cửa sổ tìm ghép `pool_search_window_s` | Thời gian tìm cặp trước fallback | Shared Fallback Exclusive đổi Exclusive; Shared Only tìm tiếp tới hạn đón |
+| Hạn đón `max_pickup_wait_s` | Tổng thời gian từ đặt tới đón | Không nhận phương án dự kiến đón quá hạn; tới hạn chưa pickup thì khách hủy, không hủy ONBOARD |
+| Hạn đến nơi/độ vòng | Bảo vệ từng khách | Không ghép nếu dự đoán vượt giới hạn |
 
-Hết cửa sổ ghép không đảm bảo có xe rảnh ngay. A có thể phải tiếp tục chờ xe hoặc hủy theo behavior.
-Không đặt lại đồng hồ chờ khi ghép, đổi xe hoặc fallback. Cửa sổ chờ phải nhỏ hơn hạn đón và để lại thời gian
-cho xe tới đón.
+Fallback không bảo đảm có xe ngay. Giữ thời gian đã chờ và deadline khi đổi chế độ, ghép hoặc đổi plan.
+Các mốc cần được cấu hình riêng; “x phút” tăng thời gian trên xe không phải tổng thời gian chờ và di chuyển.
+Chi tiết các tham số và quyết định cần review ở [đề xuất phiên bản §2](shared-rides-versions.md#2-các-giới-hạn-áp-dụng-từ-v1).
 
-### 2.3. Điểm đến gần nhau không đồng nghĩa với một điểm trả
+### 2.3. Điểm trả ở dọc hành trình, không cần gần điểm cuối
 
-A và B có điểm đến cách nhau 300 m có thể được trả ở hai địa chỉ khác nhau.
-Một con sông, đường một chiều hoặc lối vào khu đô thị có thể làm quãng đường lái giữa hai điểm lớn hơn nhiều.
+Tìm tuyến A đi gần điểm đến B, rồi xét điểm đón B và tuyến đón/trả thực tế.
+D_B có thể ở giữa hành trình A, cách D_A nhiều km nhưng vẫn ghép tốt.
+V1 tạm dùng lọc hai điểm cuối gần nhau để dễ kiểm chứng; V2 mở rộng dọc tuyến theo mục tiêu đầy đủ.
 
-Có hai biến thể đáng so sánh:
-
-- **Nhóm điểm đến gần nhau:** chỉ ghép nếu khoảng cách điểm đến nằm trong ngưỡng; sát với ý tưởng ban đầu.
-- **Tương thích lộ trình:** cho phép điểm đến xa nhau nếu B ở dọc đường A và giới hạn chất lượng vẫn đạt.
-
-Bản đầu có thể dùng biến thể thứ nhất, đồng thời giữ bán kính thành tham số.
-Ngưỡng điểm đến không phải điều kiện toán học bắt buộc của ghép chuyến; ngưỡng nhỏ sẽ bỏ lỡ một số chuyến tiện đường.
-Không bắt khách đi bộ chỉ vì hai điểm trả gần nhau. Muốn có điểm đón/trả chung cần thêm mạng đi bộ,
-thời điểm khách sẵn sàng ở điểm đón và giới hạn quãng đường đi bộ.
+Bán kính tới tuyến chỉ là bước tìm ứng viên. Đường một chiều, sông và lối vào có thể khiến khoảng cách
+lái thực tế lớn dù hai điểm gần về hình học. Giữ các phương án đi vòng ít và đo tác động của việc cắt ứng viên.
+Đón/trả tại địa chỉ riêng; chưa cần điểm đi bộ chung.
 
 ## 3. Hiện trạng trong kami
 
@@ -170,31 +169,26 @@ Nếu tham khảo số liệu Alonso-Mora, cần dùng cả bản đính chính 
 
 ### 5.1. Lọc ứng viên
 
-Với booking B mới hoặc còn chờ:
+Với B mới hoặc còn chờ:
 
-1. B phải chọn shared; loại terminal request, xe không đúng sản phẩm/fleet, xe offline/đang sạc và xe không được nhận thêm.
-2. Tìm xe có một booking shared đang MATCHED hoặc ONBOARD trong vùng có khả năng đến đón B kịp.
-3. Tìm booking shared còn chờ có điểm đón/điểm đến tương thích, và xe rảnh có thể phục vụ.
-4. Lọc rẻ bằng index không gian/nhóm điểm đến; tính ETA trên mạng đường cho tập ứng viên còn lại.
-5. Giới hạn số ứng viên theo tham số, có ghi nhận số lần bị cắt để biết tác động lên chất lượng.
+1. B phải còn cho phép shared; loại khách terminal, xe sai sản phẩm/fleet, offline/đang sạc hoặc đã đủ hai chuyến.
+2. V1/V2 tìm A WAITING và xe rảnh; V3 thêm A MATCHED còn shared và chưa có đối tác.
+3. Chỉ V4 optional thêm A ONBOARD đủ điều kiện. A đã fallback Exclusive bị loại trong mọi phiên bản.
+4. Lọc rẻ theo không gian/tuyến, sau đó dùng ETA và đường thực tế.
+5. Giới hạn ứng viên bằng tham số ổn định, ghi số lần cắt để đo ảnh hưởng chất lượng.
 
-Bán kính điểm đón chỉ là một cách lọc; với xe đang chạy cần xét vị trí **hiện tại của xe**,
-không chỉ khoảng cách giữa origin ban đầu của A và B. Hai origin xa nhau vẫn có thể ghép khi xe đã tới gần B.
-
-Bộ lọc theo hướng/điểm đến có thể bỏ lỡ phương án tốt. Phân biệt bộ lọc là định nghĩa sản phẩm
-(ví dụ bắt buộc điểm đến gần) với heuristic cắt giảm tìm kiếm. Nếu dùng khoảng cách chim bay làm
-lower bound ETA thì tốc độ tối đa phải là cận trên hợp lệ.
+V1/V2 chưa gán xe: xét cả B vào tuyến A và A vào tuyến B. V3/V4 dùng phần tuyến xe còn lại,
+không khoảng cách giữa origin ban đầu và không phần đường xe đã đi qua.
+Khách đã nằm trong cặp không được nhận chuyến thứ ba.
 
 ### 5.1.1. Tìm ứng viên theo hướng người dùng mô tả
 
-Khi B đặt chuyến, tìm các chuyến shared A có điểm đến gần điểm đến B, chưa ghép với chuyến thứ hai.
-Sau đó xét **phần lộ trình xe còn phải đi**, từ vị trí hiện tại: điểm đón B có gần phần đường này không,
-hoặc xe phải vòng thêm bao nhiêu để tới đón B. Không xét phần đường xe đã đi qua như cơ hội đón còn lại.
+Quét bán kính quanh destination B để tìm hành trình A đi gần đó; destination B có thể ở giữa tuyến A.
+Sau đó xét origin B và khả năng tới đón. Với xe đã gán, chỉ tìm trên phần tuyến còn lại từ vị trí xe hiện tại.
 
-Khoảng cách tới tuyến giúp xếp hạng/lọc rẻ, còn quyết định cuối cùng dựa trên thử chèn pickup/dropoff trên mạng đường.
-B ở gần đường chưa chắc đón được nhanh: có thể nằm phía đối diện đường một chiều hoặc xe đã đi qua lối vào.
-Ngược lại, B hơi xa tuyến vẫn có thể ghép nếu quãng đường vòng thêm nhỏ và đáp ứng ràng buộc.
-Không bắt buộc B nằm sát đường cũ; bộ lọc phải đủ rộng để giữ các phương án đi vòng còn chấp nhận được.
+Khoảng cách tới tuyến giúp lọc/xếp hạng; quyết định cuối cùng phải thử pickup/dropoff trên mạng đường.
+B gần tuyến chưa chắc đón được nhanh; B hơi xa vẫn có thể ghép nếu đi vòng ít và đạt ràng buộc.
+Không bắt buộc B nằm trên đúng đường cũ.
 
 Với mỗi ứng viên, ghi riêng:
 
@@ -204,10 +198,9 @@ added_vehicle_time = remaining_plan_time_new - remaining_plan_time_existing
 extra_ride_B = predicted_in_vehicle_B - direct_service_time_B
 ```
 
-Hai plan để tính chênh lệch A/xe dùng cùng vị trí hiện tại và snapshot traffic. Kiểm tra thêm thời gian B chờ được đón
-và độ vòng tích lũy của A so với cam kết ban đầu; chỉ xét chênh lệch lần chèn mới sẽ cho phép trễ cộng dồn.
-Chọn phương án tốt nhất trong các ứng viên đạt giới hạn, cập nhật tuyến từ vị trí xe hiện tại.
-Không có ứng viên đạt thì quay về ghép với khách còn chờ hoặc phục vụ B một mình theo timeout của B.
+Hai plan dùng cùng vị trí hiện tại và snapshot traffic. Kiểm tra cả thời gian B chờ và độ vòng A
+so với cam kết ban đầu, tránh đặt lại giới hạn sau từng lần chèn.
+Không có phương án đạt thì tiếp tục tìm trong thời hạn; chỉ kiểu fallback được chuyển Exclusive.
 
 ### 5.2. Hai booking chưa lên xe
 
@@ -232,7 +225,7 @@ A đặt trước được bảo vệ bằng deadline và trọng số chờ.
 Nếu A đã MATCHED nhưng chưa lên xe, vẫn có thể thử thứ tự điểm đón mới nếu cam kết A còn đạt.
 Bản đầu nên giữ nguyên xe đã gán, tránh thêm bài toán chuyển A sang tài xế khác.
 
-### 5.3. A đã ONBOARD, B đặt sau
+### 5.3. A đã ONBOARD, B đặt sau — chỉ thuộc V4 tùy chọn
 
 Với A đã ở trên xe và chưa có booking thứ hai, có hai thứ tự ghép thực sự:
 
@@ -249,7 +242,7 @@ thời gian phục vụ tại stop chưa xong và các deadline đã cam kết.
 Sau mỗi lần chèn không được đặt lại hạn trễ của A.
 
 Nếu cả hai thứ tự không đạt, không chèn B vào xe A. B tiếp tục tìm bạn ghép/xe khác;
-hết cửa sổ chờ riêng của B thì được xét phục vụ một mình.
+hết cửa sổ tìm ghép riêng của B thì xử lý theo kiểu lựa chọn: fallback chuyển Exclusive, Shared Only tiếp tục tìm trong hạn đón, quá hạn khách hủy theo quy tắc đã xác nhận.
 
 ### 5.4. Kiểm tra tính khả thi
 
@@ -268,7 +261,7 @@ Một bộ kiểm tra dùng chung cho cả ba trạng thái: chưa gán xe, đan
 | Tuyến hợp lệ | Đường có hướng, hạn chế theo nhóm xe; reject đoạn không tới được |
 | Chất lượng ghép | Có chồng lấn onboard; cân nhắc ngưỡng chồng lấn tối thiểu, tránh ghép chỉ vài giây |
 
-Đề xuất thử nghiệm giới hạn độ vòng theo **đồng thời hai cận**:
+Một biến thể nâng cao để thử nghiệm là giới hạn độ vòng theo **đồng thời hai cận**. V1 đề xuất bắt đầu bằng cận tuyệt đối x phút; chưa bắt buộc cận tương đối:
 
 ```text
 allowed_extra_i = min(detour_abs_s, detour_ratio * direct_drive_tt_i)
@@ -338,43 +331,36 @@ một benchmark biết trước riêng, phải ghi nhãn rõ.
 
 ```mermaid
 flowchart TD
-    A["Booking chọn shared"] --> B["Tìm chèn vào xe shared đang đón/chở"]
-    B --> C{"Có phương án đạt ràng buộc?"}
-    C -- Có --> D["Gán booking, cập nhật plan của xe"]
-    C -- Không --> E["Tìm cặp còn chờ và xe rảnh"]
-    E --> F{"Có phương án đạt ràng buộc?"}
-    F -- Có --> D
-    F -- Không --> G{"Hết cửa sổ chờ ghép?"}
-    G -- Chưa --> H["Tiếp tục chờ, xét lại theo batch"]
-    H --> B
-    G -- Rồi --> I["Cho phép dispatch một booking"]
-    I --> J["Xe đi một mình, booking vẫn cho phép shared"]
-    J --> K["Có booking mới đến"]
-    K --> B
+    A["Request"] --> B{"Kiểu lựa chọn"}
+    B -- Exclusive Only --> C["Điều xe riêng, khóa ghép"]
+    B -- Hai kiểu shared --> D["Tìm cặp và tuyến khả thi"]
+    D --> E{"Có phương án?"}
+    E -- Có --> F["Commit cặp, phục vụ theo plan"]
+    E -- Không --> G{"Hết cửa sổ tìm ghép?"}
+    G -- Chưa --> H["Tiếp tục tìm trong hạn đón"]
+    H --> D
+    G -- Rồi --> I{"Shared Fallback Exclusive?"}
+    I -- Có --> C
+    I -- Không --> J{"Còn trong hạn đón?"}
+    J -- Có --> H
+    J -- Không --> K["Khách hủy do không có cặp (CANCELLED)"]
 ```
 
-Sơ đồ mô tả một thứ tự xử lý dễ làm bản nền. Khi đã sinh được nhiều loại ứng viên, có thể so điểm số
-ghép vào xe bận, ghép cặp chờ và đi một mình trong cùng batch, thay vì luôn ưu tiên xe bận.
+Nhánh Shared Only đã được người dùng xác nhận: quá hạn thì khách hủy, không phải outcome unserved riêng.
+V1/V2 chỉ xét WAITING; V3 thêm MATCHED trước pickup với cơ chế gán xe sớm cần review.
+Nhận B mới khi ONBOARD chỉ V4 optional. Xe chở A rồi đón B đã có trong plan trước đó vẫn thuộc V1–V3.
 
-Mỗi batch:
+Mỗi batch chụp trạng thái sau environment/arrivals/cancel/demand, sinh phương án từ thông tin đã xuất hiện,
+chọn không dùng trùng khách/xe, kiểm tra lại version/mode/deadline rồi engine commit nguyên tử.
+Ghi log, vô hiệu event đến stop cũ, tạo event mới và cập nhật cancellation/index.
 
-1. Chụp trạng thái sau các event môi trường, đến stop, hủy và demand ở thời điểm hiện tại.
-2. Sinh phương án cho booking shared còn chờ, chỉ dùng thông tin đã xuất hiện.
-3. Chọn phương án không dùng trùng booking/xe và vẫn giữ khách đã nhận.
-4. Kiểm tra lại version, trạng thái, pin/tải và deadline trước khi commit.
-5. Engine cập nhật toàn bộ liên kết rider/job/driver và plan cùng một giao dịch logic.
-6. Ghi sự kiện, hủy hiệu lực event đến stop cũ, tạo event mới, cập nhật index và cancellation hazard.
+Timer fallback có token/version và chỉ đổi chế độ một lần nếu chưa có cặp hợp lệ.
+Giữ `service_preference` và `booked_t`, đổi `effective_service_mode` sang Exclusive; không tạo request thứ hai.
+Không trì hoãn fallback thêm một batch ngoài cửa sổ đã cấu hình.
 
-Khi hết `pool_hold_s`, chỉ mở quyền dispatch một booking nếu chưa gán; không tạo job thứ hai,
-không đổi sản phẩm và không làm mất thời gian đã chờ. Dùng timer có token/version;
-timer đã cũ trở thành no-op. Không trì hoãn fallback thêm một batch dài ngoài cửa sổ đã cấu hình.
-
-Không ép xe đứng chờ tại điểm đón sau khi A đã lên chỉ để tìm B trong bản đầu.
-Chỉ đổi tuyến nếu có booking B cụ thể và phương án được chấp nhận.
-
-Thứ tự cùng timestamp phải được chốt và test, đặc biệt pickup/cancel/timeout/dispatch.
-Engine hiện có priority và sequence number; có thể mở rộng cơ chế đó, không dựa vào thứ tự duyệt set/dict.
-Candidate cache phải mang plan_version và phiên bản traffic, được đánh giá lại nếu trạng thái đổi.
+Thứ tự cùng timestamp pickup/cancel/timeout/dispatch phải được chốt và test.
+Candidate cache mang plan_version/traffic version và được xét lại khi trạng thái đổi.
+V3 nếu xe tới sớm phải tính thời gian chờ đối tác và hạn giữ xe thực sự; V4 không ép dừng tìm khách mới.
 
 ## 7. Thiết kế tích hợp đề xuất
 
@@ -382,7 +368,7 @@ Candidate cache phải mang plan_version và phiên bản traffic, được đá
 
 | Đối tượng | Dữ liệu cần bổ sung/chuẩn hóa |
 |---|---|
-| Request/Rider | service_mode, thời hạn giữ/chờ/đến nơi, direct baseline, lựa chọn cho ghép sau fallback; mỗi rider tương ứng một chuyến/một người |
+| Request/Rider | service_preference ban đầu, effective_service_mode hiện tại, thời hạn tìm ghép/chờ/đến nơi, direct baseline; mỗi rider tương ứng một chuyến/một người |
 | Quote | Giá đã báo, loại dịch vụ, giới hạn wait/detour và điều kiện fallback |
 | Driver/vehicle | Capacity hành khách, danh sách booking active, vị trí trên cạnh hoặc mốc reroute hợp lệ, service_until |
 | RoutePlan | Stops, thời điểm dự kiến, tải sau mỗi stop, cost/distance, cam kết, version và trạng thái đầu vào |
@@ -423,17 +409,16 @@ Giữ hành vi mặc định và API 0.1; tránh sửa semantics của các metr
 
 ### 7.4. Giá và hành vi
 
-Đề xuất nghiên cứu ban đầu: báo trước giá shared thấp hơn giá đi riêng tương ứng,
-giữ giá đã chấp nhận kể cả khi không tìm được đối tác. Cách này giúp tách thí nghiệm vận hành khỏi
-việc khách quyết định lại sau timeout. Nó là giả định cần người dùng chốt, chưa phải quy tắc đã được duyệt.
+Theo ba kiểu mới, fallback là chuyển dịch vụ sang Exclusive; không mặc định giữ giá shared sau timeout.
+Đề xuất để review: lưu hai mức giá shared/exclusive lúc đặt đối với Shared Fallback Exclusive,
+để giá đổi chế độ đã được báo rõ. Công thức giá và behavior chưa được chốt.
 
-Phương án khác là chỉ giảm khi thực sự ghép, hoặc báo lại giá khi chuyển exclusive.
-Hai phương án đó cần thêm sự kiện báo giá/chấp nhận, hành vi và sổ tiền; không chỉ cập nhật surcharge khi merge.
+Ngoại lệ đối tác hủy khi khách đã onboard giữ giá đã nhận; nếu cần quy tắc tiền khác phải review riêng.
+Không dùng cập nhật surcharge của code cũ làm thay thế cho lựa chọn sản phẩm và hợp đồng giá fallback.
 
-Khởi đầu có thể gán service_mode từ demand input hoặc tỉ lệ synthetic cố định qua CRN. Mỗi chuyến luôn được coi là một người; chưa cần trường party_size.
-So sánh thuật toán bằng cùng OD/thời điểm/opt-in/seed và khóa ngẫu nhiên theo booking.
-Khi đánh giá thị trường có phản ứng với giá/wait, bật behavior đặt/hủy và báo riêng hiệu ứng lựa chọn dịch vụ.
-Không dùng số lần duyệt ứng viên của solver làm khóa CRN.
+Gán `service_preference` từ input hoặc tỷ lệ ba kiểu qua CRN; mỗi chuyến một người.
+So thuật toán với cùng OD/thời điểm/kiểu lựa chọn/seed. Khóa ngẫu nhiên theo điểm quyết định ổn định,
+không theo số ứng viên solver đã duyệt. Behavior phản ứng giá/chờ báo riêng với đánh giá vận hành cố định.
 
 ## 8. Hiệu năng ở quy mô kami
 
@@ -474,9 +459,9 @@ gần nhất khi triển khai, giữ ngưỡng thoái lui 10% của AGENTS.md ho
 | Xe gần B hơn A | Có thể đón B trước; không mặc định theo người đặt trước |
 | Gần điểm đến nhưng cách sông/đường một chiều | Lọc thô không làm bỏ qua tính khả thi đường thật |
 | Khách exclusive ở gần | Không bao giờ ghép vào xe/chuyến exclusive |
-| Không có B trước timeout | A được quyền dispatch một mình; không đổi booked_t/service_mode |
+| Không có B trước timeout | Shared Fallback Exclusive chuyển Exclusive và khóa ghép; Shared Only quá hạn chuyển CANCELLED với lý do tìm ghép timeout; giữ booked_t và service_preference |
 | Timeout nhưng không có xe | Không giả định A đã được đón; cancellation vẫn chạy |
-| A ONBOARD, B đặt sau | Chọn đúng một trong hai thứ tự feasible, tính cả thời gian A đã ngồi |
+| A ONBOARD, B mới đặt sau | V1–V3 không nhận B; V4 optional xét eligibility rồi chọn một trong hai thứ tự feasible, tính cả thời gian A đã ngồi |
 | B làm A quá deadline | Reject insertion; A tiếp tục, B tìm phương án khác |
 | Xe đã có hai chuyến active hoặc không đủ hai chỗ hành khách | Không nhận chuyến thứ ba; không ghép trên xe không phù hợp |
 | B hủy sau ghép trước khi đón | B ra khỏi plan; A vẫn được phục vụ; không tính overlap giả |
@@ -498,22 +483,25 @@ Tách test cho evaluator thuần và test tích hợp event/state; test tổng h
 Cùng demand/seed, đo ít nhất:
 
 1. Không cho ghép.
-2. Chỉ ghép khi còn chờ/chưa lên xe.
-3. Trường hợp 2 + ghép vào xe đang chở.
-4. Trường hợp 3 + lựa chọn batch nâng cao nếu được triển khai.
+2. V1: ghép hai khách WAITING với bộ lọc điểm cuối gần nhau.
+3. V2: thêm điểm trả dọc hành trình.
+4. V3: thêm ghép khi xe đang tới đón, trước pickup.
+5. V4 optional: thêm request mới khi ONBOARD; đo riêng lợi ích tăng thêm.
+
+Tối ưu batch nâng cao là hướng nghiên cứu khác, chưa thuộc phạm vi bắt buộc V1–V4.
 
 Tách hai loại đánh giá: vận hành với demand/opt-in cố định và thị trường có booking/cancel phản ứng.
 Không lấy ít km do phục vụ ít khách hơn làm bằng chứng cải thiện.
 
-Tham số khảo sát ban đầu, **chưa phải mặc định đã chốt**:
+Dải tham số thí nghiệm để so sánh, độc lập với bộ mặc định demo **5/10/7,5 phút** đã chốt:
 
 | Tham số | Giá trị thử |
 |---|---|
 | Tỉ lệ booking chọn shared | 10%, 30%, 50% |
-| Cửa sổ chờ ghép | 0, 30, 60, 120 giây |
-| Hạn đón tổng | 180, 300, 600 giây; loại cấu hình không phù hợp cửa sổ giữ |
-| Bán kính điểm đến | 300, 500, 800 m; thêm đối chứng tương thích tuyến không giới hạn điểm đến |
-| Cận tương đối/ tuyệt đối độ vòng | 10/20/30% và 120/180/300 giây; dùng quy tắc min đã nêu |
+| Cửa sổ chờ ghép | 0, 30, 60, 120, 300 giây |
+| Hạn đón tổng | 180, 300, 600, 900 giây; loại cấu hình không phù hợp cửa sổ giữ |
+| Bán kính lọc ứng viên | 300, 500, 800 m; V1 quanh điểm đến, V2/V3 quanh tuyến; không bắt buộc hai điểm cuối gần nhau trong bản đầy đủ |
+| Cận độ vòng | Bản đầu dùng cận tuyệt đối, thử 120/180/300/450 giây. Cận tương đối 10/20/30% với quy tắc min là biến thể nâng cao, không áp dụng vào mặc định demo nếu chưa bật |
 | Số booking active tối đa | 2 |
 | Giảm giá shared | 10%, 20%, 30%; chỉ là giả định mô phỏng |
 | Loại demand | Thưa, cao điểm, tập trung cùng điểm đến, phân tán |
@@ -526,8 +514,8 @@ sau đó xác nhận tổ hợp tốt bằng nhiều seed và paired comparison/
 - **Opt-in share:** số booking chọn shared / số booking, theo cùng cohort.
 - **Actual share rate:** số booking hoàn tất có thời gian onboard chồng lấn > 0 / số shared booking hoàn tất;
   báo thêm tỷ lệ trên toàn bộ booking hoàn tất.
-- **Fallback rate:** booking shared được dispatch một mình vì hết cửa sổ / shared booking được nhận;
-  báo riêng nhóm sau fallback vẫn ghép được.
+- **Fallback rate:** số booking Shared Fallback Exclusive đã chuyển Exclusive / số booking chọn kiểu này;
+  sau chuyển Exclusive không được ghép thêm. Báo riêng khách Shared Only hủy do quá hạn không có cặp.
 - **Wait/detour:** p50/p90/p95 và tỷ lệ vi phạm, theo từng khách, không chỉ trung bình cả xe.
 - **Overlap:** giây/km đi chung; số đối tác mỗi booking; phân biệt chỉ vài giây chồng lấn.
 - **Occupancy:** passenger-seconds / thời gian hoạt động của xe; thêm passenger-km thực tế / vehicle-km.
@@ -542,46 +530,37 @@ thêm metric mới nếu định nghĩa khác.
 
 ## 10. Lộ trình đề xuất và các quyết định cần chốt
 
-### Giai đoạn A — nền sản phẩm và ghép trước pickup
+Chi tiết phạm vi, thuật toán, giới hạn và tiêu chí kiểm chứng từng bản ở
+[shared-rides-versions.md](shared-rides-versions.md).
 
-Chuẩn hóa service_mode, giả định mỗi chuyến một người, deadline, quote/fallback; tạo evaluator thuần; ghép hai booking
-dựa trên xe thật; loại dùng trùng booking; cancellation, metric actual overlap và đối chứng.
-Có thể làm engine/library trước UI, vẫn snapshot đầy đủ cấu hình.
-
-### Giai đoạn B — ghép trên đường
-
-Giải quyết vị trí giữa cạnh, dwell còn lại, cumulative detour và plan commitment; tìm xe đang chở;
-commit plan có version; audit event/log/trajectory. Chỉ mở sau khi A kiểm chứng tốt.
-Nếu chuyển sang B quá sớm, simulator có thể báo tiết kiệm từ lỗi di chuyển hoặc cam kết bị đặt lại.
-
-### Giai đoạn C — tích hợp và tối ưu
-
-Form shared trong kịch bản; backend schema/snapshot; bản đồ hiện nhiều booking/occupancy/stops;
-so sánh thuật toán, benchmark 100k request/8k xe và tương tác EV/pricing.
-Sau số liệu mới chọn có cần set packing/ILP, ngưỡng chờ thích nghi hay meeting points.
-
-Giả định người dùng đã chốt ngày 2026-10-09: **chỉ ghép hai chuyến, mỗi chuyến là một người**.
-Chưa cần mô hình số người thay đổi giữa các chuyến.
-
-Các quyết định sản phẩm còn lại chưa chốt:
-
-| Quyết định | Đề xuất để làm bản đầu |
+| Phiên bản | Phạm vi |
 |---|---|
-| Một đối tác duy nhất hay được ghép tiếp sau khi người kia xuống? | Một đối tác thực sự mỗi booking, sát ý tưởng ghép cặp |
-| Điểm đến bắt buộc gần nhau? | Có ngưỡng 500 m cấu hình được; so với biến thể tương thích tuyến |
-| Khách có phải đi bộ? | Không, mỗi booking có điểm đón/trả riêng |
-| Fallback có đổi sang exclusive? | Không; shared còn hiệu lực khi đi một mình |
-| Chờ và vòng tối đa? | Thử hold 60 s, wait tổng 300 s, độ vòng min(20%,180 s), rồi đo |
-| Giá nếu không ghép được? | Giữ giá shared đã báo; tính chi phí trợ giá rõ |
-| Cam kết là hard/soft? | Hard ở bước nhận thêm; báo riêng vi phạm do giao thông thực tế |
-| Ghép phải tiết kiệm km hay ưu tiên đáp ứng? | Báo cả hai; chọn mục tiêu trước khi hiệu chỉnh score |
+| V1 | Ba kiểu khách; ghép cặp WAITING với xe rảnh; timeout/fallback và hủy đúng |
+| V2 | Ghép dọc hành trình, điểm trả B không cần gần điểm cuối A |
+| V3 | Thêm khách mới trước pickup khi A MATCHED; gán xe sớm/giữ xe cần review |
+| V4 | Thêm khách mới khi ONBOARD, bản cuối optional, mặc định tắt |
 
-Để bắt đầu implement, cần người dùng chốt phạm vi mở lại shared ride; cập nhật requirements §5,
-bối cảnh AGENTS.md và thêm yêu cầu riêng; xác định sprint/phụ thuộc và lập implementation plan theo mẫu.
-Không suy ra duyệt triển khai từ yêu cầu nghiên cứu này. Không đưa phần này ngầm vào plan Sprint 09 đã duyệt.
+Các xác nhận của người dùng: ba kiểu lựa chọn; fallback Exclusive khóa ghép; hai chuyến/một người mỗi chuyến;
+điểm trả có thể ở dọc tuyến; ONBOARD làm cuối tùy chọn.
+
+Đã chốt Shared Only chỉ tìm ghép, quá hạn coi như khách hủy. Mặc định demo được người dùng chốt:
+300/600/450 giây cho tìm ghép trước fallback/tổng chờ đón/tăng thời gian trên xe mỗi khách; admin chỉnh được.
+Cần review còn lại: giá fallback, V1 tạm giới hạn gần điểm cuối, V3 gán xe trước khi tìm cặp và số đối tác mỗi chuyến.
+
+Chi tiết deadline, lý do hủy và cấu hình admin ở [đề xuất phiên bản §2](shared-rides-versions.md#2-các-giới-hạn-áp-dụng-từ-v1).
+
+Chưa đổi requirements/AGENTS/phạm vi sprint. Sau khi người dùng chọn bắt đầu một bản,
+cập nhật phạm vi khi được yêu cầu, xác định sprint/phụ thuộc và lập plan theo mẫu để duyệt.
+Không đưa ngầm vào Sprint 09 hoặc coi review hướng phiên bản là duyệt code.
 
 ## 11. Lịch sử bổ sung nghiên cứu
 
 - 2026-10-09: giải thích WAITING/MATCHED/ONBOARD và phân biệt hạn chế của API hiện tại với khả năng lập lại lộ trình khi xe đang chạy.
 - 2026-10-09: bổ sung luồng tìm ứng viên theo điểm đến, phần tuyến còn lại và thời gian tăng thêm khi đón B.
 - 2026-10-09: ghi nhận xác nhận của người dùng: chỉ ghép hai chuyến, mỗi chuyến coi là một người; bỏ yêu cầu mô hình party size biến đổi khỏi đề xuất bản đầu. Không đổi code, requirements hay sprint.
+
+- 2026-10-09: cập nhật ba kiểu khách, fallback Exclusive khóa ghép, tìm điểm trả dọc tuyến; chia V1–V3 chính và V4 ONBOARD optional. Ở bản nháp này Shared Only còn chờ review; quyết định đã được bổ sung ở dòng lịch sử kế tiếp.
+
+- 2026-10-09: Shared Only được chốt chuyển CANCELLED khi quá hạn không ghép được. Chọn mặc định tìm ghép trước fallback 60 s, tổng chờ đón 300 s, tăng thời gian trên xe 180 s mỗi khách theo ủy quyền; các tham số chỉnh qua kịch bản.
+
+- 2026-10-09: bộ mặc định demo mới nhất do người dùng chốt là 300/600/450 giây (5/10/7,5 phút), thay bộ ban đầu 60/300/180. Giới hạn tăng thêm áp dụng riêng mỗi khách, tính cả thời gian phục vụ khách đi cùng; admin sửa theo kịch bản.

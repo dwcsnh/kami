@@ -57,3 +57,12 @@ Phần **ngoại sinh** (dòng request, thuộc tính cá nhân, ca làm, sự c
 
 > CRN không loại được mọi nhiễu. Một khi policy đổi một phép gán, các phép gán sau có thể khác theo dây chuyền
 > (hiệu ứng cánh bướm của matching). CRN giữ cho phần nhiễu còn lại ở mức nhỏ nhất có thể.
+
+## Stream Shared V1
+
+Preference thiếu được build sau demand bằng
+`CRN(scenario.seed).u("service_preference", request_id)`; attrs riêng có ưu tiên.
+Stream này không dùng crn_seed của quyết định trong run, không làm đổi draws/lịch
+demand cũ. Offer tài xế dùng `shared_driver_accept` với driver_id, rider_ids đã
+sort và số offer của chính tuple đó. Tái chờ không rút lại hazard budget của phase;
+phần đã tích lũy được giữ. Xem [Shared V1](23-shared-rides-v1.md).

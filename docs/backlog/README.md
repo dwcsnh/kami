@@ -10,6 +10,7 @@ phần chưa thể làm (đợi module/sprint khác), phần đang dùng mock/d�
 | 01 | [sprint-01-backlog.md](sprint-01-backlog.md) | 7 |
 | 02 | [sprint-02-backlog.md](sprint-02-backlog.md) | 10 |
 | 03 | [sprint-03-backlog.md](sprint-03-backlog.md) | 10 |
+| 12 | [sprint-12-backlog.md](sprint-12-backlog.md) | 6 |
 
 ## Quy ước
 

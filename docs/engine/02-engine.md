@@ -179,3 +179,12 @@ Quãng đường tính theo chặng: `dist_total`, và `dist_empty` cho các ch�
 - **Sự kiện mới:** thêm vào `EventType` và `EVENT_PRIORITY`, viết `_on_<tên>` trong `Simulation`.
 - **Thay matching hoặc giá:** viết policy (docs/engine/07), không cần sửa engine.
 - **Thay hành vi:** thay một slot trong `BehaviorSuite` (docs/engine/06), không cần sửa engine.
+
+## Shared ride V1 trong engine
+
+`SimConfig.shared_ride` mặc định tắt; bật bằng `SharedRideConfig(enabled=True, ...)`.
+Dispatch V1 xét cặp WAITING trước, sau đó gán Exclusive trên xe còn lại. State và
+kế toán do `Simulation`/`SharedLifecycle` cập nhật; evaluator chỉ trả phương án.
+Cặp chỉ commit sau khi tài xế nhận offer. Hủy/timeout dùng plan_version để loại
+arrival cũ; cleanup bảo toàn vị trí thật, km đã chạy và dwell chưa kết thúc.
+Nhánh tắt giữ assign/pooling/price của 0.1. Xem [Shared V1](23-shared-rides-v1.md).
