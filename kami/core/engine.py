@@ -27,6 +27,8 @@ from typing import Any, Dict, Hashable, Iterable, List, Optional, Sequence, Tupl
 from kami.behavior.protocols import Context, TripOffer
 from kami.behavior.registry import BehaviorSuite
 from kami.core.agents import (Driver, DriverState, Job, Leg, PoolOffer, Quote, Rider, RiderState, Stop)
+from kami.core.shared_lifecycle import SharedLifecycle
+from kami.shared.config import SharedRideConfig
 from kami.core.crn import CRN
 from kami.core.events import DEFAULT_PRIORITY, EVENT_PRIORITY, Event, EventType as E
 from kami.eventlog import EventLog
@@ -57,6 +59,7 @@ class SimConfig:
     retime_min_s: float = 60.0        # ... than this share, unless less than retime_min_s seconds remain
     fare: FareModel = field(default_factory=FareModel)
     pooling: PoolingParams = field(default_factory=PoolingParams)
+    shared_ride: SharedRideConfig = field(default_factory=SharedRideConfig)
 
 
 class BehaviorAPI:
@@ -91,7 +94,7 @@ class BehaviorAPI:
         return ok
 
 
-class Simulation:
+class Simulation(SharedLifecycle):
     def __init__(self, scenario: Scenario, policy: Optional[Policy] = None,
                  behavior: Optional[BehaviorSuite] = None, config: Optional[SimConfig] = None,
                  crn_seed: Optional[int] = None):
@@ -105,6 +108,14 @@ class Simulation:
         self.behavior = BehaviorAPI(self, behavior or BehaviorSuite())
         self.pooling = Pooling(self, self.config.pooling)
         self.fare_model = self.config.fare
+        self.shared_enabled = self.config.shared_ride.enabled
+        self.shared_pairs = {}
+        self.shared_offers = {}
+        self.shared_stats = dict(route_queries=0, candidate_pairs=0, candidate_plans=0, drivers_truncated=0)
+        self._preference_crn = CRN(scenario.seed)
+        if self.shared_enabled:
+            for req in scenario.requests:
+                self.config.shared_ride.preference(req.attrs, req.id, self._preference_crn)
         self.log = EventLog(self.config.record_events)
 
         self.t = scenario.t_start
@@ -392,20 +403,26 @@ class Simulation:
         spec = self._req_specs[request_id]
         self._pending_requests -= 1
         r = Rider(spec.id, self.t, spec.origin, spec.dest, dict(spec.attrs))
+        if self.shared_enabled:
+            r.service_preference = self.config.shared_ride.preference(r.attrs, r.id, self._preference_crn)
         r.zone, r.dest_zone = self.zones.zone_of(r.origin), self.zones.zone_of(r.dest)
         r.direct_tt, r.direct_dist = self.traffic.travel(r.origin, r.dest, self.t)
         self.riders[r.id] = r
         self._recent_requests.append((self.t, r.zone))
-        self.log.add(self.t, E.REQUEST_CREATED, r.id, None, origin=r.origin, dest=r.dest, zone=r.zone)
+        self.log.add(self.t, E.REQUEST_CREATED, r.id, None, origin=r.origin, dest=r.dest, zone=r.zone, **self._shared_info(r))
 
         eta = self._quote_eta(r.origin)
         surge = self.surge.get(r.zone, 1.0)
         quote = Quote(fare=self.fare_model.fare(r.direct_dist, r.direct_tt, surge), eta=eta, surge=surge)
         quote = self.policy.price(self, r, quote)
+        if self.shared_enabled:
+            from kami.shared.pricing import shared_quote
+            quote = shared_quote(quote, r.service_preference)
+            r.exclusive_reference_fare = quote.exclusive_reference_fare
         r.quote = quote
         p = self.behavior.suite.booking.p_book(r, quote, self.context(r.origin))
         self.log.add(self.t, E.OFFER_SHOWN, r.id, None, fare=quote.fare, eta=round(quote.eta, 1),
-                     surge=quote.surge, p=round(p, 4))
+                     surge=quote.surge, p=round(p, 4), **self._shared_info(r))
         if self.crn.u("book", r.id) >= p:
             r.state = RiderState.DECLINED
             r.version += 1
@@ -414,12 +431,15 @@ class Simulation:
         r.state = RiderState.WAITING
         r.version += 1
         r.t_booked = self.t
+        if self.shared_enabled:
+            r.pickup_deadline = self.t + self.config.shared_ride.max_pickup_wait_s
+            self._push(r.pickup_deadline, E.PICKUP_DEADLINE, rider_id=r.id, deadline=r.pickup_deadline)
         r.fare = quote.fare
         r.surcharge = quote.surcharge
         job = self._new_job([r.id])
         r.job_id = job.id
         self.open_jobs[job.id] = job
-        self.log.add(self.t, E.OFFER_ACCEPTED, r.id, None, job=job.id)
+        self.log.add(self.t, E.OFFER_ACCEPTED, r.id, None, job=job.id, **self._shared_info(r))
         self._arm_cancel(r, "waiting")
         self.policy.on_request(self, r)
 
@@ -439,7 +459,8 @@ class Simulation:
 
     # --- cancellation as a survival process -----------------------------------
     def _hazard_per_s(self, r: Rider, phase: str, tau: float, ctx: Context) -> float:
-        waited_min = (tau - (r.t_booked or tau)) / 60.0
+        booked = r.t_booked if self.shared_enabled and r.t_booked is not None else (r.t_booked or tau)
+        waited_min = (tau - booked) / 60.0
         if phase == "waiting":
             eta_shown = (r.quote.eta if r.quote else self.config.default_quote_eta) / 60.0
             model = self.behavior.suite.cancel_wait
@@ -468,6 +489,13 @@ class Simulation:
         Budget ~ Exp(1) drawn from CRN key ("cancel_<phase>", rider). This is the
         inverse-transform method for a survival model with time-varying hazard.
         """
+        if self.shared_enabled and r.hazard_phase != phase:
+            self._accrue(r)
+            if r.hazard_phase is not None:
+                r.hazard_history[r.hazard_phase] = (r.hazard_budget, r.hazard_acc)
+            if phase in r.hazard_history:
+                r.hazard_budget, r.hazard_acc = r.hazard_history[phase]
+                r.hazard_phase, r.hazard_t = phase, self.t
         if r.hazard_phase != phase:
             r.hazard_phase = phase
             r.hazard_acc = 0.0
@@ -499,6 +527,9 @@ class Simulation:
             return  # stale (lazy invalidation)
         if recheck:
             self._arm_cancel(r, r.hazard_phase)
+            return
+        if self.shared_enabled:
+            self._cancel_shared(r, "behavior")
             return
         phase = "waiting" if r.state == RiderState.WAITING else "matched"
         r.state = RiderState.CANCELLED
@@ -609,25 +640,32 @@ class Simulation:
         r = self.riders[stop.rider_id]
         service = 0.0
         if stop.kind == "pickup":
+            if self.shared_enabled and r.state == RiderState.MATCHED and self.t > r.pickup_deadline + 1e-9:
+                self._cancel_shared(r, "pickup_timeout")
+                return
             if r.state == RiderState.MATCHED:
                 r.state = RiderState.ONBOARD
                 r.version += 1
                 r.t_pickup = self.t
+                if self.shared_enabled:
+                    self._shared_pickup(r)
                 d.onboard.add(r.id)
                 self._set_driver_state(d, DriverState.ON_TRIP)
                 self.log.add(self.t, E.PICKUP, r.id, d.id, eta_error=round(self.t - (r.eta_promised or self.t), 1),
-                             wait=round(self.t - r.t_booked, 1))
+                             wait=round(self.t - r.t_booked, 1), **self._shared_info(r))
                 service = self.config.boarding_s
         else:
             if r.state == RiderState.ONBOARD:
                 r.state = RiderState.DONE
                 r.version += 1
                 r.t_dropoff = self.t
+                if self.shared_enabled:
+                    self._shared_dropoff(r)
                 d.onboard.discard(r.id)
                 d.trips += 1
                 d.earnings += self.fare_model.driver_payout(r.fare, r.surcharge)
                 self.log.add(self.t, E.DROPOFF, r.id, d.id, fare=r.fare, surcharge=r.surcharge,
-                             ivt=round(self.t - r.t_pickup, 1), pooled=r.pooled)
+                             ivt=round(self.t - r.t_pickup, 1), pooled=r.pooled, **self._shared_info(r))
                 self.policy.on_dropoff(self, r, d)
                 service = self.config.alighting_s
         if d.plan:
@@ -723,9 +761,13 @@ class Simulation:
         if self.open_jobs:
             idle = self.idle_drivers()
             if idle:
-                pairs = self.policy.on_dispatch(self, list(self.open_jobs.values()), idle)
-                for job, drv in pairs or ():
-                    self.offer_trip(drv, job)
+                if self.shared_enabled:
+                    from kami.shared.dispatch import dispatch
+                    dispatch(self, self.policy.matching)
+                else:
+                    pairs = self.policy.on_dispatch(self, list(self.open_jobs.values()), idle)
+                    for job, drv in pairs or ():
+                        self.offer_trip(drv, job)
         window = self.policy.batch_window or self.config.batch_window
         busy = self.open_jobs or self._pending_requests > 0 or self.t < self.scenario.t_end
         if busy and self.t + window <= self.t_stop:
@@ -756,9 +798,10 @@ class Simulation:
             if leg is None or self.t >= leg.t_arrive:
                 continue
             purpose, dest = leg.purpose, leg.dest
+            depart = max(self.t, leg.t_depart) if self.shared_enabled else self.t
             self._interrupt_leg(d)
             if purpose == "stop":
-                self._start_next_leg(d)
+                self._start_next_leg(d, depart_at=depart)
             else:
                 self._move_idle(d, dest, purpose)
         for r in waiting:

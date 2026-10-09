@@ -26,6 +26,21 @@ export interface Manifest {
   counts: { vehicles: number; segments: number; points: number; events: number; metric_rows: number };
   files: Record<"vehicles" | "trips" | "events" | "metrics", FileMeta>;
   simplify: { dist_m: number; dt_s: number };
+  shared?: { version: number; fare_factor: number; pairs: SharedPair[]; riders: SharedRider[] };
+}
+
+export interface SharedPair {
+  id: number; rider_ids: number[]; driver_id: number; created_t: number; closed_t: number | null;
+  reason: string | null; stops: { kind: string; rider_id: number; loc: number }[];
+  predicted_pickup: Record<string,number>; predicted_dropoff: Record<string,number>;
+  pickups: Record<string,number>; dropoffs: Record<string,number>;
+  predicted_overlap_s: number; actual_overlap_s: number; actual_shared: boolean;
+  overlap_start: number | null; overlap_end: number | null;
+}
+export interface SharedRider {
+  id: number; service_preference: string; pair_history: number[]; fare: number;
+  exclusive_reference_fare: number; booked_t: number | null; pickup_deadline: number | null;
+  pickup_t: number | null; dropoff_t: number | null; cancel_t: number | null; reason: string | null;
 }
 
 export interface VehicleRow {

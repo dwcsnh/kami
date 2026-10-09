@@ -141,7 +141,7 @@ export function LegendChip({ color, label, count, on, onToggle, emphasis }: {
 }) {
   return (
     <button type="button" className={s.chip} aria-pressed={on} onClick={onToggle}
-      title={on ? `Ẩn vệt “${label}”` : `Hiện vệt “${label}”`}>
+      title={on ? `Ẩn “${label}”` : `Hiện “${label}”`}>
       <span className={s.swatch}>
         <span className={s.swatchLine} style={{ background: color, height: emphasis ? 5 : 4 }} />
         <span className={s.swatchDot} style={{ background: color }} />

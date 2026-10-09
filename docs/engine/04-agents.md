@@ -65,3 +65,13 @@ OFFLINE ──online──▶ IDLE ──nhận cuốc──▶ EN_ROUTE ──�
 | 2. **Thuộc tính rút từ phân phối** (mặc định) | `ScenarioBuilder.rider_attrs` / `driver_attrs` |
 | 3. Tham số theo lịch sử từng người (ẩn danh) | Đưa vào `RequestSpec.attrs` / `DriverSpec.attrs` khi replay; model đọc `attrs` |
 | 4. Trí nhớ, học qua nhiều ngày | Chưa có (docs/engine/17). Có thể làm bằng cách chạy chuỗi kịch bản và cập nhật `attrs` giữa các ngày |
+
+## Trường bổ sung của Shared V1
+
+Rider có service_preference, effective_mode, pair_id/pair_history,
+pickup_deadline, cancellation_reason, exclusive_reference_fare,
+shared_direct_baseline_s/shared_predicted_extra_s và hazard_history theo phase.
+Job có pair_id, cặp vẫn dùng driver.plan gồm bốn Stop. Quote thêm metadata cước
+tham chiếu, preference và fare_factor; TripOffer thêm shared/rider_ids có default.
+Các field mới nằm sau field cũ, constructor của 0.1 tiếp tục chạy. Hai khách một
+người mỗi booking, tối đa hai trong một cặp. Xem [Shared V1](23-shared-rides-v1.md).

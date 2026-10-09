@@ -12,6 +12,7 @@ plan phải được người dùng **duyệt** trước khi bắt đầu viết
 | 04 | [sprint-04-plan.md](sprint-04-plan.md) | Chờ duyệt |
 | 08 | [sprint-08-plan.md](sprint-08-plan.md) | Đã duyệt (2026-10-08) |
 | 09 | [sprint-09-plan.md](sprint-09-plan.md) | Đã duyệt (2026-10-08) |
+| 12 | [sprint-12-plan.md](sprint-12-plan.md) | Đã thực hiện — shared V1 hai lựa chọn; cước Shared 70% |
 
 Trạng thái plan: `Nháp` → `Chờ duyệt` → `Đã duyệt` (ghi ngày và người duyệt) → `Đã thực hiện`. Plan đã duyệt mà cần
 đổi hướng đáng kể thì sửa plan, ghi vào mục "Lịch sử thay đổi" và xin duyệt lại phần thay đổi.

@@ -5,9 +5,9 @@
 giá, dispatch, điều xe…) vào môi trường mô phỏng, chạy **cặp baseline / treatment trên cùng kịch bản và cùng số
 ngẫu nhiên (CRN)**, rồi báo cáo **hiệu ứng nhân quả ± khoảng tin cậy 95%** kèm quy tắc quyết định viết trước.
 
-> **Phạm vi hiện tại (kami 0.2):** matching **1 tài xế – 1 khách**, chưa có ghép chuyến. Các ví dụ pooling bên dưới
-> (`PoolAfterWait`, `02_pool_after_wait.py`) là của kami 0.1, vẫn chạy được nhưng tạm thời không dùng trong 0.2 — xem
-> [docs/requirements.md §5](docs/requirements.md#5-ngoài-phạm-vi-hiện-tại).
+> **Phạm vi hiện tại (kami 0.2):** đi riêng và **Shared ride V1**, ghép hai khách đang chờ,
+> với Shared Only / Exclusive Only; cước Shared bằng 70% đi riêng. Xem [hướng dẫn Shared V1](docs/engine/23-shared-rides-v1.md).
+> Các ví dụ pooling (`PoolAfterWait`, `02_pool_after_wait.py`) là cơ chế kami 0.1, giữ để tương thích.
 
 ```
 Scenario (ngoại sinh, replay) ──▶ Simulation engine ◀──▶ Policy plugin (hooks)
@@ -57,6 +57,18 @@ Nếu backend báo `đang có tiến trình giữ khoá ...kami.db.service.lock`
 Dùng server đang chạy hoặc dừng nó bằng Ctrl+C ở terminal cũ trước khi khởi động lại.
 Nếu ứng dụng khác chiếm cổng 8000/3000, dừng ứng dụng đó để kami dùng đúng cổng mặc định.
 Không xoá database hoặc file `.lock` để xử lý lỗi trùng tiến trình.
+
+### Xem quy trình Shared từ đầu đến cuối
+
+Mở http://localhost:3000/visualizer (demo mặc định), nhấn **Xem từ đầu · 10×** trong
+bảng Shared ride V1. Hai khách đặt xe, chờ ghép, xe chạy tới hai điểm đón rồi hai điểm
+trả riêng. Mở **Các mốc đặt, ghép, đón và trả** để tua từng bước; nút tự bật điểm khách
+Shared đang chờ. Đây là dữ liệu minh họa sinh từ engine thật, giả định khách chắc chắn
+đặt/không hủy, không phải dữ liệu hiệu chỉnh GreenSM. Demo có sẵn; cần Mapbox token
+để xem bản đồ, không cần backend để phát lại.
+
+Sinh lại demo trên mạng Hà Nội đã dựng: `python examples/10_shared_ride_walkthrough.py`.
+Demo 300 xe trước đây vẫn mở được ở `/visualizer?replay=/fixtures/hanoi_center_demo`.
 
 ### Cài đặt lần đầu
 

@@ -1,5 +1,5 @@
 // deck.gl layers from the layer plan (layerPlan.ts) and the frame of the current time.
-import { ArcLayer, PathLayer, ScatterplotLayer } from "@deck.gl/layers";
+import { ArcLayer, PathLayer, ScatterplotLayer, TextLayer } from "@deck.gl/layers";
 import { TripsLayer } from "@deck.gl/geo-layers";
 import type { Layer, PickingInfo } from "@deck.gl/core";
 import type { PathBatch, Replay } from "@/data/replay";
@@ -7,6 +7,8 @@ import { hexToRgb, type RGB } from "@/design/color";
 import { tokens } from "@/design/tokens";
 import type { Frame } from "./frame";
 import type { PlanItem } from "./layerPlan";
+import type { WaitingRequest } from "@/data/display";
+import type { SharedPair } from "@/data/types";
 
 const BRAND = hexToRgb(tokens.color.brand["500"]);
 const BRAND_DARK = hexToRgb(tokens.color.brand["700"]);
@@ -27,6 +29,8 @@ export interface LayerContext {
   interleaved?: boolean;
   onPick: (vehicle: number | null) => void;
   onHover: (info: PickingInfo) => void;
+  requests?: WaitingRequest[];
+  focusedPair?: SharedPair;
 }
 
 export interface OdIndex {
@@ -152,6 +156,45 @@ export function buildLayers(plan: PlanItem[], ctx: LayerContext): Layer[] {
           updateTriggers: { getPosition: t },
         } as never));
       }
+    } else if (item.kind === "pair-stops" && ctx.focusedPair) {
+      const pair = ctx.focusedPair;
+      const data = pair.stops.flatMap(stop => {
+        const trip = rp.rider(stop.rider_id);
+        const position = stop.kind === "pickup" ? trip?.origin : trip?.dest;
+        if (!position) return [];
+        const actual = stop.kind === "pickup" ? pair.pickups[stop.rider_id] : pair.dropoffs[stop.rider_id];
+        return [{ position, label: `${stop.kind === "pickup" ? "Đón" : "Trả"} #${stop.rider_id}`,
+          done: actual !== undefined && actual <= t }];
+      });
+      type Stop = (typeof data)[number];
+      layers.push(new ScatterplotLayer({ id: item.id, data, getPosition: (s: Stop) => s.position,
+        radiusUnits: "pixels", getRadius: 7, filled: false, stroked: true,
+        getLineColor: BRAND_DARK, lineWidthUnits: "pixels", getLineWidth: 2, billboard: true,
+      } as never));
+      layers.push(new TextLayer({ id: "pair-stop-labels", data, getPosition: (s: Stop) => s.position,
+        getText: (s: Stop) => `${s.label}${s.done ? " · xong" : ""}`, getColor: BRAND_DARK, getSize: 12,
+        fontFamily: "sans-serif", fontWeight: 600, getPixelOffset: [0, 17],
+        background: true, getBackgroundColor: WHITE, backgroundPadding: [3, 2], billboard: true,
+        characterSet: "auto", updateTriggers: { getText: t },
+      } as never));
+    } else if (item.kind === "requests") {
+      const data = (ctx.requests ?? []).filter(r => r.preference === item.preference);
+      const shared = item.preference === "shared_only";
+      const color = hexToRgb(shared ? tokens.color.primary : tokens.color.state.A.pickup);
+      layers.push(new ScatterplotLayer({
+        id: item.id, data, getPosition: (r: WaitingRequest) => r.position,
+        radiusUnits: "pixels", getRadius: 9, filled: true, getFillColor: WHITE,
+        stroked: true, getLineColor: color, lineWidthUnits: "pixels", getLineWidth: 2,
+        billboard: true, pickable: true, onHover: ctx.onHover,
+      } as never));
+      layers.push(new TextLayer({
+        id: `${item.id}-labels`, data, getPosition: (r: WaitingRequest) => r.position,
+        getText: (_r: WaitingRequest) => shared ? "S" : "E", getColor: color, getSize: 11,
+        getPixelOffset: [0, -18], background: true, getBackgroundColor: WHITE, backgroundPadding: [3, 2],
+        fontFamily: "sans-serif", fontWeight: 700, billboard: true,
+        getTextAnchor: "middle", getAlignmentBaseline: "center",
+        pickable: true, onHover: ctx.onHover,
+      } as never));
     } else if (item.kind === "vehicles") {
       layers.push(new ScatterplotLayer({
         id: "vehicles",

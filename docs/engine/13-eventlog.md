@@ -55,3 +55,12 @@ nhanh hơn khoảng 5% và tiết kiệm RAM khi chạy hàng nghìn replication
   lại từ log: bật `SimConfig.record_trajectories` (spec: `outputs.trajectories = "parquet"`) để có
   `trajectories.parquet` — lộ trình thật của mọi chặng với thời điểm qua từng điểm, đúng dạng deck.gl `TripsLayer`
   (docs/engine/02, mục "Quỹ đạo"). Event log ghi thời gian làm tròn 3 chữ số thập phân; quỹ đạo giữ thời gian đầy đủ.
+
+## Shared V1 và time-series
+
+Payload Shared là phần bổ sung khi bật V1; log cũ giữ nguyên khi tắt.
+SHARED_PAIR_CREATED ghi ids/stops, pickup/dropoff/extra/overlap dự kiến;
+SHARED_PAIR_DISSOLVED và SHARED_PARTNER_LOST ghi reason. PICKUP/DROPOFF là các
+mốc thực tế để đối chiếu accumulator; timestamp log làm tròn 0,001 giây.
+Time-series thêm các khóa shared.* và CSV lấy fieldnames của row; record_events
+false vẫn có summary/time-series. Xem [Shared V1](23-shared-rides-v1.md).

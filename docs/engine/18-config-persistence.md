@@ -270,3 +270,13 @@ transaction ngắn và khoá OS bảo đảm một supervisor/worker. Khoá nh�
 
 API dùng parser spec hiện tại, không nhận policy hoặc pooling; `Repository` và CLI 0.1 giữ hành vi cũ.
 Chi tiết endpoint, SSE, huỷ và phục hồi: [21-service-api.md](21-service-api.md).
+
+## Snapshot cấu hình Shared V1
+
+`sim_config.shared_ride` tùy chọn: enabled, version=1, hai preference_weights,
+max_pickup_wait_s=600, max_shared_extra_ride_s=450, candidate_radius_m=500.
+Khi bật, resolve đầy đủ defaults, trọng số chuẩn hóa và fare_factor=0.7 trước khi
+tạo queued; worker dùng snapshot này, không đọc lại scenario đã sửa. Fare factor
+cố định, fallback/version khác bị validation từ chối. Khi thiếu/tắt, sparse spec
+và snapshot cũ vẫn đọc được; không thêm bảng policy/plugin mới.
+Xem [Shared V1](23-shared-rides-v1.md).

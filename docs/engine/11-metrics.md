@@ -88,3 +88,14 @@
 
 Thêm khoá mới vào dict trong `compute()` (nếu có chiều tốt/xấu thì khai báo trong `DIRECTION`). Không cần sửa
 phần evaluation: `compare()` tự lấy mọi metric có trong kết quả.
+
+## Metric Shared V1
+
+Khi bật V1, namespace `shared.*` phân biệt planned_pairs/actual_pairs, overlap
+actual/predicted, route_queries/candidate counters và hai cohort theo preference.
+Mỗi cohort có booked/served/cancelled/unfinished, wait p50/p90/p95, extra ride,
+vi phạm pickup/extra thực tế, GMV/payout/platform_fee/reference_gmv/savings.
+Accumulator đọc state engine, không phụ thuộc ghi event; sampler tính overlap ở
+thời điểm sample, kể cả giữa các sự kiện. Raw NaN cho tập rỗng, JSON/API dùng null.
+KM tổng/rỗng dùng ops.vehicle_km/ops.empty_km. Không suy luận lợi nhuận từ giảm km
+khi số served thay đổi. Xem [Shared V1](23-shared-rides-v1.md).

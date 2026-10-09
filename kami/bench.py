@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import os
 import platform
 import statistics
@@ -44,6 +45,20 @@ def _peak_rss_mb() -> Optional[float]:
     try:
         import resource
     except ImportError:  # pragma: no cover - Windows
+        import ctypes
+        from ctypes import wintypes
+        class Counters(ctypes.Structure):
+            _fields_ = [("cb", wintypes.DWORD), ("PageFaultCount", wintypes.DWORD)] + [
+                (name, ctypes.c_size_t) for name in ("PeakWorkingSetSize", "WorkingSetSize", "QuotaPeakPagedPoolUsage",
+                "QuotaPagedPoolUsage", "QuotaPeakNonPagedPoolUsage", "QuotaNonPagedPoolUsage", "PagefileUsage", "PeakPagefileUsage")]
+        counters = Counters()
+        counters.cb = ctypes.sizeof(counters)
+        process = ctypes.windll.kernel32.GetCurrentProcess
+        process.restype = wintypes.HANDLE
+        get_info = ctypes.windll.psapi.GetProcessMemoryInfo
+        get_info.argtypes = (wintypes.HANDLE, ctypes.POINTER(Counters), wintypes.DWORD)
+        if get_info(process(), ctypes.byref(counters), counters.cb):
+            return counters.PeakWorkingSetSize / (1024 * 1024)
         return None
     rss = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
     return rss / (1024 * 1024) if sys.platform == "darwin" else rss / 1024   # macOS bytes, Linux KiB
@@ -53,7 +68,8 @@ def _worker(spec_path: str) -> Dict[str, Any]:
     from kami.config import build_run, load_run_spec
 
     t0 = time.perf_counter()
-    built = build_run(load_run_spec(spec_path))
+    spec = load_run_spec(spec_path)
+    built = build_run(spec)
     build_s = time.perf_counter() - t0
     sim = built.simulation().run()
     m = sim.metrics()
@@ -61,7 +77,40 @@ def _worker(spec_path: str) -> Dict[str, Any]:
             "events_per_s": sim.events_processed / sim.wall_time if sim.wall_time else None,
             "peak_rss_mb": _peak_rss_mb(), "network_backend": getattr(sim.network, "backend", "grid"),
             "requests": len(sim.scenario.requests), "drivers": len(sim.scenario.drivers),
-            "metrics": {k: m.get(k) for k in KEY_METRICS}}
+            "solver": sim.policy.matching.solver,
+            "cohorts": _cohorts(sim, spec),
+            "metrics": {k: (None if isinstance(v, float) and not math.isfinite(v) else v)
+                        for k, v in m.items() if k in KEY_METRICS or k.startswith("shared.") or k in ("ops.vehicle_km", "ops.empty_km")}}
+
+
+def _cohorts(sim, spec):
+    """Label both experiment arms by the same demand preference, outside the engine."""
+    cfg = spec.sim_config.to_dict().get('shared_ride')
+    if not cfg:
+        return None
+    from kami.shared import SharedRideConfig
+    from kami.core.crn import CRN
+    from kami.core.agents import RiderState
+    from kami.metrics import measured_riders, mean, percentile, ratio
+    weights = SharedRideConfig(preference_weights=cfg.get('preference_weights', {'exclusive_only': 1}))
+    crn = CRN(sim.scenario.seed)
+    cohorts = {}
+    for pref in ('shared_only', 'exclusive_only'):
+        rs = [r for r in measured_riders(sim) if weights.preference(r.attrs, r.id, crn) == pref]
+        booked = [r for r in rs if r.t_booked is not None]
+        done = [r for r in rs if r.state == RiderState.DONE]
+        picked = [r for r in rs if r.t_pickup is not None]
+        waits = [(r.t_pickup-r.t_booked)/60 for r in picked]
+        gmv = sum(r.fare_paid for r in done)
+        payout = sum(sim.fare_model.driver_payout(r.fare, r.surcharge) for r in done)
+        vals = dict(requests=len(rs), booked=len(booked), served=len(done),
+                    cancelled=sum(r.state == RiderState.CANCELLED for r in rs),
+                    unfinished=sum(not r.is_terminal for r in booked),
+                    completion_rate=ratio(len(done),len(booked)), wait_mean=mean(waits),
+                    wait_p50=percentile(waits,50),wait_p90=percentile(waits,90),wait_p95=percentile(waits,95),
+                    gmv=gmv,payout=payout,platform_fee=gmv-payout)
+        cohorts[pref] = {k: None if isinstance(v,float) and not math.isfinite(v) else v for k,v in vals.items()}
+    return cohorts
 
 
 def _run_case(path: Path) -> Dict[str, Any]:
@@ -155,7 +204,10 @@ def run_suite(suite: Path, cases: Optional[List[str]] = None, repeat: int = 3, p
             "peak_rss_mb": max((r["peak_rss_mb"] or 0) for r in runs) or None,
             "network_backend": first["network_backend"], "requests": first["requests"],
             "drivers": first["drivers"], "metrics": first["metrics"],
-            "deterministic": all(r["events"] == first["events"] and r["metrics"] == first["metrics"] for r in runs),
+            "solver": first.get("solver"),
+            "cohorts": first.get("cohorts"),
+            "deterministic": all(r["events"] == first["events"] and r["metrics"] == first["metrics"]
+                                 and r.get("cohorts") == first.get("cohorts") for r in runs),
         }
     return out
 

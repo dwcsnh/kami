@@ -1,0 +1,80 @@
+{
+  "name": "shared-v1-cancel-control",
+  "scenario": {
+    "name": "shared-bench",
+    "network": {
+      "kind": "grid",
+      "width_m": 2000,
+      "height_m": 2000,
+      "spacing_m": 100,
+      "speed_kmh": 25
+    },
+    "zones": {
+      "kind": "square",
+      "cell_m": 500
+    },
+    "traffic": {
+      "hour_profile": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "source": {
+      "kind": "synthetic",
+      "t_start": 25200,
+      "t_end": 26400,
+      "demand_per_hour": 240,
+      "warmup_s": 0,
+      "min_trip_m": 500
+    },
+    "n_drivers": 3,
+    "seed": 7
+  },
+  "behavior": {
+    "preset": "employed_drivers",
+    "models": {
+      "cancel_matched": {
+        "class": "OverrunCancel",
+        "params": {
+          "base": 2.0
+        }
+      }
+    }
+  },
+  "sim_config": {
+    "timeseries_interval_s": 60,
+    "drain_s": 900,
+    "shared_ride": {
+      "enabled": false,
+      "preference_weights": {
+        "shared_only": 1,
+        "exclusive_only": 0
+      }
+    }
+  },
+  "outputs": {
+    "event_log": "none"
+  }
+}

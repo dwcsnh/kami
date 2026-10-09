@@ -40,6 +40,9 @@ class Quote:
     eta: float                 # promised seconds until pickup
     surge: float = 1.0
     surcharge: float = 0.0
+    exclusive_reference_fare: Optional[float] = None
+    service_preference: Optional[str] = None
+    fare_factor: float = 1.0
 
 
 @dataclass
@@ -87,6 +90,7 @@ class Job:
     driver_id: Optional[int] = None
     pooled: bool = False
     stops: List[Stop] = field(default_factory=list)  # planned stop order for pooled jobs
+    pair_id: Optional[int] = None
 
 
 @dataclass
@@ -127,6 +131,16 @@ class Rider:
     hazard_t: float = 0.0
     hazard_phase: Optional[str] = None
     cancel_token: int = 0             # identifies the currently armed RIDER_CANCEL event
+    service_preference: Optional[str] = None
+    effective_mode: Optional[str] = None
+    pair_id: Optional[int] = None
+    pair_history: List[int] = field(default_factory=list)
+    pickup_deadline: Optional[float] = None
+    cancellation_reason: Optional[str] = None
+    exclusive_reference_fare: Optional[float] = None
+    shared_direct_baseline_s: Optional[float] = None
+    shared_predicted_extra_s: Optional[float] = None
+    hazard_history: Dict[str, tuple] = field(default_factory=dict)
 
     @property
     def is_terminal(self) -> bool:

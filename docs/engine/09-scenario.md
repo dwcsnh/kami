@@ -129,3 +129,12 @@ Trước khi đánh giá policy, baseline phải tái tạo được lịch sử
   với số thật;
 - chỉnh `demand_per_hour`, `n_drivers`, profile và tham số behavior cho tới khi khớp **phân bố**, không cần khớp
   từng cá nhân.
+
+## Lựa chọn dịch vụ Shared V1
+
+RequestSpec.attrs có `service_preference`: `shared_only` hoặc `exclusive_only`.
+CSV nhận cột tùy chọn cùng tên, và latest_pickup/latest_dropoff (giây tuyệt đối).
+Nếu thiếu preference, build_run chọn theo trọng số V1 bằng seed demand; snapshot
+cấu hình chứa trọng số đã chuẩn hóa. Bỏ shared config giữ demand cũ.
+Demo riêng: `scenarios/shared/v1-demo.json` cùng CSV demand minh họa trên mạng
+Hà Nội. Xem [Shared V1](23-shared-rides-v1.md).

@@ -166,3 +166,13 @@ Test mới: test_service_entities, test_service_runs, test_service_metrics, test
 Kiểm worker spawn thật, CLI cùng snapshot, HTTP SSE trước khi hoàn tất, disconnect, hai service,
 kill supervisor, worker chết, spawn/persist fail và ownership. Isolation vẫn cấm core import DB/web/service.
 Kết quả và benchmark ghi trong plan; chưa nghiệm thu toàn bộ Sprint 08 hoặc quy mô GreenSM.
+
+## Shared V1
+
+GET /health trả `shared_ride_versions: [1]`. Public RunSpec nhận cấu hình Shared
+V1 đã validate qua parser hiện có, hai preference và cước cố định 70%; không
+mở policy/pooling legacy cho API. Create queued resolve defaults vào snapshot.
+Worker thật ghi shared.* vào metric_summary/metric_timeseries bằng đường persist
+hiện có. API metrics, CSV và comparison đọc dữ liệu đã lưu, no-data là null.
+Test test_shared_service và browser E2E kiểm SQLite/worker/snapshot sau sửa nguồn.
+Xem [Shared V1](23-shared-rides-v1.md).

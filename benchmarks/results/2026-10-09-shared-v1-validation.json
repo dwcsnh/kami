@@ -1,0 +1,199 @@
+{
+  "date": "2026-10-09",
+  "python": {
+    "tests": 242,
+    "passed": 235,
+    "skipped": 7,
+    "status": "OK",
+    "command": "python -m unittest discover -s tests -t .",
+    "environment": "CPython 3.12.1; .runtime/sprint08/venv with .venv/Lib/site-packages",
+    "skip_reasons": [
+      "C++ router extension not built",
+      "Hanoi graph present but OSM manifest absent"
+    ],
+    "skipped_tests": [
+      {
+        "test": "tests.test_osm_pipeline.TestFixtureBuild.test_s02_2_check_command",
+        "reason": "C++ router not built"
+      },
+      {
+        "test": "tests.test_osm_pipeline.TestHanoiNetwork.test_hanoi_network_and_zones",
+        "reason": "Hà Nội graph has no OSM manifest (python -m kami.osm build hanoi)"
+      },
+      {
+        "test": "tests.test_replay.TestDemoFixture.test_ac03_1_demo_reproducible",
+        "reason": "needs the Hà Nội network (python -m kami.osm build hanoi)"
+      },
+      {
+        "test": "tests.test_road_network.TestRoadNetwork.test_cpp_matches_python",
+        "reason": "C++ router not built (python -m kami.network.road.cpp.build)"
+      },
+      {
+        "test": "tests.test_road_network.TestRoadNetwork.test_live_factors",
+        "reason": "C++ router not built"
+      },
+      {
+        "test": "tests.test_congestion.TestCongestionRoad.test_cpp_and_python_agree_under_congestion",
+        "reason": "C++ router not built"
+      },
+      {
+        "test": "tests.test_congestion.TestCongestionRoad.test_incident_on_top_of_congestion",
+        "reason": "C++ router not built"
+      }
+    ]
+  },
+  "web": {
+    "tests": 75,
+    "test_files": 9,
+    "typecheck": "passed",
+    "production_build": "passed"
+  },
+  "browser": {
+    "status": "passed after final fixture regeneration",
+    "checks": [
+      "Shared form saves 600/450 seconds and two normalized weights without JSON input",
+      "Real worker summary equals persisted API and manager cells after reload",
+      "Scenario editing preserves completed run snapshot",
+      "Real Hanoi worker serves shared pairs and manager shows persisted overlap and financial totals",
+      "Hanoi replay pair/stops/0-1-2 onboard milestones at 1280 and 1440 pixels"
+    ],
+    "actual_pairs": 4,
+    "shared_served": 8,
+    "widths": [
+      1280,
+      1440
+    ],
+    "engine_worker_mocked": false
+  },
+  "examples": [
+    "python examples/01_quickstart.py",
+    "python examples/02_pool_after_wait.py 1 1",
+    "python examples/09_shared_ride_v1.py"
+  ],
+  "cli_presets": "passed",
+  "cli_shared_demo_replay_validation": "passed",
+  "compatibility": "2026-10-09-shared-v1-compatibility.json",
+  "source": "57f1a531c0c040e3e3353d3ba112b3dcd48a2df3",
+  "limitations": [
+    "Windows legacy Experiment parallel fork is unsupported; existing serial mode tested.",
+    "C++ router and original C++ Hanoi replay fixture test skipped; graph/demand tests and shared Hanoi replay/worker run on Python backend.",
+    "OSM Hanoi manifest missing; only provenance test is gated on manifest."
+  ],
+  "benchmarks": {
+    "baseline_repeat": 5,
+    "shared_cases": 8,
+    "shared_repeat": 5,
+    "shared_deterministic": true,
+    "legacy_events_metrics_identical": true,
+    "ab_passed": true,
+    "max_ab_wall_delta_percent": 7.2886567530112245,
+    "max_ab_rss_delta_percent": 1.1258725512272028
+  },
+  "source_hashes": {
+    "kami\\__init__.py": "72be605b3570aa92f8b8934a19e46c8d1f3180a39bbe1b7e767248d16995df80",
+    "kami\\__main__.py": "634451fd398f1ae81e31e25e4b1098e2baef5078a6ce234454b3746c11cd62bd",
+    "kami\\behavior\\__init__.py": "396a5be515d2c1811db4aba4da92dc9f1196d9bbb79ccff08a8728930b63cbaa",
+    "kami\\behavior\\models.py": "99cf7cb47cbf0b969f3833866ddfeb92e40f6069a28eb70ca648a09c7115a730",
+    "kami\\behavior\\protocols.py": "fb27f890a397a294d0783637a3edc417647cc34de80b11276b3672128e970b51",
+    "kami\\behavior\\registry.py": "9ab8effc9c309629520bf3e8dbce7d87108cfe79f040d82191ddb5db7199d706",
+    "kami\\bench.py": "fc52a51bddfd310bf033d61c4b89358a032b7a10b5185d76b1b38981665d5630",
+    "kami\\cli.py": "79f08e1a7019eab20d864c2504a0ba92085634aa6ede3fa614d3624c65573d8b",
+    "kami\\config\\__init__.py": "5f9abb4cc60b7bcad92a852bfcd97226cbc2442859a48e0be599a098cd2337af",
+    "kami\\config\\build.py": "a0db2ad11638fce315313badb1db54484adf7fb36d166380e97c1f9398886bf2",
+    "kami\\config\\legacy.py": "354d4a91032e1508ebb7b8ea32b8bd04c3fe7decabc343501b39f8f3f53473fa",
+    "kami\\config\\specs.py": "d465a97de28dcdf9026601b11b03851235a89c384ea534d05d347f4fe7e9b158",
+    "kami\\config\\validate.py": "b4d5f91035a9fbff34ec990f3f60da9853ec6f5741cdf52e2dcc9e6babf7ebac",
+    "kami\\congestion.py": "400f4c77a6b30a59fb3198b1a1af3c7e6cb3e0d5d7e1925ba0601c7733d6b466",
+    "kami\\core\\__init__.py": "1bc731acf7df1b7a67b055b3c43eebc4f97977263450159d3035c3a1ac68d885",
+    "kami\\core\\agents.py": "b30ef1e090166eb000d99c392d7d445377ba2184c460751d2c5cf6c7922a9ee9",
+    "kami\\core\\crn.py": "58ced591a7e7a0d0a4c1e7ebfc6be8e64358578f3314f4d797518b422f6909f5",
+    "kami\\core\\engine.py": "101cc5df077b38538c4bdd8bb554ce4c33434d1a60bbfb5f7fc8804c93ea3f19",
+    "kami\\core\\events.py": "95bf9d7ec7715114f19b8f182b34f86a2bc9b6d4484fc25757fb61457e4becc1",
+    "kami\\core\\shared_lifecycle.py": "b1ad1f762a107b5ac53e294e966dd89ac13323b1a1b890b9ed5b348491575728",
+    "kami\\evaluation\\__init__.py": "6ed289962a245117fc7cc66b8f3aa316d2264e4a8a3ab14cefca3a9a6eae4185",
+    "kami\\evaluation\\decision.py": "cac9d9ac98b46de0a0d2165e67200319dccf50617f488ee6e92e43c419a73806",
+    "kami\\evaluation\\experiment.py": "f11a4cdaf801699e6bfa9625e2bee72a4d9353f025002be4a5cba19bfd2a8618",
+    "kami\\evaluation\\report.py": "d55998d3041760ee460b29193fa6b4279a63978b64f5ce30ddc3a7a3ac4a8e0c",
+    "kami\\evaluation\\sensitivity.py": "dc25e1a71e5dbcfa81cabfc61b4921f454a9996d27b485a23f667050392d462d",
+    "kami\\evaluation\\stats.py": "c50d57ae58c9550226690893ac46103f60a83e633e196f8398fcf74f06a97393",
+    "kami\\eventlog.py": "de9b01e65705b43fce03537dcb236bc7071a25b0969df8cdf605a0ac15d51251",
+    "kami\\matching.py": "1e6de632b0eb3a74a8a73d71841cbc6e381d7a8bf098210ea6497b77217ed455",
+    "kami\\metrics.py": "2e79785a28544b392aa9c11879390aff0e364eacea05bc50162d8c4e7c51fc3d",
+    "kami\\network\\__init__.py": "a01c42cab423810f7c7d703c8323ea7f33592dffff4418f50be8d8706cef3de3",
+    "kami\\network\\base.py": "b74c8c21d9c720bc648f672bcaa9a3e3d7f536ba222c58e9b6c7537a3e373919",
+    "kami\\network\\grid.py": "6fc2c9f21ca1f26352f7e7be665d404f50da453e3353c81aed76cc3ae6ade6bc",
+    "kami\\network\\road\\__init__.py": "01dcc8bfcc4c34b57249372ed8cd8690392c8c31d3938d8fe42b619ecb7fc145",
+    "kami\\network\\road\\cpp\\__init__.py": "d374f6552d827a96906838e9e369712b3029d2c10576891a5ea1b14f485bea8c",
+    "kami\\network\\road\\cpp\\build.py": "2255ce51b2d2c47a0a28395e88982638f80c22cabcba575c310aaec03e1b1186",
+    "kami\\network\\road\\graph.py": "f509722b21fe7c83188002630f9d61b8d5993660a98e696b794a147d73c57bbe",
+    "kami\\network\\road\\network.py": "99e9c3bfb9b3ed130da6dd49767c9c91243fd847e1ce8bad4f3f56b4d039dd53",
+    "kami\\network\\road\\router.py": "86e2b0a74da60d85a513ae7e8586a91145ba1eb86ceeb9fba1b92478c6858e4c",
+    "kami\\network\\zones.py": "edd8d15c1a3e5f4cc6e54875724e05527a6d35418d40cd6bd6261939096dc419",
+    "kami\\osm\\__init__.py": "b655d8ebe5e2451f80c696bf85631b68a8d1977de7d04d04f0c3a6610c0abe12",
+    "kami\\osm\\__main__.py": "3dd3171587e299eb455fd65335b898a3bf0fd1515fe6a284fa26f6262fdbb549",
+    "kami\\osm\\check.py": "18a1ca4745381de800d1c999008c3982b6f9192eb46027ea1ca4f3a064dfe460",
+    "kami\\osm\\extract.py": "1ccb36e90d07bee2d7f89584766ddb57c0aee81fab6e5245659f9d06e08147ff",
+    "kami\\osm\\geo.py": "d39a3fdf4f55ad220248f44e0c0b232690415bebcabd59f89814ceccd6d1bfcc",
+    "kami\\osm\\graph.py": "2b7597445a63e1f23ed18d4bc707b5b76624883c99a3b71b10afac51abb12588",
+    "kami\\osm\\writer.py": "ff091e1719ae321a678172d93960895f153e16d628bea4460267b1bd69b236e5",
+    "kami\\osm\\zones.py": "6bb8ee98cd7fc6e496cbc21758040a2a272f1a8eca3079b2bc13a11694a71cea",
+    "kami\\policy\\__init__.py": "b6ced91f2ebba8043b26d51e07d6d2f21e515ee8b4c05d753f45c18583b4bd9d",
+    "kami\\policy\\base.py": "a78219a24fa55c154d0f69bd785723b26944004861fc6a49013e6d75bafed03a",
+    "kami\\policy\\library.py": "e0bbbac84fc63967cf19cd3523ab8facc82bb67a75bcd64c656a669f4df30e7b",
+    "kami\\pooling.py": "a367fdf0651b0554318bed238ca6418c18f28195e763aa565226d539102836cc",
+    "kami\\pricing.py": "cc9618407864dbd730483974ce7a8f1658dbc45f0fb881fa99d4bc099a23c28d",
+    "kami\\replay\\__init__.py": "1b82031438b87549958b562e5f1274209905c3429bc35fc84181b3c06235ab26",
+    "kami\\replay\\__main__.py": "85e8b8341294676627c4bc9178c68cb51840894881989d8f940a9b13d6e82760",
+    "kami\\replay\\cli.py": "bab1508ce58ffbf1e8e2d2149b34111d3f12e7836aea10c0a90fb96fa37e7e5f",
+    "kami\\replay\\export.py": "5b4c2df39f6417dcc02888ea2787b8b72446ada576f262901714529baf311021",
+    "kami\\replay\\query.py": "d2a278d99aa6c37c2dfde58343a685b12b8e1e2fa8c37d783fa003e20679b980",
+    "kami\\replay\\schema.py": "b7773fa362420f87342fe9c89150722b684f3bf9ca4a9c0129f6b75b68f8b718",
+    "kami\\replay\\simplify.py": "ba27ab62c5a1ccf8eb4854a5e59af019401462b7ad1ae8b63eaa5ebebaa2f15b",
+    "kami\\scenario.py": "5123a2ec3c87856d3925a3ef081e1678d635c3be918d19c59cee8e7d03966cbe",
+    "kami\\service\\__init__.py": "c57e8fc367890e5463e230748468ceb0065212185d6b1a91c7588195a099b75a",
+    "kami\\service\\__main__.py": "ab879f4056b4fc1121da063673f91e4dd264d16b6aed8266c0f75f227d0b0692",
+    "kami\\service\\app.py": "19857cad0fa95a5d87d1c2fe31837aa11ae04369b5cbb979f9e082a709256f03",
+    "kami\\service\\entities.py": "6a9b293a040efbd5fc9d61afbeac192941e3b38093770a8b41f5e5cd2456d9be",
+    "kami\\service\\input.py": "feb6414bf24f2245ccbe17f7a1ee1677dd2eb0f0c435e4042e0de96d88418ea3",
+    "kami\\service\\locks.py": "4d6eee75c0484ec5e89ade2f09a3071ee4a9356c2bb6222fcf81bc9f081a3f6b",
+    "kami\\service\\metrics.py": "302efd308f793eda8f5a67bf5e49b97be74b55868ba6b8fb1c5ab161ba225159",
+    "kami\\service\\runs.py": "2a9611736ceaafad3489f66f894697a08ac764968a5da662c82dfabd157c116d",
+    "kami\\service\\stream.py": "6b1ab3ba94a7a9c29eee237010479df5997e9cc0384e109a6e34aad78ca750b1",
+    "kami\\service\\supervisor.py": "757529191bab3499e4b9006ab33c4736155b4d2f84f617bd678808c9f3d0baa6",
+    "kami\\service\\worker.py": "9e52865317139804dcdb097b7744db2491f960af632b74b806a65c34e97b00ff",
+    "kami\\shared\\__init__.py": "ac9a007e9d60469cbf28d78bf1d8b3bd63f457d9fd66b69a7d3a8438ec935d22",
+    "kami\\shared\\config.py": "01543eddc3da3e54f3e149ca02a3f9abaa1edfe86984096bdaf5e69106fa9852",
+    "kami\\shared\\dispatch.py": "ed9d20e7379c78b56a975565dbfdd80218b056a5978293e063b40700c256c7a2",
+    "kami\\shared\\evaluate.py": "a95b1f6fdd524e21bbd6b5fd1023b803e2a442849bd9d3aab37ac8068e24d7d2",
+    "kami\\shared\\metrics.py": "0f63b43ae46ffca198c143c686a2c94fda876772ee94ebd6184aa738c89cdb94",
+    "kami\\shared\\pricing.py": "4752c6098755f25f9feb78509faf7ad4c4b2e1738c5e354669435d4f4e19115a",
+    "kami\\store\\__init__.py": "a194de7b46c336aba2202ebc81b5071929f3a7dbe7c5ec3c7d0691f7a8676ec5",
+    "kami\\store\\db.py": "a04d768f3f251856873320ed067523b20326bb8eff0f0545998cf1514fa4c6ea",
+    "kami\\store\\repository.py": "542e383d36ef42f9bc6d28369aedcf9cb7b63e5b968aa2c127b6776ffd09413a",
+    "kami\\store\\runs.py": "0daa1ec0e43d035eb3ae9aa0807cc683e19936966be47158c7f9e9ff62ac1ce7",
+    "kami\\store\\service.py": "8f3d1f10cb7580648083f2aab1f558f231886acf56e81f17581798f1b218614b",
+    "kami\\timeseries.py": "eeed3026a88efd7040af5a750391316426541f71245e5bfa69953823b627ada5",
+    "kami\\traffic.py": "dafb72ac85085f7c01e758b13cea3cfb8d5d3dd781f1e721a2584353e87343ef",
+    "kami\\training\\__init__.py": "e3c313880eb05395dbb10bcbcad8d2272721ef049dbdbf486340296e996b85d0",
+    "kami\\training\\fit.py": "988973299e71ffebbf2d56917a1443ab4eac38fe3db60550e70a5b20a9457944",
+    "kami\\trajectory.py": "2ab9b0cbc32f18f9e9f2ddc7c4d91ccf93805ce9dc65c29695b8ebcf2c17de0a"
+  },
+  "packages": {
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "pyarrow": "26.0.0",
+    "fastapi": "0.128.8",
+    "httpx": "0.28.1",
+    "pyproj": "3.8.0",
+    "h3": "4.5.0",
+    "osmium": "4.3.1"
+  },
+  "shared_fixture_current_export_byte_identical": true,
+  "shared_fixture_hashes": {
+    "events.json.gz": "2c25bb7a18c2da7ab73bd84a571d26dddaba90523b165e0bcce850cd1030dede",
+    "manifest.json": "d224918ffff19ea4c1db41a66caaa05586bc31628a2818f58479a286c75c5dd6",
+    "metrics.json.gz": "c6f91a0cbbdc1017574f82140e889776bf0fc84d39ad485cd08e0ecd1758cb71",
+    "trips.json.gz": "8fb66d9ed9582f168b31db2d822afa1cc108665f16fb04b663bb4dbf2e3c6928",
+    "vehicles.json.gz": "f0895181ae4ef0607c12b59fcce36ceb60e44744a95e5c4c09786784762bd63e"
+  }
+}

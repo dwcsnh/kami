@@ -15,6 +15,7 @@ from kami.network import (FileZoneSystem, FleetPyNetwork, FleetPyZoneSystem, Gri
                           SquareZoneSystem)
 from kami.policy import Baseline, Composite, HeatmapReposition, Policy, PoolAfterWait, SurgePricing
 from kami.pricing import FareModel
+from kami.shared import SharedRideConfig
 from kami.scenario import PRESETS, Scenario, ScenarioBuilder
 from kami.evaluation import (Condition, DecisionRule, Experiment, pooling_rule_example)
 
@@ -23,4 +24,4 @@ __version__ = "0.1.0"
 __all__ = ["BehaviorSuite", "ModelRegistry", "CRN", "EventType", "SimConfig", "Simulation", "compute_metrics",
            "RoadNetwork", "FileZoneSystem", "FleetPyNetwork", "FleetPyZoneSystem", "GridNetwork", "H3ZoneSystem", "SquareZoneSystem", "Baseline",
            "Composite", "HeatmapReposition", "Policy", "PoolAfterWait", "SurgePricing", "FareModel", "PRESETS",
-           "Scenario", "ScenarioBuilder", "Condition", "DecisionRule", "Experiment", "pooling_rule_example"]
+           "Scenario", "ScenarioBuilder", "SharedRideConfig", "Condition", "DecisionRule", "Experiment", "pooling_rule_example"]

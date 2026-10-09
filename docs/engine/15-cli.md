@@ -128,3 +128,18 @@ python -m kami compare --presets weekday_am_peak,undersupply,rain,accident --see
 | `--report` | Ghi báo cáo Markdown |
 
 Muốn dùng policy tự viết qua CLI: thêm lớp đó vào dict `POLICIES` trong `kami/policy/library.py`.
+
+## Shared ride V1
+
+Chạy `python -m kami run --spec scenarios/shared/v1-demo.json --out out/shared-v1`.
+Cấu hình V1 nằm trong sim_config.shared_ride của RunSpec; không thêm flag policy
+hoặc pooling mới. Summary có shared.*; JSON chuyển no-data thành null. CLI lưu
+shared.json khi bật V1 để export lại metadata từ run folder có trajectories/events.
+
+`python -m kami replay export --spec scenarios/shared/v1-demo.json --out out/shared-v1-replay`
+xuất trực tiếp; `python -m kami replay export out/shared-v1 --out out/shared-v1-replay`
+xuất từ folder có Parquet. Xem [Shared V1](23-shared-rides-v1.md).
+
+Các flag/ví dụ 0.1 giữ nguyên. Trên Windows, kiểm ví dụ pooling bằng
+`python examples/02_pool_after_wait.py 1 1` (seed/job); parallel legacy dùng fork
+của Linux. Hạn chế này được ghi ở B12-6, không thay API pooling trong V1.

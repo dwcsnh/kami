@@ -1,0 +1,76 @@
+{
+  "name": "shared-v1-road",
+  "scenario": {
+    "name": "shared-v1-hanoi-demo",
+    "network": {
+      "kind": "road",
+      "name": "hanoi",
+      "backend": "python"
+    },
+    "zones": {
+      "kind": "square",
+      "cell_m": 500
+    },
+    "traffic": {
+      "hour_profile": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "source": {
+      "kind": "csv",
+      "file": "scenarios/shared/v1-demo-demand.csv",
+      "coords": "node",
+      "origin": [
+        "origin"
+      ],
+      "dest": [
+        "dest"
+      ],
+      "t_start": 25200,
+      "t_end": 27360
+    },
+    "n_drivers": 4,
+    "seed": 33
+  },
+  "behavior": {
+    "preset": "employed_drivers"
+  },
+  "sim_config": {
+    "timeseries_interval_s": 30,
+    "drain_s": 900,
+    "idle_decision_s": 10000,
+    "shared_ride": {
+      "enabled": true,
+      "preference_weights": {
+        "shared_only": 0.5,
+        "exclusive_only": 0.5
+      }
+    }
+  },
+  "outputs": {
+    "event_log": "none"
+  }
+}

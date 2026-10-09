@@ -937,7 +937,29 @@ def _sim_config(v, path, errs):
     return dataclass_overrides(
         v, SimConfig, path, errs, SIMCONFIG_CONSTRAINTS,
         nested={"fare": lambda d, p, e: dataclass_overrides(d, FareModel, p, e, FARE_CONSTRAINTS),
-                "pooling": lambda d, p, e: dataclass_overrides(d, PoolingParams, p, e)})
+                "pooling": lambda d, p, e: dataclass_overrides(d, PoolingParams, p, e),
+                "shared_ride": _shared_config})
+
+
+def _shared_config(d, path, errs):
+    from kami.shared.config import SharedRideConfig, FARE_FACTOR
+    if not isinstance(d, dict):
+        errs.add(path, "cần object")
+        return {}
+    raw = dict(d)
+    factor = raw.pop("fare_factor", FARE_FACTOR)
+    if factor != FARE_FACTOR:
+        errs.add(join(path, "fare_factor"), "cước Shared cố định 70%")
+    kw = dataclass_overrides(raw, SharedRideConfig, path, errs,
+                            {"version": dict(choices=(1,)), "max_pickup_wait_s": dict(gt=0),
+                             "max_shared_extra_ride_s": dict(ge=0), "candidate_radius_m": dict(gt=0)})
+    try:
+        cfg = SharedRideConfig(**kw)
+    except ValueError as e:
+        key = "preference_weights" if "preference_weights" in str(e) else ""
+        errs.add(join(path, key) if key else path, str(e))
+        return kw
+    return cfg.resolved() if cfg.enabled else kw
 
 
 @dataclass

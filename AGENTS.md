@@ -9,10 +9,12 @@ File này dành cho mọi coding agent (và người) phát triển kami. Đọc
 - Hướng phát triển hiện tại là **kami 0.2 — mô phỏng vận hành GreenSM tại Hà Nội**. Yêu cầu nằm ở
   [docs/requirements.md](docs/requirements.md), chuẩn hoá từ bản nháp [draft/draft.md](draft/draft.md).
 - Công việc được chia thành sprint ở [docs/sprint/](docs/sprint/README.md).
-- **Phạm vi sản phẩm hiện tại: matching 1 tài xế – 1 khách, chưa có ghép chuyến (shared ride).** Code pooling của 0.1
-  (`kami/pooling.py`, `PoolAfterWait`, slot `pool_accept`/`LogitPoolAccept`, metric `pool_*`…) chỉ được giữ cho tương
-  thích; không dùng nó trong tính năng mới, không phát triển thêm (danh sách đầy đủ ở
-  [requirements §5](docs/requirements.md#5-ngoài-phạm-vi-hiện-tại)).
+- **Phạm vi được người dùng mở rộng ngày 2026-10-09: shared ride triển khai từng phiên bản, bắt đầu V1.**
+  Hiện chỉ có **Shared Only** và **Exclusive Only**; **Shared Fallback Exclusive tạm hoãn để nghiên cứu thêm**.
+  V1 ghép hai chuyến còn WAITING, mỗi chuyến một người; xem [yêu cầu SR](docs/requirements.md#38-ghép-chuyến--sr)
+  và [Sprint 12](docs/sprint/sprint-12-shared-rides-v1.md). Plan V1 vẫn phải được duyệt trước khi viết code.
+  Pooling của 0.1 (`kami/pooling.py`, `PoolAfterWait`, slot `pool_accept`/`LogitPoolAccept`, metric `pool_*`…)
+  giữ cho tương thích; không dùng làm cơ chế shared mới, không phát triển thêm API/plugin pooling cũ.
 - **Policy (policy plugin, policy group, policy agent) cũng nằm ngoài phạm vi hiện tại.** Sprint 07 và 10 đã bị xoá.
   Cơ chế `Policy` của 0.1 (`kami/policy/`, `PolicySpec`/`PolicyGroupSpec`, bảng `policy*` trong DB) chỉ được giữ
   cho tương thích; không thêm hook/plugin/API/UI policy mới. Matching và pricing của 0.2 là tham số của kịch bản.

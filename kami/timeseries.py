@@ -104,7 +104,10 @@ class MetricSampler:
     def _sample(self, mark: float) -> None:
         sim = self.sim
         riders = sim.riders
-        self._waiting = {r for r in self._waiting if riders[r].state == RiderState.WAITING}
+        if sim.shared_enabled:
+            self._waiting = {r.id for r in riders.values() if r.state == RiderState.WAITING}
+        else:
+            self._waiting = {r for r in self._waiting if riders[r].state == RiderState.WAITING}
         online = idle = moving = en_route = on_trip = 0
         for d in sim.drivers.values():
             s = d.state
@@ -137,6 +140,11 @@ class MetricSampler:
             "platform.gmv": self._gmv, "platform.gmv_cum": self._gmv_cum,
             "platform.surge_mean": self._surge_sum / self._quotes if self._quotes else NaN,
         })
+        if sim.shared_enabled:
+            from kami.shared.metrics import compute as shared_compute
+            from kami.metrics import measured_riders
+            row.update(shared_compute(sim, measured_riders(sim), at=mark))
+            row["shared.waiting_now"] = sum(r.state == RiderState.WAITING and r.service_preference == "shared_only" for r in riders.values())
         self.rows.append(row)
         self._win = dict.fromkeys(COUNTERS, 0)
         self._waits = []
@@ -161,7 +169,7 @@ class MetricSampler:
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
         with open(path, "w", newline="") as f:
-            w = csv.DictWriter(f, fieldnames=COLUMNS)
+            w = csv.DictWriter(f, fieldnames=list(self.rows[0]) if self.rows else COLUMNS)
             w.writeheader()
             w.writerows(self.rows)
         return path

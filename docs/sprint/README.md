@@ -17,6 +17,8 @@ xong** (phạm vi, hạng mục, acceptance criteria). **Cách làm** nằm tron
 | [08](sprint-08-backend-run-manager.md) | Backend service & quản lý lần chạy | RUN-1…RUN-4, FLEET-3 (API) | 01, 05, 06 | Đang làm |
 | [09](sprint-09-ui-simulation-manager.md) | Giao diện Simulation manager & visualizer live | UI-1 (live), UI-2, UI-3, UI-5, FLEET-3, PERF-4 | 03, 08 | Đang làm |
 | [11](sprint-11-integration-acceptance.md) | Tích hợp & nghiệm thu end-to-end | Toàn bộ | 01–09 | Chưa bắt đầu |
+| [12](sprint-12-shared-rides-v1.md) | Shared ride V1: ghép hai khách còn chờ | SR-1…SR-7, SR-8 (V1), SR-9, NFR, PERF-3 | 01–03; phần A hiện có của 08/09 để tích hợp | Xong |
+| [13](sprint-13-shared-rides-v2.md) | Shared ride V2: tìm đối tác dọc hành trình (đề xuất) | SR-8 (V2), SR-9, NFR, PERF-3 | 12 | Chưa bắt đầu; chờ duyệt phạm vi/plan |
 
 ```
 01 ─▶ 02 ─▶ 03 ─┬─▶ 04 ───────────────────────┐
@@ -38,6 +40,12 @@ cả hai chỉ cần 01–03.
 
 ## Ma trận yêu cầu → sprint
 
+Theo yêu cầu ngày 2026-10-09, shared ride được triển khai từng phiên bản, bắt đầu bằng Sprint 12 riêng.
+V1 chỉ có Shared Only / Exclusive Only, fallback tạm hoãn. Số 12 không yêu cầu Sprint 11 kết thúc trước;
+Sprint 12 dùng nền 01–03 và phần A của 08/09 đã hiện thực, không đổi phạm vi/AC hoặc trạng thái các sprint đó.
+Sau nghiệm thu V1 và backlog 12, lập sprint/plan V2, tiếp đến V3; V4 ONBOARD tùy chọn. Sprint 13 là đề xuất phạm vi V2 sau V1; chưa
+duyệt phạm vi/AC hoặc implementation cho các bản sau. Phạm vi nghiệm thu tích hợp Sprint 11 nếu cần mở rộng sẽ xin duyệt riêng.
+
 | Yêu cầu | Sprint |
 |---|---|
 | PERF-1, PERF-2 | 04 (đạt), 11 (nghiệm thu lại với đầy đủ tính năng) |
@@ -52,6 +60,8 @@ cả hai chỉ cần 01–03.
 | RUN-1…RUN-4 | 08 (RUN-4 schema từ 01), UI ở 09 |
 | UI-1 | 03 (bản đồ + metric, phát lại fixture), 04 (quy mô thành phố), 05–06 (lớp sạc, surge), 09 (live, tích hợp) |
 | UI-2, UI-3, UI-5 | 09 |
+| SR-1…SR-7, SR-8 (V1) | 12 (Xong); V2 đề xuất tại 13, V3/V4 lập sprint sau |
+| SR-9 | 12 — cước Shared 70% đã chốt; implementation plan đã thực hiện |
 | NFR-1, NFR-2, NFR-4, NFR-5 | 01 (nền), kiểm tra lại ở mọi sprint, nghiệm thu ở 11 |
 
 ## Định nghĩa "xong" chung (áp cho mọi sprint)

@@ -55,14 +55,16 @@ export const tokens = {
         "cruising": "#C77700",
         "pickup": "#3B5BDB",
         "on_trip": "#D6336C",
-        "reposition": "#7048E8"
+        "reposition": "#7048E8",
+        "shared": "#077C79"
       },
       "B": {
         "idle": "#7A7F87",
         "cruising": "#C77700",
         "pickup": "#0077BB",
         "on_trip": "#CC3311",
-        "reposition": "#AA3377"
+        "reposition": "#AA3377",
+        "shared": "#077C79"
       }
     }
   },

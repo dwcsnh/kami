@@ -73,8 +73,9 @@ class TestLiveStream(unittest.TestCase):
             with socket.socket() as sock:
                 sock.bind(("127.0.0.1", 0))
                 port = sock.getsockname()[1]
-            command = [sys.executable, "-m", "kami.service", "--db", str(Path(d) / "k.db"),
-                       "--artifacts", str(Path(d) / "runs"), "--port", str(port), "--interval-s", "0.01"]
+            stop_file = Path(d) / "stop-http"
+            command = [sys.executable, "web/scripts/manager-test-host.py", "--db", str(Path(d) / "k.db"),
+                       "--artifacts", str(Path(d) / "runs"), "--port", str(port), "--stop-file", str(stop_file)]
             process = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             url = f"http://127.0.0.1:{port}/api/v1"
             try:
@@ -131,9 +132,9 @@ class TestLiveStream(unittest.TestCase):
                     # Save measured engine wall times for QA, independent of pass/fail thresholds.
                     self.assertGreater(state["wall_s"], 0)
             finally:
-                process.terminate()
+                stop_file.write_text("stop")
                 try:
-                    process.wait(timeout=5)
+                    process.wait(timeout=10)
                 except subprocess.TimeoutExpired:
                     process.kill()
                     process.wait(timeout=5)

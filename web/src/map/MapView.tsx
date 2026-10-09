@@ -7,6 +7,7 @@ import type { PickingInfo } from "@deck.gl/core";
 import mapboxgl from "mapbox-gl";
 import { useEffect, useRef } from "react";
 import type { Replay } from "@/data/replay";
+import type { ReplayDisplay, WaitingRequest } from "@/data/display";
 import type { RGB } from "@/design/color";
 import { usePlayback } from "@/store/playback";
 import { MAX_PITCH, MAX_ZOOM, MIN_ZOOM, PITCH_3D, STYLE_URL, tuneBaseStyle } from "./baseStyle";
@@ -40,7 +41,7 @@ function viewFromUrl(): { center: [number, number]; zoom: number; pitch: number;
   return { center: [n[0], n[1]], zoom: n[2], pitch: n[3] ?? 0, bearing: n[4] ?? 0 };
 }
 
-export function MapView({ replay, token, colors }: { replay: Replay; token: string; colors: RGB[] }) {
+export function MapView({ replay, display, token, colors }: { replay: Replay; display: ReplayDisplay; token: string; colors: RGB[] }) {
   const container = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -51,8 +52,8 @@ export function MapView({ replay, token, colors }: { replay: Replay; token: stri
     const fitPadding = () => {
       const w = container.current?.clientWidth ?? 1280;
       const h = container.current?.clientHeight ?? 800;
-      const right = usePlayback.getState().panelOpen ? Math.min(420, w * 0.3) : 80;
-      return { top: Math.min(40, h * 0.05), bottom: Math.min(110, h * 0.15), left: Math.min(310, w * 0.25), right };
+      const right = usePlayback.getState().panelOpen ? Math.min(420, w * 0.4) : 80;
+      return { top: Math.min(40, h * 0.05), bottom: Math.min(110, h * 0.15), left: Math.min(310, w * 0.4), right };
     };
     const view = viewFromUrl();
     const map = new mapboxgl.Map({
@@ -73,12 +74,15 @@ export function MapView({ replay, token, colors }: { replay: Replay; token: stri
     // force Mapbox to redraw every tile — 49 → 270 fps median at zoom 16 tilted 60° on the integrated GPU (AC03-6).
     // `?interleaved=1` puts the layers inside the map (trails below the street labels) for comparison.
     const interleaved = new URLSearchParams(window.location.search).get("interleaved") === "1";
-    const overlay = new MapboxOverlay({ interleaved, layers: [] });
+    const overlay = new MapboxOverlay({ interleaved, layers: [], getTooltip: ({ object }) => {
+      const r = object as WaitingRequest | undefined;
+      return r?.preference ? { text: `Khách #${r.rider} · Đặt ${r.preference === "shared_only" ? "Shared" : "Exclusive"}\nĐang chờ đón` } : null;
+    } });
     map.addControl(overlay as unknown as mapboxgl.IControl);
 
-    const batches = rp.pathBatches();
+    const batches = display.pathBatches();
     const od = odIndex(rp);
-    const stateIds = rp.states.map((s) => s.id);
+    const stateIds = display.states.map((s) => s.id);
     let frame: Frame | undefined;
     let beforeId: string | undefined;
     let raf = 0;
@@ -92,12 +96,18 @@ export function MapView({ replay, token, colors }: { replay: Replay; token: stri
       raf = 0;
       const s = usePlayback.getState();
       const visible = stateIds.map((id) => !s.hidden[id]);
-      frame = computeFrame(rp, s.t, visible, colors, frame);
+      frame = computeFrame(rp, s.t, visible, colors, frame, display);
       useFrameStore.getState().publish(frame.counts, frame.online, s.t);
       const plan = layerPlan({ states: stateIds, hidden: s.hidden, mode: s.mode, elapsed: s.t - rp.start,
-                               selected: s.selected, showOD: s.showOD });
-      overlay.setProps({ layers: buildLayers(plan, { rp, t: s.t, frame, batches, colors, stateIndex: rp.stateIndex,
-                                                     selected: s.selected, od, beforeId, interleaved, onPick, onHover }) });
+                               selected: s.selected, showOD: s.showOD, showRequests: s.showRequests,
+                               focusedPair: s.focusedPair,
+                               selectedVisible: s.selected !== null && visible[display.stateAt(s.selected, s.t)] });
+      const layers = buildLayers(plan, { rp, t: s.t, frame, batches, colors, stateIndex: display.stateIndex,
+                                                     requests: display.waitingAt(s.t),
+                                                     focusedPair: rp.manifest.shared?.pairs.find(p => p.id === s.focusedPair),
+                                                     selected: s.selected, od, beforeId, interleaved, onPick, onHover });
+      overlay.setProps({ layers });
+      (window as unknown as { __kamiMapLayers?: unknown }).__kamiMapLayers = layers;
       if (s.follow && s.selected !== null) {
         const p = rp.positionAt(s.selected, s.t);
         if (p) map.jumpTo({ center: p as [number, number] });
@@ -139,9 +149,10 @@ export function MapView({ replay, token, colors }: { replay: Replay; token: stri
       unsub();
       if (raf) cancelAnimationFrame(raf);
       mapApiRef.current = null;
+      delete (window as unknown as { __kamiMapLayers?: unknown }).__kamiMapLayers;
       map.remove();
     };
-  }, [replay, token, colors]);
+  }, [replay, display, token, colors]);
 
   return <div ref={container} style={{ position: "absolute", inset: 0 }} data-testid="map" />;
 }

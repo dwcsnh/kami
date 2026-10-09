@@ -27,6 +27,14 @@ export interface PathBatch {
 }
 
 export class Replay {
+  sharedPairAt(vehicleId: number, t: number) {
+    return this.manifest.shared?.pairs.find(p=>p.driver_id===vehicleId && p.created_t<=t && (p.closed_t===null || t<=p.closed_t));
+  }
+
+  sharedOnboardAt(pairId: number, t: number): number[] {
+    const p=this.manifest.shared?.pairs.find(p=>p.id===pairId);
+    return p?.rider_ids.filter(rid=>p.pickups[rid]!==undefined && p.pickups[rid]<=t && (p.dropoffs[rid]===undefined || t<p.dropoffs[rid]))??[];
+  }
   readonly manifest: Manifest;
   readonly vehicles: VehicleRow[];
   readonly states: StateDef[];

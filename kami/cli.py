@@ -96,12 +96,15 @@ def _run_spec_cmd(args, parser) -> int:
             from kami.store import Repository, execute
 
             repo = Repository.open(args.db)
-            res = execute(spec, repo, args.artifacts)
-            run_id = res.run_id
-            if res.status != "succeeded":
-                print(f"run {run_id} failed:\n{res.error}", file=sys.stderr)
-                return 1
-            sim, resolved = res.sim, repo.run_spec(run_id)
+            try:
+                res = execute(spec, repo, args.artifacts)
+                run_id = res.run_id
+                if res.status != "succeeded":
+                    print(f"run {run_id} failed:\n{res.error}", file=sys.stderr)
+                    return 1
+                sim, resolved = res.sim, repo.run_spec(run_id)
+            finally:
+                repo.close()
         else:
             resolved = spec
             sim = build_run(spec).simulation().run()
@@ -115,9 +118,16 @@ def _run_spec_cmd(args, parser) -> int:
     if args.out:
         out = Path(args.out)
         out.mkdir(parents=True, exist_ok=True)
+        if sim.shared_enabled:
+            import math
+            m = {k: (None if isinstance(v, float) and not math.isfinite(v) else v) for k, v in m.items()}
         (out / "metrics.json").write_text(json.dumps(m, indent=2))
         (out / "run_spec.resolved.json").write_text(resolved.to_json())
         written = ["metrics.json", "run_spec.resolved.json"]
+        if sim.shared_enabled:
+            from kami.replay.export import shared_metadata
+            (out / "shared.json").write_text(json.dumps(shared_metadata(sim), sort_keys=True), encoding="utf-8")
+            written.append("shared.json")
         if sim.timeseries is not None:
             sim.timeseries.to_json(out / "timeseries.json")
             written.append("timeseries.json")
@@ -238,7 +248,7 @@ def main(argv=None) -> int:
                             f"{vehicles or doc['scenario'].get('n_drivers', 150)} vehicles")
                 except (ValueError, KeyError, TypeError):
                     desc = ""
-                print(f"  {p.relative_to(p.parents[2])}  {desc}")
+                print(f"  {p.relative_to(p.parents[2]).as_posix()}  {desc}")
         print("Policies:", ", ".join(sorted(POLICIES)))
         return 0
 

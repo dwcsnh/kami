@@ -1,6 +1,7 @@
 // Vehicle positions at time t (computed on the CPU every frame — decision D13) as binary attributes for deck.gl.
 import type { Replay } from "@/data/replay";
 import type { RGB } from "@/design/color";
+import type { ReplayDisplay } from "@/data/display";
 
 export interface Frame {
   length: number;                // vehicles drawn
@@ -11,11 +12,11 @@ export interface Frame {
   online: number;
 }
 
-export function computeFrame(rp: Replay, t: number, visible: boolean[], colors: RGB[], prev?: Frame): Frame {
+export function computeFrame(rp: Replay, t: number, visible: boolean[], colors: RGB[], prev?: Frame, display?: ReplayDisplay): Frame {
   const n = rp.vehicles.length;
-  const f: Frame = prev && prev.vehicle.length === n ? prev : {
+  const f: Frame = prev && prev.vehicle.length === n && prev.counts.length === (display?.states.length ?? rp.states.length) ? prev : {
     length: 0, positions: new Float64Array(2 * n), colors: new Uint8Array(4 * n), vehicle: new Int32Array(n),
-    counts: new Uint32Array(rp.states.length), online: 0,
+    counts: new Uint32Array(display?.states.length ?? rp.states.length), online: 0,
   };
   f.counts.fill(0);
   let k = 0;
@@ -23,7 +24,7 @@ export function computeFrame(rp: Replay, t: number, visible: boolean[], colors: 
   for (let vi = 0; vi < n; vi++) {
     const i = rp.segmentAt(vi, t);
     if (i < 0) continue;
-    const st = rp.segState[i];
+    const st = display?.stateAt(vi, t, i) ?? rp.segState[i];
     f.counts[st]++;
     online++;
     if (!visible[st]) continue;

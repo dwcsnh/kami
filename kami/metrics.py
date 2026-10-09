@@ -32,6 +32,12 @@ DIRECTION = {
     "fair.zone_wait_p90_max": -1, "fair.zone_completion_min": 1,
 }
 
+for _pref in ("shared_only", "exclusive_only"):
+    for _name in ("completion_rate", "served"):
+        DIRECTION[f"shared.{_pref}.{_name}"] = 1
+    for _name in ("cancel_rate", "timeout", "pickup_violations", "extra_ride_violations", "wait_mean", "wait_p50", "wait_p90", "wait_p95", "extra_ride_mean", "extra_ride_p90", "extra_ride_p95"):
+        DIRECTION[f"shared.{_pref}.{_name}"] = -1
+
 
 def percentile(xs: Sequence[float], q: float) -> float:
     """Linear-interpolated percentile, q in [0, 100]; NaN for empty input."""
@@ -140,6 +146,9 @@ def compute(sim: "Simulation") -> Dict[str, float]:
     m["fair.zone_wait_p90_max"] = max(p90s) if p90s else NaN
     m["fair.zone_wait_p90_spread"] = (max(p90s) - min(p90s)) if p90s else NaN
     m["fair.zone_completion_min"] = min(comps) if comps else NaN
+    if sim.shared_enabled:
+        from kami.shared.metrics import compute as shared_compute
+        m.update(shared_compute(sim, riders))
     return m
 
 

@@ -7,7 +7,7 @@ gives exactly the metrics of the equivalent Python code (AC01-1).
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any, Dict, Optional, Sequence, Tuple
 
@@ -198,6 +198,11 @@ def build_sim_config(spec: SimConfigSpec) -> SimConfig:
         kw["fare"] = FareModel(**kw["fare"])
     if "pooling" in kw:
         kw["pooling"] = PoolingParams(**kw["pooling"])
+    if "shared_ride" in kw:
+        from kami.shared.config import SharedRideConfig
+        shared = dict(kw["shared_ride"])
+        shared.pop("fare_factor", None)
+        kw["shared_ride"] = SharedRideConfig(**shared)
     kw.setdefault("timeseries_interval_s", DEFAULT_TIMESERIES_INTERVAL_S)
     return SimConfig(**kw)
 
@@ -224,6 +229,11 @@ def build_run(spec: RunSpec) -> BuiltRun:
     _require_resolved(spec)
     sc = build_scenario(spec.scenario, seed=spec.seed, fleets=spec.fleets, vehicle_types=spec.vehicle_types)
     config = build_sim_config(spec.sim_config)
+    if config.shared_ride.enabled:
+        from kami.core.crn import CRN
+        crn = CRN(sc.seed)
+        sc = sc.with_(requests=[replace(r, attrs=dict(r.attrs, service_preference=
+                      config.shared_ride.preference(r.attrs, r.id, crn))) for r in sc.requests])
     if spec.outputs.trajectories != "none" or spec.outputs.replay == "json":
         config.record_trajectories = True
     return BuiltRun(sc, build_policy(spec.policy_group), build_behavior(spec.behavior), config, spec.crn_seed)

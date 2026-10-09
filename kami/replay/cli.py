@@ -106,8 +106,10 @@ def from_run_folder(folder: Path) -> tuple:
     interval = rows[1]["t"] - rows[0]["t"] if len(rows) > 1 else None
     # the last time-series row is written at the end of the run (sim.t)
     t_end = rows[-1]["t"] if rows else max([sc.t_end] + [r[0] for r in events[-1:]])
+    shared_path = folder / "shared.json"
+    shared = json.loads(shared_path.read_text(encoding="utf-8")) if shared_path.exists() else None
     return spec, ReplayInput(legs, coords, list(events), rows, interval, vehicles, riders, sc.t_start, t_end,
-                             run_meta(spec))
+                             run_meta(spec), shared)
 
 
 # ---------------------------------------------------------------------------- commands

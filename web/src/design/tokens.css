@@ -48,11 +48,13 @@
   --color-state-A-pickup: #3B5BDB;
   --color-state-A-on_trip: #D6336C;
   --color-state-A-reposition: #7048E8;
+  --color-state-A-shared: #077C79;
   --color-state-B-idle: #7A7F87;
   --color-state-B-cruising: #C77700;
   --color-state-B-pickup: #0077BB;
   --color-state-B-on_trip: #CC3311;
   --color-state-B-reposition: #AA3377;
+  --color-state-B-shared: #077C79;
   --font-family: var(--font-inter), 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-family-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
   --font-size-xs: 12px;

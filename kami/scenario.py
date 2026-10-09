@@ -433,7 +433,17 @@ class ScenarioBuilder:
                     o, d = self.network.nearest_node(ox, oy), self.network.nearest_node(dx, dy)
                 if o == d:
                     continue
-                requests.append(RequestSpec(int(row.get("id", i)), float(row[time_col]), o, d, self.rider_attrs(rng)))
+                attrs = self.rider_attrs(rng)
+                if row.get("service_preference"):
+                    from kami.shared.config import PREFERENCES
+                    pref = row["service_preference"]
+                    if pref not in PREFERENCES:
+                        raise ValueError(f"requests[{i}].attrs.service_preference: lựa chọn không hợp lệ")
+                    attrs["service_preference"] = pref
+                for key in ("latest_pickup", "latest_dropoff"):
+                    if row.get(key):
+                        attrs[key] = float(row[key])
+                requests.append(RequestSpec(int(row.get("id", i)), float(row[time_col]), o, d, attrs))
         requests.sort(key=lambda r: (r.t, r.id))
         t0 = t_start if t_start is not None else requests[0].t
         t1 = t_end if t_end is not None else requests[-1].t + 1800

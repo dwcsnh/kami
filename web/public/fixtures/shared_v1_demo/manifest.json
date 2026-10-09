@@ -1,0 +1,639 @@
+{
+ "area": {
+  "bbox": [
+   105.849563,
+   21.024916,
+   105.861272,
+   21.030424
+  ],
+  "center": [
+   105.855418,
+   21.02767
+  ],
+  "name": "shared-v1-hanoi-demo",
+  "zoom": 16.23
+ },
+ "bounds": [
+  105.849563,
+  21.024916,
+  105.861272,
+  21.030424
+ ],
+ "coords": "lonlat",
+ "counts": {
+  "events": 95,
+  "metric_rows": 89,
+  "points": 585,
+  "segments": 55,
+  "vehicles": 4
+ },
+ "files": {
+  "events": {
+   "bytes": 600,
+   "path": "events.json.gz",
+   "raw_bytes": 5998,
+   "sha256": "2c25bb7a18c2da7ab73bd84a571d26dddaba90523b165e0bcce850cd1030dede"
+  },
+  "metrics": {
+   "bytes": 2357,
+   "path": "metrics.json.gz",
+   "raw_bytes": 45231,
+   "sha256": "c6f91a0cbbdc1017574f82140e889776bf0fc84d39ad485cd08e0ecd1758cb71"
+  },
+  "trips": {
+   "bytes": 2361,
+   "path": "trips.json.gz",
+   "raw_bytes": 19048,
+   "sha256": "8fb66d9ed9582f168b31db2d822afa1cc108665f16fb04b663bb4dbf2e3c6928"
+  },
+  "vehicles": {
+   "bytes": 109,
+   "path": "vehicles.json.gz",
+   "raw_bytes": 349,
+   "sha256": "f0895181ae4ef0607c12b59fcce36ceb60e44744a95e5c4c09786784762bd63e"
+  }
+ },
+ "fleets": {
+  "default": 4
+ },
+ "kami_version": "0.1.0",
+ "kind": "kami.replay",
+ "run": {
+  "crn_seed": null,
+  "name": "Shared V1 demo — demand minh họa 50/50",
+  "network": "hanoi",
+  "policy": "default",
+  "scenario": "shared-v1-hanoi-demo",
+  "seed": 33,
+  "spec_sha256": "04cbbcadbc2ab9c339d8ff9da218c39e6c1a64ffc7f40af5ee56c3e0f9cdc1d4"
+ },
+ "schema_version": 1,
+ "shared": {
+  "fare_factor": 0.7,
+  "pairs": [
+   {
+    "actual_overlap_s": 269.58669999999984,
+    "actual_shared": true,
+    "closed_t": 25879.5867,
+    "created_t": 25560.0,
+    "direct_baseline_s": {
+     "0": 269.5867,
+     "4": 269.5867
+    },
+    "driver_id": 0,
+    "dropoffs": {
+     "0": 25859.5867,
+     "4": 25879.5867
+    },
+    "id": 1,
+    "overlap_end": 25859.5867,
+    "overlap_start": 25590.0,
+    "pickups": {
+     "0": 25560.0,
+     "4": 25590.0
+    },
+    "predicted_dropoff": {
+     "0": 25859.5867,
+     "4": 25879.5867
+    },
+    "predicted_extra_s": {
+     "0": 29.99999999999983,
+     "4": 19.99999999999983
+    },
+    "predicted_overlap_s": 269.58669999999984,
+    "predicted_pickup": {
+     "0": 25560.0,
+     "4": 25590.0
+    },
+    "reason": null,
+    "rider_ids": [
+     0,
+     4
+    ],
+    "stops": [
+     {
+      "kind": "pickup",
+      "loc": 314,
+      "rider_id": 0
+     },
+     {
+      "kind": "pickup",
+      "loc": 314,
+      "rider_id": 4
+     },
+     {
+      "kind": "dropoff",
+      "loc": 4221,
+      "rider_id": 0
+     },
+     {
+      "kind": "dropoff",
+      "loc": 4221,
+      "rider_id": 4
+     }
+    ]
+   },
+   {
+    "actual_overlap_s": 269.58669999999984,
+    "actual_shared": true,
+    "closed_t": 26239.5867,
+    "created_t": 25920.0,
+    "direct_baseline_s": {
+     "5": 269.5867,
+     "8": 269.5867
+    },
+    "driver_id": 1,
+    "dropoffs": {
+     "5": 26219.5867,
+     "8": 26239.5867
+    },
+    "id": 2,
+    "overlap_end": 26219.5867,
+    "overlap_start": 25950.0,
+    "pickups": {
+     "5": 25920.0,
+     "8": 25950.0
+    },
+    "predicted_dropoff": {
+     "5": 26219.5867,
+     "8": 26239.5867
+    },
+    "predicted_extra_s": {
+     "5": 29.99999999999983,
+     "8": 19.99999999999983
+    },
+    "predicted_overlap_s": 269.58669999999984,
+    "predicted_pickup": {
+     "5": 25920.0,
+     "8": 25950.0
+    },
+    "reason": null,
+    "rider_ids": [
+     5,
+     8
+    ],
+    "stops": [
+     {
+      "kind": "pickup",
+      "loc": 314,
+      "rider_id": 5
+     },
+     {
+      "kind": "pickup",
+      "loc": 314,
+      "rider_id": 8
+     },
+     {
+      "kind": "dropoff",
+      "loc": 4221,
+      "rider_id": 5
+     },
+     {
+      "kind": "dropoff",
+      "loc": 4221,
+      "rider_id": 8
+     }
+    ]
+   },
+   {
+    "actual_overlap_s": 269.58669999999984,
+    "actual_shared": true,
+    "closed_t": 26599.5867,
+    "created_t": 26280.0,
+    "direct_baseline_s": {
+     "9": 269.5867,
+     "12": 269.5867
+    },
+    "driver_id": 0,
+    "dropoffs": {
+     "9": 26579.5867,
+     "12": 26599.5867
+    },
+    "id": 3,
+    "overlap_end": 26579.5867,
+    "overlap_start": 26310.0,
+    "pickups": {
+     "9": 26280.0,
+     "12": 26310.0
+    },
+    "predicted_dropoff": {
+     "9": 26579.5867,
+     "12": 26599.5867
+    },
+    "predicted_extra_s": {
+     "9": 29.99999999999983,
+     "12": 19.99999999999983
+    },
+    "predicted_overlap_s": 269.58669999999984,
+    "predicted_pickup": {
+     "9": 26280.0,
+     "12": 26310.0
+    },
+    "reason": null,
+    "rider_ids": [
+     9,
+     12
+    ],
+    "stops": [
+     {
+      "kind": "pickup",
+      "loc": 314,
+      "rider_id": 9
+     },
+     {
+      "kind": "pickup",
+      "loc": 314,
+      "rider_id": 12
+     },
+     {
+      "kind": "dropoff",
+      "loc": 4221,
+      "rider_id": 9
+     },
+     {
+      "kind": "dropoff",
+      "loc": 4221,
+      "rider_id": 12
+     }
+    ]
+   },
+   {
+    "actual_overlap_s": 269.58669999999984,
+    "actual_shared": true,
+    "closed_t": 26959.5867,
+    "created_t": 26640.0,
+    "direct_baseline_s": {
+     "13": 269.5867,
+     "16": 269.5867
+    },
+    "driver_id": 1,
+    "dropoffs": {
+     "13": 26939.5867,
+     "16": 26959.5867
+    },
+    "id": 4,
+    "overlap_end": 26939.5867,
+    "overlap_start": 26670.0,
+    "pickups": {
+     "13": 26640.0,
+     "16": 26670.0
+    },
+    "predicted_dropoff": {
+     "13": 26939.5867,
+     "16": 26959.5867
+    },
+    "predicted_extra_s": {
+     "13": 29.99999999999983,
+     "16": 19.99999999999983
+    },
+    "predicted_overlap_s": 269.58669999999984,
+    "predicted_pickup": {
+     "13": 26640.0,
+     "16": 26670.0
+    },
+    "reason": null,
+    "rider_ids": [
+     13,
+     16
+    ],
+    "stops": [
+     {
+      "kind": "pickup",
+      "loc": 314,
+      "rider_id": 13
+     },
+     {
+      "kind": "pickup",
+      "loc": 314,
+      "rider_id": 16
+     },
+     {
+      "kind": "dropoff",
+      "loc": 4221,
+      "rider_id": 13
+     },
+     {
+      "kind": "dropoff",
+      "loc": 4221,
+      "rider_id": 16
+     }
+    ]
+   }
+  ],
+  "riders": [
+   {
+    "booked_t": 25200.0,
+    "cancel_t": null,
+    "dropoff_t": 25859.5867,
+    "exclusive_reference_fare": 31200.0,
+    "fare": 21840.0,
+    "id": 0,
+    "pair_history": [
+     1
+    ],
+    "pickup_deadline": 25800.0,
+    "pickup_t": 25560.0,
+    "reason": null,
+    "service_preference": "shared_only"
+   },
+   {
+    "booked_t": null,
+    "cancel_t": null,
+    "dropoff_t": null,
+    "exclusive_reference_fare": 31200.0,
+    "fare": 0.0,
+    "id": 1,
+    "pair_history": [],
+    "pickup_deadline": null,
+    "pickup_t": null,
+    "reason": null,
+    "service_preference": "shared_only"
+   },
+   {
+    "booked_t": 25200.0,
+    "cancel_t": null,
+    "dropoff_t": 25475.5092,
+    "exclusive_reference_fare": 30900.0,
+    "fare": 30900.0,
+    "id": 2,
+    "pair_history": [],
+    "pickup_deadline": 25800.0,
+    "pickup_t": 25200.0,
+    "reason": null,
+    "service_preference": "exclusive_only"
+   },
+   {
+    "booked_t": 25200.0,
+    "cancel_t": null,
+    "dropoff_t": 25475.5092,
+    "exclusive_reference_fare": 30900.0,
+    "fare": 30900.0,
+    "id": 3,
+    "pair_history": [],
+    "pickup_deadline": 25800.0,
+    "pickup_t": 25200.0,
+    "reason": null,
+    "service_preference": "exclusive_only"
+   },
+   {
+    "booked_t": 25560.0,
+    "cancel_t": null,
+    "dropoff_t": 25879.5867,
+    "exclusive_reference_fare": 31200.0,
+    "fare": 21840.0,
+    "id": 4,
+    "pair_history": [
+     1
+    ],
+    "pickup_deadline": 26160.0,
+    "pickup_t": 25590.0,
+    "reason": null,
+    "service_preference": "shared_only"
+   },
+   {
+    "booked_t": 25560.0,
+    "cancel_t": null,
+    "dropoff_t": 26219.5867,
+    "exclusive_reference_fare": 31200.0,
+    "fare": 21840.0,
+    "id": 5,
+    "pair_history": [
+     2
+    ],
+    "pickup_deadline": 26160.0,
+    "pickup_t": 25920.0,
+    "reason": null,
+    "service_preference": "shared_only"
+   },
+   {
+    "booked_t": 25560.0,
+    "cancel_t": null,
+    "dropoff_t": 25835.5092,
+    "exclusive_reference_fare": 30900.0,
+    "fare": 30900.0,
+    "id": 6,
+    "pair_history": [],
+    "pickup_deadline": 26160.0,
+    "pickup_t": 25560.0,
+    "reason": null,
+    "service_preference": "exclusive_only"
+   },
+   {
+    "booked_t": 25560.0,
+    "cancel_t": null,
+    "dropoff_t": 25835.5092,
+    "exclusive_reference_fare": 30900.0,
+    "fare": 30900.0,
+    "id": 7,
+    "pair_history": [],
+    "pickup_deadline": 26160.0,
+    "pickup_t": 25560.0,
+    "reason": null,
+    "service_preference": "exclusive_only"
+   },
+   {
+    "booked_t": 25920.0,
+    "cancel_t": null,
+    "dropoff_t": 26239.5867,
+    "exclusive_reference_fare": 31200.0,
+    "fare": 21840.0,
+    "id": 8,
+    "pair_history": [
+     2
+    ],
+    "pickup_deadline": 26520.0,
+    "pickup_t": 25950.0,
+    "reason": null,
+    "service_preference": "shared_only"
+   },
+   {
+    "booked_t": 25920.0,
+    "cancel_t": null,
+    "dropoff_t": 26579.5867,
+    "exclusive_reference_fare": 31200.0,
+    "fare": 21840.0,
+    "id": 9,
+    "pair_history": [
+     3
+    ],
+    "pickup_deadline": 26520.0,
+    "pickup_t": 26280.0,
+    "reason": null,
+    "service_preference": "shared_only"
+   },
+   {
+    "booked_t": 25920.0,
+    "cancel_t": null,
+    "dropoff_t": 26195.5092,
+    "exclusive_reference_fare": 30900.0,
+    "fare": 30900.0,
+    "id": 10,
+    "pair_history": [],
+    "pickup_deadline": 26520.0,
+    "pickup_t": 25920.0,
+    "reason": null,
+    "service_preference": "exclusive_only"
+   },
+   {
+    "booked_t": 25920.0,
+    "cancel_t": null,
+    "dropoff_t": 26435.0959,
+    "exclusive_reference_fare": 30900.0,
+    "fare": 30900.0,
+    "id": 11,
+    "pair_history": [],
+    "pickup_deadline": 26520.0,
+    "pickup_t": 26159.5867,
+    "reason": null,
+    "service_preference": "exclusive_only"
+   },
+   {
+    "booked_t": 26280.0,
+    "cancel_t": null,
+    "dropoff_t": 26599.5867,
+    "exclusive_reference_fare": 31200.0,
+    "fare": 21840.0,
+    "id": 12,
+    "pair_history": [
+     3
+    ],
+    "pickup_deadline": 26880.0,
+    "pickup_t": 26310.0,
+    "reason": null,
+    "service_preference": "shared_only"
+   },
+   {
+    "booked_t": 26280.0,
+    "cancel_t": null,
+    "dropoff_t": 26939.5867,
+    "exclusive_reference_fare": 31200.0,
+    "fare": 21840.0,
+    "id": 13,
+    "pair_history": [
+     4
+    ],
+    "pickup_deadline": 26880.0,
+    "pickup_t": 26640.0,
+    "reason": null,
+    "service_preference": "shared_only"
+   },
+   {
+    "booked_t": 26280.0,
+    "cancel_t": null,
+    "dropoff_t": 26555.5092,
+    "exclusive_reference_fare": 30900.0,
+    "fare": 30900.0,
+    "id": 14,
+    "pair_history": [],
+    "pickup_deadline": 26880.0,
+    "pickup_t": 26280.0,
+    "reason": null,
+    "service_preference": "exclusive_only"
+   },
+   {
+    "booked_t": 26280.0,
+    "cancel_t": null,
+    "dropoff_t": 26795.0959,
+    "exclusive_reference_fare": 30900.0,
+    "fare": 30900.0,
+    "id": 15,
+    "pair_history": [],
+    "pickup_deadline": 26880.0,
+    "pickup_t": 26519.5867,
+    "reason": null,
+    "service_preference": "exclusive_only"
+   },
+   {
+    "booked_t": 26640.0,
+    "cancel_t": null,
+    "dropoff_t": 26959.5867,
+    "exclusive_reference_fare": 31200.0,
+    "fare": 21840.0,
+    "id": 16,
+    "pair_history": [
+     4
+    ],
+    "pickup_deadline": 27240.0,
+    "pickup_t": 26670.0,
+    "reason": null,
+    "service_preference": "shared_only"
+   },
+   {
+    "booked_t": 26640.0,
+    "cancel_t": 27240.0,
+    "dropoff_t": null,
+    "exclusive_reference_fare": 31200.0,
+    "fare": 21840.0,
+    "id": 17,
+    "pair_history": [],
+    "pickup_deadline": 27240.0,
+    "pickup_t": null,
+    "reason": "pickup_timeout",
+    "service_preference": "shared_only"
+   },
+   {
+    "booked_t": 26640.0,
+    "cancel_t": null,
+    "dropoff_t": 26915.5092,
+    "exclusive_reference_fare": 30900.0,
+    "fare": 30900.0,
+    "id": 18,
+    "pair_history": [],
+    "pickup_deadline": 27240.0,
+    "pickup_t": 26640.0,
+    "reason": null,
+    "service_preference": "exclusive_only"
+   },
+   {
+    "booked_t": 26640.0,
+    "cancel_t": null,
+    "dropoff_t": 27155.0959,
+    "exclusive_reference_fare": 30900.0,
+    "fare": 30900.0,
+    "id": 19,
+    "pair_history": [],
+    "pickup_deadline": 27240.0,
+    "pickup_t": 26879.5867,
+    "reason": null,
+    "service_preference": "exclusive_only"
+   }
+  ],
+  "version": 1
+ },
+ "simplify": {
+  "dist_m": 1.0,
+  "dt_s": 0.5
+ },
+ "states": [
+  {
+   "color": "state.idle",
+   "id": "idle",
+   "label": "Rảnh – đứng yên"
+  },
+  {
+   "color": "state.cruising",
+   "id": "cruising",
+   "label": "Rảnh – đang chạy"
+  },
+  {
+   "color": "state.pickup",
+   "id": "pickup",
+   "label": "Đi đón khách"
+  },
+  {
+   "color": "state.on_trip",
+   "id": "on_trip",
+   "label": "Chở khách"
+  },
+  {
+   "color": "state.reposition",
+   "id": "reposition",
+   "label": "Điều xe"
+  }
+ ],
+ "time": {
+  "end": 27360,
+  "scenario_start": 25200,
+  "start": 25200
+ }
+}

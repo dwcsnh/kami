@@ -2,7 +2,7 @@
 
 > Nguồn: [`draft/draft.md`](../draft/draft.md). File này chuẩn hoá bản nháp thành các yêu cầu có **mã định danh** để
 > sprint, implementation plan và backlog tham chiếu. Khi bản nháp thay đổi, cập nhật file này trước rồi mới sửa
-> sprint.
+> sprint. Shared ride được bổ sung theo yêu cầu trong hội thoại ngày 2026-10-09; không sửa bản nháp gốc.
 
 ## 1. Bối cảnh và mục tiêu
 
@@ -11,8 +11,9 @@ model và đánh giá nhân quả bằng CRN** (xem [engine/README.md](engine/RE
 **nền tảng mô phỏng vận hành** cho một hãng gọi xe điện quy mô GreenSM tại Hà Nội: có bản đồ thật, nhiều fleet xe
 điện cần sạc, dynamic pricing, cấu hình và chạy qua giao diện web.
 
-**Phạm vi sản phẩm hiện tại: matching 1 tài xế – 1 khách** (mỗi chuyến chở một khách/một booking). Chưa có ghép
-chuyến (shared ride / pooling), chưa có hệ thống policy (policy plugin, policy group, policy agent); xem §5.
+**Phạm vi được mở rộng ngày 2026-10-09:** matching đi riêng và shared ride theo từng phiên bản, mỗi booking
+một người, mỗi cặp đúng hai booking. Hiện chỉ có **Shared Only** và **Exclusive Only**; Shared Fallback Exclusive
+tạm hoãn để người dùng nghiên cứu thêm. Hệ thống policy vẫn ngoài phạm vi; xem §5.
 
 Các nguyên tắc của kami 0.1 vẫn giữ nguyên: policy chỉ tác động qua API của engine, hành vi là model tại điểm quyết
 định, ngẫu nhiên đi qua CRN, phần ngoại sinh của kịch bản được replay y hệt cho mọi cấu hình.
@@ -93,6 +94,29 @@ Các nguyên tắc của kami 0.1 vẫn giữ nguyên: policy chỉ tác động
 | UI-3 | Trang quản lý fleet xe (và vehicle type) |
 | UI-5 | Trang xem metric của các lần chạy (đọc từ DB), so sánh giữa các lần chạy |
 
+### 3.8 Ghép chuyến — `SR`
+
+Nguồn: [research](research/shared-rides.md), [lộ trình phiên bản](research/shared-rides-versions.md) và chỉ đạo
+mới nhất ngày 2026-10-09. Bắt đầu V1; chi tiết hiện thực và các đề xuất của Sprint 12 chờ duyệt plan.
+
+| Mã | Yêu cầu |
+|---|---|
+| SR-1 | Hai lựa chọn Shared Only / Exclusive Only. Shared Only chỉ dispatch khi có cặp khả thi; Exclusive Only luôn đi riêng, không tham gia ghép. Không fallback giữa hai lựa chọn |
+| SR-2 | Một cặp gồm đúng hai booking, mỗi booking một người; đón/trả tại địa chỉ riêng, có thời gian onboard chồng lấn. V1 chỉ tạo cặp khi cả hai WAITING và có xe rảnh cùng tuyến khả thi |
+| SR-3 | Hạn đón tính từ lúc đặt, mặc định demo `max_pickup_wait_s = 600`; Shared Only còn chờ mà không có cặp khi hết hạn chuyển CANCELLED, lý do `no_shared_match_timeout`. Khách đã MATCHED chưa pickup hết hạn hủy với `pickup_wait_timeout`. Exclusive Only dùng cùng hạn đón trong kịch bản bật shared. Pickup đúng hạn được xử lý trước timeout; không áp timeout đón cho ONBOARD |
+| SR-4 | Tăng thời gian trên xe tối đa `max_shared_extra_ride_s = 450` riêng cho từng khách, gồm dừng/vòng phục vụ người kia; baseline trực tiếp cùng quy ước boarding. Kiểm tra pickup/dropoff đã cam kết, không nới deadline khi đổi plan. Ghi riêng dự đoán và vi phạm thực tế do traffic thay đổi |
+| SR-5 | Admin cấu hình hai tỷ lệ lựa chọn, hạn đón, cận tăng thời gian và bán kính ứng viên theo kịch bản; UI dùng phút, engine giây/mét. Lưu cấu hình đã resolve trong snapshot. Shared tắt giữ hành vi kịch bản cũ và API/CLI/ví dụ 0.1 |
+| SR-6 | Hủy một khách phải dọn stop/job/liên kết và giữ đồng hồ của người còn lại. Khi chưa ai onboard, người còn lại trở về tìm ghép theo lựa chọn. Khi đã có người onboard, tiếp tục chở tới điểm đến; ghi ngoại lệ mất đối tác, không tự tăng giá hoặc nhận khách thứ ba |
+| SR-7 | Library, CLI, service và manager chạy được V1; log/metric/replay phân biệt lựa chọn, cặp đã lập và overlap thực tế. Báo served/cancel/wait/detour theo lựa chọn, km xe và vi phạm deadline; không coi có cặp là bằng chứng đã đi chung |
+| SR-8 | Lộ trình V1 ghép WAITING gần điểm cuối → V2 ghép dọc tuyến → V3 ghép trước pickup khi xe đang tới đón. V4 nhận request mới khi ONBOARD là tùy chọn cuối, mặc định tắt. Mỗi bản có plan và nghiệm thu riêng, không triển khai các bản sau trong Sprint 12 |
+| SR-9 | **Đã chốt ngày 2026-10-09:** mỗi khách Shared trả **70% cước Exclusive trực tiếp của chính booking đó**. Báo giá này trước quyết định đặt; giữ giá khi tìm lại đối tác, traffic đổi hoặc đối tác hủy. Không thu thêm quãng đường/thời gian vòng phục vụ người kia; Exclusive trả cước thông thường. Không dùng công thức tổng tuyến chung ×1,5 |
+
+Bộ mặc định 600/450 giây là cấu hình **demo**, chưa hiệu chỉnh bằng dữ liệu Hà Nội. Mốc tìm ghép 300 giây
+trong research cũ chỉ dành cho fallback, không có hiệu lực trong V1 hai lựa chọn hiện tại.
+Giá Shared đã được người dùng chốt tại SR-9. Cước tham chiếu đi riêng dùng FareModel hiện có (phí ban đầu,
+km, phút, surge và minimum); tính 70% sau khi có cước tham chiếu, không áp lại minimum Exclusive lên phần shared.
+Các default FareModel là giả định mô phỏng, không phải biểu giá Green SM đã xác minh.
+
 ## 4. Yêu cầu phi chức năng
 
 | Mã | Yêu cầu |
@@ -104,15 +128,15 @@ Các nguyên tắc của kami 0.1 vẫn giữ nguyên: policy chỉ tác động
 
 ## 5. Ngoài phạm vi (hiện tại)
 
-- **Ghép chuyến (shared ride / pooling).** Sản phẩm hiện chỉ matching 1 tài xế – 1 khách. Các thành phần pooling của
-  kami 0.1 được **giữ nguyên trong code** để API/CLI/ví dụ 0.1 vẫn chạy (NFR-2), nhưng **tạm thời không dùng**: không
+- **Pooling legacy 0.1 và Shared Fallback Exclusive.** Shared mới thuộc §3.8; fallback tạm hoãn theo chỉ đạo
+  ngày 2026-10-09. Các thành phần pooling của kami 0.1 được **giữ nguyên trong code** để API/CLI/ví dụ 0.1 vẫn chạy (NFR-2), nhưng **không dùng cho shared mới**: không
   đưa vào preset/kịch bản 0.2, danh mục policy plugin, policy group mặc định, UI, benchmark, và không phát triển thêm.
   Gồm: `kami/pooling.py` (`Pooling`, `PoolingParams`), policy `PoolAfterWait`, API `sim.merge_jobs` /
   `sim.pooling.*` / `sim.behavior.pool_accept`, slot behavior `pool_accept` (`PoolAcceptModel`, `LogitPoolAccept`,
   `PoolOffer`, thuộc tính khách `pool_willingness`), sự kiện `POOL_OFFER` / `POOL_MERGE`, metric `rider.pool_*`,
   `rider.pooled_*`, `rider.detour_ratio`, `platform.pooled_jobs`, `platform.surcharge_total`, quy tắc
-  `pooling_rule_example`, ví dụ `examples/02_pool_after_wait.py`. Khi đưa shared ride vào phạm vi, cập nhật mục này
-  và thêm yêu cầu riêng.
+  `pooling_rule_example`, ví dụ `examples/02_pool_after_wait.py`. Shared mới dùng cấu hình và module riêng,
+  không mở lại policy plugin/group/agent.
 - **Policy plugin, policy group và mọi tính năng xoay quanh policy** (trước đây là `POL-1`…`POL-6`, `EV-5`, `UI-4`,
   `NFR-3`): manifest/`params_schema`, plugin tuỳ biến lưu mã trong DB, sandbox chạy code policy, policy group
   (nhóm, bật/tắt thành viên), chọn policy group cho kịch bản, policy lưu DB qua API/UI, trang quản lý policy, policy
@@ -136,3 +160,4 @@ Các nguyên tắc của kami 0.1 vẫn giữ nguyên: policy chỉ tác động
 | Q3 | Vị trí và quy mô trạm sạc tại Hà Nội? | Seed data giả lập từ OSM (`amenity=charging_station`) + nhập tay |
 | Q4 | Phân bố demand theo giờ/khu của Hà Nội? | Sinh synthetic theo profile giờ cao điểm; thay bằng dữ liệu thật khi có |
 | Q5 | Công nghệ DB / backend / frontend? | DB quyết định trong plan Sprint 01 (đề xuất SQLite/PostgreSQL); bản đồ: **Mapbox** (người dùng chốt); framework frontend quyết định trong plan Sprint 03; backend trong plan Sprint 08 (đề xuất FastAPI) |
+| Q6 | Giá Shared so với Exclusive ở V1? | **Đã chốt 2026-10-09:** Shared = 70% cước đi riêng của mỗi khách (SR-9). Toàn bộ plan V1 vẫn Chờ duyệt; fallback tạm hoãn |

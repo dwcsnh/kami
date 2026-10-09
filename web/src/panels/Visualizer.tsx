@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { StaticReplaySource, loadReplay } from "@/data/loader";
 import { Replay } from "@/data/replay";
+import { ReplayDisplay } from "@/data/display";
 import { MapView } from "@/map/MapView";
 import { paletteFromUrl, stateHex, stateRgb } from "@/map/palette";
 import { usePlayback } from "@/store/playback";
@@ -16,9 +17,10 @@ import { MetricsPanel } from "./MetricsPanel";
 import { LoadError, Loading, TokenMissing } from "./Messages";
 import { PlaybackBar } from "./PlaybackBar";
 import { VehicleCard } from "./VehicleCard";
+import { SharedPairsPanel } from "./SharedPairsPanel";
 import s from "./panels.module.css";
 
-export const DEFAULT_REPLAY = "/fixtures/hanoi_center_demo";
+export const DEFAULT_REPLAY = "/fixtures/shared_v1_walkthrough";
 const TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN ?? "";
 
 export default function Visualizer() {
@@ -42,6 +44,7 @@ export default function Visualizer() {
         const rp = new Replay(docs);
         const st = usePlayback.getState();
         st.init(rp.start, rp.end);
+        st.focusPair(rp.manifest.shared?.pairs[0]?.id ?? null);
         const t = Number(params.get("t"));
         if (params.get("t") && Number.isFinite(t)) st.seek(t);
         if (params.get("mode") === "trajectories") st.setMode("trajectories");
@@ -59,17 +62,19 @@ export default function Visualizer() {
     };
   }, [url, params]);
 
-  const colorsRgb = useMemo(() => (replay ? stateRgb(replay.states, palette) : []), [replay, palette]);
-  const colorsHex = useMemo(() => (replay ? stateHex(replay.states, palette) : []), [replay, palette]);
+  const display = useMemo(() => replay ? new ReplayDisplay(replay) : null, [replay]);
+  const colorsRgb = useMemo(() => (display ? stateRgb(display.states, palette) : []), [display, palette]);
+  const colorsHex = useMemo(() => (display ? stateHex(display.states, palette) : []), [display, palette]);
 
   if (error) return <div className={s.root}><LoadError error={error} url={url} /></div>;
   if (!replay) return <div className={s.root}><Loading message={status} /></div>;
   return (
     <main className={`${s.root} ${chromeHidden ? s.chromeHidden : ""}`} data-palette={palette}>
-      {TOKEN ? <MapView replay={replay} token={TOKEN} colors={colorsRgb} /> : <TokenMissing />}
+      {TOKEN ? <MapView replay={replay} display={display!} token={TOKEN} colors={colorsRgb} /> : <TokenMissing />}
       <div className={s.leftColumn}>
         <HeaderPanel replay={replay} />
-        <LegendPanel replay={replay} colors={colorsHex} />
+        <SharedPairsPanel replay={replay}/>
+        <LegendPanel replay={replay} display={display!} colors={colorsHex} />
         {TOKEN && <MapControls />}
       </div>
       <MetricsPanel replay={replay} colors={colorsHex} />
